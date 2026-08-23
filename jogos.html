@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jogos Educativos - 3 Pistas &amp; Jogo do Milhão</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 10px;
+    background: linear-gradient(90deg, #f9d423, #f7971e, #f9d423);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .menu {
+    display: flex;
+    gap: 15px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .menu button {
+    padding: 14px 28px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    color: #fff;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .menu button:hover { transform: scale(1.05); box-shadow: 0 0 18px rgba(249,211,35,.5); }
+  .menu .btn-pistas { background: linear-gradient(135deg, #11998e, #38ef7d); }
+  .menu .btn-milhao { background: linear-gradient(135deg, #f7971e, #ffd200); color: #333; }
+  .screen { display: none; width: 100%; max-width: 900px; }
+  .screen.active { display: block; }
+  .card {
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.4);
+  }
+  .btn { padding: 12px 24px; border: none; border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer; color: #fff; transition: transform .12s; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-green { background: linear-gradient(135deg, #11998e, #38ef7d); }
+  .btn-orange { background: linear-gradient(135deg, #f7971e, #ffd200); color: #333; }
+  .btn-blue { background: linear-gradient(135deg, #2193b0, #6dd5ed); }
+  .btn-red { background: linear-gradient(135deg, #e44d26, #f86b5f); }
+  .btn-gray { background: #555; }
+  .hidden { display: none !important; }
+  .center { text-align: center; }
+
+  /* ===== 3 Pistas ===== */
+  #pistas .clue-box {
+    background: rgba(0,0,0,.35);
+    border-radius: 14px;
+    padding: 20px;
+    margin: 14px 0;
+    border-left: 6px solid #f9d423;
+    font-size: 1.25rem;
+    line-height: 1.5;
+  }
+  #pistas .clue-num { font-weight: bold; color: #f9d423; margin-right: 8px; }
+  .guess-row { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  #pistas input[type=text] {
+    flex: 1; min-width: 200px;
+    padding: 14px; font-size: 1.1rem;
+    border-radius: 10px; border: 2px solid #f9d423;
+    background: rgba(255,255,255,.1); color: #fff; outline: none;
+  }
+  #pistas input[type=text]:focus { border-color: #38ef7d; }
+  .result {
+    margin-top: 16px; padding: 14px; border-radius: 10px;
+    font-size: 1.15rem; font-weight: bold; text-align: center;
+  }
+  .result.ok { background: rgba(56,239,125,.2); border: 1px solid #38ef7d; color: #7ef5b5; }
+  .result.no { background: rgba(248,107,95,.2); border: 1px solid #f86b5f; color: #f8a295; }
+  .score { margin-top: 10px; font-size: 1rem; color: #ffd200; font-weight: bold; }
+  .word-display { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 16px 0 6px; }
+  .letter-box {
+    width: 40px; height: 48px;
+    border: 2px solid #f9d423;
+    border-radius: 8px;
+    background: rgba(0,0,0,.35);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; font-weight: bold;
+    text-transform: uppercase;
+    color: #fff;
+  }
+  .word-sep { width: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: bold; color: #ffd200; }
+  .wrong-info { text-align: center; margin: 10px 0; color: #f86b5f; font-weight: bold; min-height: 22px; }
+  .alphabet { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 12px 0; }
+  .alphabet button {
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    border: 2px solid rgba(255,255,255,.3);
+    background: rgba(255,255,255,.1);
+    color: #fff; font-size: 1.05rem; font-weight: bold; cursor: pointer;
+    transition: background .12s, transform .1s;
+  }
+  .alphabet button:hover { background: rgba(255,255,255,.25); }
+  .alphabet button.used { opacity: .35; pointer-events: none; background: #333; }
+  .alphabet button.right { background: #38ef7d; border-color: #38ef7d; color: #0a2; pointer-events: none; }
+  .alphabet button.bad { background: #f86b5f; border-color: #f86b5f; color: #500; pointer-events: none; }
+
+  /* ===== Jogo do Milhão ===== */
+  .milhao-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+  .prize { font-size: 1.5rem; font-weight: bold; color: #ffd200; }
+  .question {
+    background: rgba(0,0,0,.4);
+    border-radius: 14px;
+    padding: 22px;
+    font-size: 1.3rem;
+    line-height: 1.5;
+    min-height: 90px;
+    margin-bottom: 20px;
+  }
+  .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .answer {
+    padding: 16px 18px;
+    border-radius: 12px;
+    border: 2px solid rgba(255,255,255,.25);
+    background: rgba(255,255,255,.08);
+    color: #fff;
+    font-size: 1.05rem;
+    cursor: pointer;
+    text-align: left;
+    transition: background .15s, border-color .15s;
+  }
+  .answer:hover { background: rgba(255,255,255,.2); }
+  .answer .lett { font-weight: bold; color: #ffd200; margin-right: 10px; }
+  .answer.correct { background: rgba(56,239,125,.35); border-color: #38ef7d; }
+  .answer.wrong { background: rgba(248,107,95,.35); border-color: #f86b5f; }
+  .answer.disabled { pointer-events: none; opacity: .7; }
+  .actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
+  @media (max-width: 600px) {
+    .answers { grid-template-columns: 1fr; }
+    h1 { font-size: 1.5rem; }
+    .card { padding: 18px; }
+  }
+  footer { margin-top: 30px; color: #8899aa; font-size: .85rem; text-align: center; }
+</style>
+</head>
+<body>
+
+<h1>&#127918; Jogos Educativos</h1>
+
+<div class="menu">
+  <button class="btn-pistas" onclick="showScreen('pistas')">&#128161; Jogo das 3 Pistas</button>
+  <button class="btn-milhao" onclick="showScreen('milhao')">&#128176; Jogo do Milhão</button>
+</div>
+
+<!-- ==================== 3 PISTAS ==================== -->
+<section id="pistas" class="screen card">
+  <h2 style="text-align:center; color:#38ef7d; margin-bottom:6px;">Jogo das 3 Pistas</h2>
+  <p class="center" style="color:#ccc; margin-bottom:10px;">Tente adivinhar o que é! Clique para revelar as pistas uma de cada vez.</p>
+
+  <div id="pistasInfo" class="hidden">
+    <div class="clue-box hidden" id="clue1"></div>
+    <div class="clue-box hidden" id="clue2"></div>
+    <div class="clue-box hidden" id="clue3"></div>
+    <div id="wordDisplay" class="word-display"></div>
+    <div class="wrong-info" id="wrongInfo"></div>
+    <div id="alphabet" class="alphabet"></div>
+    <div class="guess-row">
+      <input type="text" id="guessInput" placeholder="Ou chute a palavra inteira..." autocomplete="off">
+      <button class="btn btn-green" onclick="checkGuess()">Chutar</button>
+    </div>
+    <div class="result hidden" id="chuteMsg"></div>
+    <div class="result hidden" id="pistasResult"></div>
+    <div class="center" style="margin-top:14px;">
+      <button class="btn btn-orange" onclick="nextPista()">Revelar próxima pista</button>
+      <button class="btn btn-blue" onclick="newRound()">&#128260; Novo desafio</button>
+    </div>
+    <div class="score center" id="pistasScore"></div>
+  </div>
+
+  <div id="pistasStart" class="center">
+    <p style="margin-bottom:16px; color:#ccc;">São 3 pistas por desafio. Quanto menos pistas você usar, melhor!</p>
+    <button class="btn btn-green" onclick="newRound()">&#127919; Começar</button>
+  </div>
+</section>
+
+<!-- ==================== JOGO DO MILHÃO ==================== -->
+<section id="milhao" class="screen card">
+  <h2 style="text-align:center; color:#ffd200; margin-bottom:6px;">Jogo do Milhão</h2>
+  <p class="center" style="color:#ccc; margin-bottom:10px;">Responda 15 perguntas e tente chegar ao prêmio máximo! Nível fácil.</p>
+
+  <div id="milhaoStart" class="center">
+    <p style="margin-bottom:16px; color:#ccc;">Você pode usar o "Pulo" para trocar de pergunta e "Parar" para levar o dinheiro acumulado.</p>
+    <button class="btn btn-green" onclick="startMilhao()">&#127919; Começar o Jogo</button>
+  </div>
+
+  <div id="milhaoGame" class="hidden">
+    <div class="milhao-header">
+      <span style="font-size:1.1rem;">Pergunta <b id="qNumber">1</b>/15</span>
+      <span class="prize" id="prizeNow">R$ 0</span>
+    </div>
+    <div class="question" id="qText"></div>
+    <div class="answers" id="answers"></div>
+    <div class="actions">
+      <button class="btn btn-blue" id="skipGame" onclick="skipQuestion()">&#128260; Pular (1x)</button>
+      <button class="btn btn-orange" onclick="stopGame()">&#128075; Parar e levar o dinheiro</button>
+      <button class="btn btn-red" onclick="resetMilhao()">&#9199; Recomeçar</button>
+    </div>
+    <div class="score center" id="milhaoResult" style="margin-top:14px;"></div>
+  </div>
+</section>
+
+<footer>Criado para crianças e adolescentes &#128516;</footer>
+
+<script>
+"use strict";
+
+/* ==================== 3 PISTAS ==================== */
+const PISTAS = [
+  { r: "Elefante", pistas: [
+    "Sou o maior animal terrestre que existe.",
+    "Tenho uma tromba comprida e orelhas bem grandes.",
+    "Sou cinza, gosto de água e faço barulho forte com o meu barrito." ] },
+  { r: "Bicicleta", pistas: [
+    "Tenho duas rodas e um guidão.",
+    "Você usa os pés para me movimentar.",
+    "Sou um meio de transporte saudável que não polui o ar." ] },
+  { r: "Arco-íris", pistas: [
+    "Apareço no céu depois da chuva.",
+    "Sou formado por várias cores de uma vez.",
+    "Tenho as cores vermelho, laranja, amarelo, verde, azul, anil e violeta." ] },
+  { r: "Piñata", pistas: [
+    "Estou pendurada em festas de aniversário.",
+    "Sou colorida e cheia de doces dentro.",
+    "As crianças ficam de olho vendado e usam um bastão para me quebrar." ] },
+  { r: "Delfim", pistas: [
+    "Vivo no mar e sou muito inteligente.",
+    "Sou um mamífero e adoro pular sobre a água.",
+    "Emito sons para me comunicar e sou amigo dos humanos." ] },
+  { r: "Chocolate", pistas: [
+    "Sou um doce amado no mundo inteiro.",
+    "Meu ingrediente principal vem do cacau.",
+    "Posso ser ao leite, amargo, em barra ou em bombom." ] },
+  { r: "Tartaruga", pistas: [
+    "Sou um animal de sangue frio e tenho casco.",
+    "Sou conhecida por andar bem devagar.",
+    "Posso viver na água ou na terra e viver muitos anos." ] },
+  { r: "Aviao", pistas: [
+    "Posso voar bem alto no céu.",
+    "Tenho asas grandes e um motor potente.",
+    "Sou um meio de transporte que leva pessoas para outros países." ] },
+  { r: "Abelha", pistas: [
+    "Voo de flor em flor o dia inteiro.",
+    "Produzo algo doce e muito usado na cozinha.",
+    "Sou pequena, tenho listras pretas e amarelas e posso picar." ] },
+  { r: "Pipoca", pistas: [
+    "Sou um lanche perfeito para assistir filmes.",
+    "Começo pequena e dura e depois viro uma florzinha branca.",
+    "Sou feita de milho e estouro quando esquento." ] },
+  { r: "Baleia", pistas: [
+    "Sou o maior animal que vive no mar.",
+    "Sou um mamífero e preciso subir para respirar.",
+    "Soltos um jato de água pela parte de cima da cabeça." ] },
+  { r: "Sol", pistas: [
+    "Estou bem longe da Terra, mas ilumino tudo.",
+    "Nasço de manhã e me ponho no fim do dia.",
+    "Sou uma estrela amarela que aquece o nosso planeta." ] },
+  { r: "Mochila", pistas: [
+    "Sou um objeto que você carrega nas costas.",
+    "Levo livros, cadernos e lanche.",
+    "Todo estudante usa um para ir à escola." ] },
+  { r: "Sorvete", pistas: [
+    "Sou gelado e derreto no calor.",
+    "Posso ser de chocolate, morango, baunilha e mais sabores.",
+    "Você me lambe e me segura num casquinha ou palito." ] },
+  { r: "Canguru", pistas: [
+    "Vivo na Austrália e pulo bem alto.",
+    "Tenho uma bolsa na barriga para carregar meu filhote.",
+    "Meu filhote se chama filhote de canguru e eu pulo com as patas traseiras." ] },
+];
+
+let pistaIndex = 0;
+let pistaShown = 0;
+let pistaScore = 0;
+let letterBoxes = [];
+let usedLetters = new Set();
+let wrongLetters = [];
+let wrongCount = 0;
+const MAX_WRONG = 6;
+
+function normalize(s) {
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+function newRound() {
+  pistaIndex = Math.floor(Math.random() * PISTAS.length);
+  pistaShown = 0;
+  wrongCount = 0;
+  wrongLetters = [];
+  usedLetters = new Set();
+  document.getElementById("pistasStart").classList.add("hidden");
+  document.getElementById("pistasInfo").classList.remove("hidden");
+  document.getElementById("clue1").classList.add("hidden");
+  document.getElementById("clue2").classList.add("hidden");
+  document.getElementById("clue3").classList.add("hidden");
+  document.getElementById("pistasResult").classList.add("hidden");
+  document.getElementById("chuteMsg").classList.add("hidden");
+  document.getElementById("wrongInfo").textContent = "";
+  document.getElementById("guessInput").value = "";
+  buildWord();
+  buildAlphabet();
+  updateScore();
+  document.getElementById("guessInput").focus();
+  showNextClue();
+}
+
+function buildWord() {
+  const word = PISTAS[pistaIndex].r;
+  const norm = normalize(word);
+  const container = document.getElementById("wordDisplay");
+  container.innerHTML = "";
+  letterBoxes = [];
+  for (let i = 0; i < word.length; i++) {
+    const span = document.createElement("span");
+    if (/[a-zà-ÿ]/i.test(word[i])) {
+      span.className = "letter-box";
+      span.dataset.letter = norm[i];
+      container.appendChild(span);
+      letterBoxes.push(span);
+    } else {
+      span.className = "word-sep";
+      span.textContent = word[i] === " " ? "" : word[i];
+      container.appendChild(span);
+    }
+  }
+}
+
+function buildAlphabet() {
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZÇ".split("");
+  const container = document.getElementById("alphabet");
+  container.innerHTML = "";
+  letters.forEach(l => {
+    const b = document.createElement("button");
+    b.textContent = l;
+    b.onclick = () => guessLetter(l.toLowerCase(), b);
+    container.appendChild(b);
+  });
+}
+
+function guessLetter(letter, btn) {
+  if (usedLetters.has(letter) || wrongCount >= MAX_WRONG) return;
+  usedLetters.add(letter);
+
+  const norm = normalize(PISTAS[pistaIndex].r);
+  if (norm.includes(letter)) {
+    btn.classList.add("right");
+    const word = PISTAS[pistaIndex].r;
+    for (let i = 0; i < norm.length; i++) {
+      if (norm[i] === letter && letterBoxes[i]) letterBoxes[i].textContent = word[i];
+    }
+    if (letterBoxes.every(b => b.textContent !== "")) winRound();
+  } else {
+    btn.classList.add("bad");
+    wrongCount++;
+    wrongLetters.push(letter);
+    updateWrong();
+    if (wrongCount >= MAX_WRONG) loseRound();
+  }
+}
+
+function updateWrong() {
+  const info = document.getElementById("wrongInfo");
+  const txt = wrongLetters.length ? " · erradas: " + wrongLetters.join(", ").toUpperCase() : "";
+  info.textContent = "Erros: " + wrongCount + "/" + MAX_WRONG + txt;
+}
+
+function winRound() {
+  const pontos = (4 - pistaShown) * 10;
+  pistaScore += pontos;
+  disableAlphabet();
+  const r = document.getElementById("pistasResult");
+  r.className = "result ok";
+  r.textContent = "ACERTOU! +" + pontos + " pontos. A resposta era: " + PISTAS[pistaIndex].r + ".";
+  r.classList.remove("hidden");
+  updateScore();
+}
+
+function loseRound() {
+  disableAlphabet();
+  fillAllLetters();
+  const r = document.getElementById("pistasResult");
+  r.className = "result no";
+  r.textContent = "Fim de jogo! A resposta era: " + PISTAS[pistaIndex].r + ".";
+  r.classList.remove("hidden");
+}
+
+function fillAllLetters() {
+  const word = PISTAS[pistaIndex].r;
+  const norm = normalize(word);
+  for (let i = 0; i < norm.length; i++) {
+    if (letterBoxes[i]) letterBoxes[i].textContent = word[i];
+  }
+}
+
+function disableAlphabet() {
+  document.querySelectorAll("#alphabet button").forEach(b => b.classList.add("used"));
+}
+
+function showNextClue() {
+  if (pistaShown >= 3) return;
+  const el = document.getElementById("clue" + (pistaShown + 1));
+  el.innerHTML = '<span class="clue-num">Pista ' + (pistaShown + 1) + ':</span>' + PISTAS[pistaIndex].pistas[pistaShown];
+  el.classList.remove("hidden");
+  pistaShown++;
+}
+
+function nextPista() {
+  if (pistaShown >= 3) {
+    const r = document.getElementById("pistasResult");
+    if (!r.classList.contains("ok") && !r.classList.contains("no")) {
+      r.className = "result no";
+      r.textContent = "Sem mais pistas! A resposta era: " + PISTAS[pistaIndex].r + ".";
+      r.classList.remove("hidden");
+      disableAlphabet();
+      fillAllLetters();
+    }
+    return;
+  }
+  showNextClue();
+}
+
+function roundOver() {
+  const r = document.getElementById("pistasResult");
+  return r.classList.contains("ok") || r.classList.contains("no");
+}
+
+function checkGuess() {
+  const input = document.getElementById("guessInput");
+  const msg = document.getElementById("chuteMsg");
+  const guess = normalize(input.value.trim());
+  if (!guess) { input.focus(); return; }
+  if (roundOver()) return;
+
+  const resposta = normalize(PISTAS[pistaIndex].r);
+  const partes = resposta.split(" ");
+  const acertou = guess === resposta || partes.some(p => p.length > 3 && guess.includes(p));
+
+  if (acertou) {
+    const pontos = (4 - pistaShown) * 10;
+    pistaScore += pontos;
+    fillAllLetters();
+    disableAlphabet();
+    msg.classList.add("hidden");
+    const r = document.getElementById("pistasResult");
+    r.className = "result ok";
+    r.textContent = "ACERTOU! +" + pontos + " pontos. A resposta era: " + PISTAS[pistaIndex].r + ".";
+    r.classList.remove("hidden");
+    updateScore();
+  } else {
+    msg.className = "result no";
+    msg.textContent = "Não é essa... Tente de novo ou revele a próxima pista.";
+    msg.classList.remove("hidden");
+  }
+  input.value = "";
+}
+
+document.getElementById("guessInput").addEventListener("keydown", function (e) {
+  if (e.key === "Enter") checkGuess();
+});
+
+function updateScore() {
+  document.getElementById("pistasScore").textContent = "Pontuação total: " + pistaScore + " pontos";
+}
+
+/* ==================== JOGO DO MILHÃO ==================== */
+const MILHAO = [
+  { q: "Qual animal é conhecido como o melhor amigo do homem?", a: ["Gato", "Cachorro", "Pássaro", "Peixe"], c: 1 },
+  { q: "Quantas cores tem o arco-íris?", a: ["5", "6", "7", "8"], c: 2 },
+  { q: "Qual é o planeta em que vivemos?", a: ["Marte", "Vênus", "Júpiter", "Terra"], c: 3 },
+  { q: "Qual o nome do nosso satélite natural?", a: ["Sol", "Lua", "Estrela", "Cometa"], c: 1 },
+  { q: "Qual fruta é amarela e os macacos adoram?", a: ["Maçã", "Uva", "Banana", "Morango"], c: 2 },
+  { q: "Quantos dias tem uma semana?", a: ["5", "6", "7", "8"], c: 2 },
+  { q: "Qual é o número que vem depois do 9?", a: ["8", "9", "10", "11"], c: 2 },
+  { q: "Qual destes é um animal que voa?", a: ["Cachorro", "Papagaio", "Gato", "Cavalo"], c: 1 },
+  { q: "Qual cor se forma ao misturar azul e amarelo?", a: ["Roxo", "Laranja", "Verde", "Preto"], c: 2 },
+  { q: "Qual o nome da escola onde estudamos em casa, com os pais como professores?", a: ["Escola Pública", "Escola Particular", "Educação Infantil", "Homeschooling"], c: 3 },
+  { q: "Qual animal produz o leite?", a: ["Galinha", "Vaca", "Porco", "Cabra selvagem"], c: 1 },
+  { q: "Quantos lados tem um triângulo?", a: ["2", "3", "4", "5"], c: 1 },
+  { q: "Qual é a estação do ano mais fria?", a: ["Verão", "Primavera", "Inverno", "Outono"], c: 2 },
+  { q: "Qual destes é um esporte?", a: ["Futebol", "Dormir", "Comer", "Desenhar"], c: 0 },
+  { q: "O que precisamos usar para atravessar na faixa de pedestres?", a: ["Correr rápido", "Fechar os olhos", "Olhar para os dois lados", "Pular"], c: 2 },
+];
+
+const PREMIOS = [0, 1000, 2000, 5000, 10000, 20000, 40000, 80000, 100000, 150000, 250000, 400000, 600000, 800000, 1000000];
+
+let qIndex = 0;
+let canAnswer = false;
+let skipUsed = false;
+
+function startMilhao() {
+  qIndex = 0;
+  skipUsed = false;
+  canAnswer = true;
+  document.getElementById("milhaoStart").classList.add("hidden");
+  document.getElementById("milhaoGame").classList.remove("hidden");
+  document.getElementById("milhaoResult").textContent = "";
+  loadQuestion();
+}
+
+function loadQuestion() {
+  canAnswer = true;
+  const data = MILHAO[qIndex];
+  document.getElementById("qNumber").textContent = qIndex + 1;
+  document.getElementById("prizeNow").textContent = "R$ " + PREMIOS[qIndex].toLocaleString("pt-BR");
+  document.getElementById("qText").textContent = data.q;
+
+  const container = document.getElementById("answers");
+  container.innerHTML = "";
+  const letras = ["A", "B", "C", "D"];
+  data.a.forEach((alt, i) => {
+    const btn = document.createElement("button");
+    btn.className = "answer";
+    btn.innerHTML = '<span class="lett">' + letras[i] + ")</span> " + alt;
+    btn.onclick = () => answerQuestion(i, btn);
+    container.appendChild(btn);
+  });
+  document.getElementById("skipGame").style.display = skipUsed ? "none" : "inline-block";
+}
+
+function answerQuestion(i, btn) {
+  if (!canAnswer) return;
+  canAnswer = false;
+  const data = MILHAO[qIndex];
+  const all = document.querySelectorAll(".answer");
+  all.forEach(a => a.classList.add("disabled"));
+
+  if (i === data.c) {
+    btn.classList.add("correct");
+    setTimeout(() => {
+      qIndex++;
+      if (qIndex >= MILHAO.length) {
+        document.getElementById("milhaoResult").textContent = "🏆 VOCÊ GANHOU O MILHÃO! R$ 1.000.000";
+        document.getElementById("milhaoGame").classList.add("hidden");
+        document.getElementById("milhaoStart").classList.remove("hidden");
+        document.getElementById("milhaoStart").querySelector("button").textContent = "🏆 Jogar novamente";
+      } else {
+        loadQuestion();
+      }
+    }, 1200);
+  } else {
+    btn.classList.add("wrong");
+    all[data.c].classList.add("correct");
+    setTimeout(() => {
+      document.getElementById("milhaoResult").textContent = "❌ Resposta errada! Fim de jogo. Resposta certa: " + data.a[data.c];
+      document.getElementById("milhaoGame").classList.add("hidden");
+      document.getElementById("milhaoStart").classList.remove("hidden");
+      document.getElementById("milhaoStart").querySelector("button").textContent = "🔄 Jogar novamente";
+    }, 1600);
+  }
+}
+
+function skipQuestion() {
+  if (skipUsed || !canAnswer || qIndex >= MILHAO.length - 1) return;
+  skipUsed = true;
+  qIndex++;
+  loadQuestion();
+}
+
+function stopGame() {
+  document.getElementById("milhaoResult").textContent = "😊 Você parou e levou R$ " + PREMIOS[qIndex].toLocaleString("pt-BR") + "!";
+  document.getElementById("milhaoGame").classList.add("hidden");
+  document.getElementById("milhaoStart").classList.remove("hidden");
+  document.getElementById("milhaoStart").querySelector("button").textContent = "🔄 Jogar novamente";
+}
+
+function resetMilhao() {
+  qIndex = 0;
+  skipUsed = false;
+  canAnswer = true;
+  document.getElementById("milhaoResult").textContent = "";
+  loadQuestion();
+}
+
+/* ==================== GERAL ==================== */
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+showScreen("pistas");
+</script>
+</body>
+</html>
