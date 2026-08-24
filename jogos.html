@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jogos Educativos - 3 Pistas &amp; Jogo do Milhão</title>
+<title>Jogos Educativos - 3 Pistas, Milhão, Quem Sou Eu &amp; Filme</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -45,6 +45,12 @@
   .menu button:hover { transform: scale(1.05); box-shadow: 0 0 18px rgba(249,211,35,.5); }
   .menu .btn-pistas { background: linear-gradient(135deg, #11998e, #38ef7d); }
   .menu .btn-milhao { background: linear-gradient(135deg, #f7971e, #ffd200); color: #333; }
+  .menu .btn-quem { background: linear-gradient(135deg, #6c5ce7, #a29bfe); }
+  .menu .btn-filme { background: linear-gradient(135deg, #e84393, #fd79a8); }
+  .menu .btn-memoria { background: linear-gradient(135deg, #fdcb6e, #e17055); }
+  .menu .btn-verdade { background: linear-gradient(135deg, #00b894, #00cec9); }
+  .menu .btn-embaralha { background: linear-gradient(135deg, #636e72, #b2bec3); }
+  .menu .btn-intruso { background: linear-gradient(135deg, #fdcb6e, #e17055); }
   .screen { display: none; width: 100%; max-width: 900px; }
   .screen.active { display: block; }
   .card {
@@ -152,6 +158,319 @@
     h1 { font-size: 1.5rem; }
     .card { padding: 18px; }
   }
+
+  /* ===== Quem sou eu? ===== */
+  .category-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .cat-animal { background: linear-gradient(135deg, #00b894, #55efc4); color: #0a3d2a; }
+  .cat-famoso { background: linear-gradient(135deg, #e17055, #fab1a0); color: #5a1a0a; }
+  .cat-algo { background: linear-gradient(135deg, #0984e3, #74b9ff); color: #0a2a5a; }
+  .hint-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+  }
+  .hint-list li {
+    background: rgba(0,0,0,.35);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    border-left: 5px solid #a29bfe;
+    font-size: 1.15rem;
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity .4s, transform .4s;
+  }
+  .hint-list li.show {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .hint-list li .hint-num {
+    font-weight: bold;
+    color: #a29bfe;
+    margin-right: 8px;
+  }
+  .quem-input-row { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  #quemInput {
+    flex: 1; min-width: 200px;
+    padding: 14px; font-size: 1.1rem;
+    border-radius: 10px; border: 2px solid #a29bfe;
+    background: rgba(255,255,255,.1); color: #fff; outline: none;
+  }
+  #quemInput:focus { border-color: #6c5ce7; }
+  .quem-progress {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 14px 0;
+    flex-wrap: wrap;
+  }
+  .quem-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.2);
+    border: 2px solid rgba(255,255,255,.3);
+    transition: background .3s;
+  }
+  .quem-dot.active { background: #a29bfe; border-color: #a29bfe; }
+  .quem-dot.done { background: #00b894; border-color: #00b894; }
+  .quem-dot.fail { background: #e17055; border-color: #e17055; }
+
+  /* ===== Filme ou Desenho ===== */
+  .filme-hint {
+    background: rgba(0,0,0,.35);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    border-left: 5px solid #fd79a8;
+    font-size: 1.15rem;
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity .4s, transform .4s;
+  }
+  .filme-hint.show { opacity: 1; transform: translateX(0); }
+  .filme-hint .fh-num { font-weight: bold; color: #fd79a8; margin-right: 8px; }
+  .filme-badge {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 16px;
+    font-size: .9rem;
+    font-weight: bold;
+    margin-right: 8px;
+  }
+  .badge-filme { background: linear-gradient(135deg, #e17055, #fab1a0); color: #5a1a0a; }
+  .badge-desenho { background: linear-gradient(135deg, #00cec9, #81ecec); color: #0a3d3d; }
+  .filme-input-row { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  #filmeInput {
+    flex: 1; min-width: 200px;
+    padding: 14px; font-size: 1.1rem;
+    border-radius: 10px; border: 2px solid #fd79a8;
+    background: rgba(255,255,255,.1); color: #fff; outline: none;
+  }
+  #filmeInput:focus { border-color: #e84393; }
+
+  /* ===== Memória Relâmpago ===== */
+  .memoria-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 20px 0;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .memoria-card {
+    background: rgba(0,0,0,.4);
+    border: 3px solid rgba(255,255,255,.2);
+    border-radius: 14px;
+    padding: 18px 10px;
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: bold;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all .5s;
+  }
+  .memoria-card .card-emoji { font-size: 2.2rem; }
+  .memoria-card .card-word { font-size: 1.1rem; color: #ddd; }
+  .memoria-card.hidden-card {
+    background: rgba(232,67,147,.25);
+    border-color: #e84393;
+    animation: pulse .6s ease-in-out infinite alternate;
+  }
+  .memoria-card.hidden-card .card-emoji,
+  .memoria-card.hidden-card .card-word { visibility: hidden; }
+  .memoria-card.hidden-card::after {
+    content: "???";
+    font-size: 1.6rem;
+    color: #fd79a8;
+    font-weight: bold;
+  }
+  .memoria-card.show-answer {
+    background: rgba(56,239,125,.2);
+    border-color: #38ef7d;
+  }
+  .memoria-card.wrong-card {
+    background: rgba(248,107,95,.2);
+    border-color: #f86b5f;
+  }
+  @keyframes pulse { from { box-shadow: 0 0 8px rgba(232,67,147,.4); } to { box-shadow: 0 0 20px rgba(232,67,147,.7); } }
+  .memoria-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin: 16px 0;
+  }
+  .memoria-options button {
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,.3);
+    background: rgba(255,255,255,.08);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all .15s;
+    min-width: 120px;
+  }
+  .memoria-options button:hover { background: rgba(255,255,255,.2); border-color: #fdcb6e; }
+  .memoria-options button.opt-correct { background: rgba(56,239,125,.3); border-color: #38ef7d; }
+  .memoria-options button.opt-wrong { background: rgba(248,107,95,.3); border-color: #f86b5f; }
+  .memoria-timer {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #fdcb6e;
+    margin-bottom: 10px;
+  }
+  .memoria-timer b { font-size: 1.4rem; color: #e17055; }
+
+  /* ===== Verdadeiro ou Falso ===== */
+  .verdade-question {
+    background: rgba(0,0,0,.4);
+    border-radius: 14px;
+    padding: 22px;
+    font-size: 1.25rem;
+    line-height: 1.6;
+    min-height: 80px;
+    margin-bottom: 20px;
+    text-align: center;
+    border-left: 5px solid #00cec9;
+  }
+  .verdade-btns {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .verdade-btns button {
+    flex: 1;
+    min-width: 180px;
+    padding: 18px 24px;
+    border-radius: 14px;
+    border: 3px solid rgba(255,255,255,.2);
+    background: rgba(255,255,255,.08);
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .verdade-btns button:hover { transform: scale(1.03); }
+  .verdade-btns button.btn-v { border-color: #00b894; }
+  .verdade-btns button.btn-v:hover { background: rgba(0,184,148,.3); }
+  .verdade-btns button.btn-f { border-color: #f86b5f; }
+  .verdade-btns button.btn-f:hover { background: rgba(248,107,95,.3); }
+  .verdade-btns button.chosen-correct { background: rgba(0,184,148,.4); border-color: #38ef7d; }
+  .verdade-btns button.chosen-wrong { background: rgba(248,107,95,.4); border-color: #f86b5f; }
+  .verdade-btns button.reveal-correct { background: rgba(0,184,148,.25); border-color: #00b894; }
+  .verdade-btns button.disabled { pointer-events: none; opacity: .7; }
+  .verdade-expl {
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    text-align: center;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.15);
+    color: #ccc;
+  }
+
+  /* ===== Palavras Embaralhadas ===== */
+  .embaralha-word {
+    text-align: center;
+    font-size: 2.6rem;
+    font-weight: bold;
+    letter-spacing: 14px;
+    color: #dfe6e9;
+    margin: 20px 0;
+    padding: 20px;
+    background: rgba(0,0,0,.4);
+    border-radius: 14px;
+    border-left: 5px solid #b2bec3;
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+  }
+  .embaralha-timer-bar {
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255,255,255,.15);
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .embaralha-timer-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #00b894, #fdcb6e, #e17055);
+    transition: width .3s;
+    width: 100%;
+  }
+  .embaralha-timer-fill.urgent { background: linear-gradient(90deg, #e17055, #f86b5f); }
+  .embaralha-input-row { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  #embaralhaInput {
+    flex: 1; min-width: 220px;
+    padding: 14px; font-size: 1.2rem;
+    border-radius: 10px; border: 2px solid #b2bec3;
+    background: rgba(255,255,255,.1); color: #fff; outline: none;
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+  }
+  #embaralhaInput:focus { border-color: #636e72; }
+
+  /* ===== Quem é o Intruso? ===== */
+  .intruso-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .intruso-card {
+    background: rgba(0,0,0,.35);
+    border: 3px solid rgba(255,255,255,.2);
+    border-radius: 14px;
+    padding: 18px 12px;
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all .2s;
+    min-height: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .intruso-card:hover { border-color: #636e72; background: rgba(255,255,255,.12); }
+  .intruso-card .intruso-emoji { font-size: 2rem; }
+  .intruso-card .intruso-text { font-size: 1.05rem; color: #ddd; }
+  .intruso-card.chosen-right { border-color: #38ef7d; background: rgba(56,239,125,.2); }
+  .intruso-card.chosen-wrong { border-color: #f86b5f; background: rgba(248,107,95,.2); }
+  .intruso-card.show-intruso { border-color: #fdcb6e; background: rgba(253,203,110,.15); }
+  .intruso-card.disabled { pointer-events: none; opacity: .7; }
+  .intruso-category {
+    text-align: center;
+    font-size: 1rem;
+    color: #b2bec3;
+    margin-bottom: 8px;
+    font-style: italic;
+  }
   footer { margin-top: 30px; color: #8899aa; font-size: .85rem; text-align: center; }
 </style>
 </head>
@@ -162,6 +481,12 @@
 <div class="menu">
   <button class="btn-pistas" onclick="showScreen('pistas')">&#128161; Jogo das 3 Pistas</button>
   <button class="btn-milhao" onclick="showScreen('milhao')">&#128176; Jogo do Milhão</button>
+  <button class="btn-quem" onclick="showScreen('quem')">&#128064; Quem sou eu?</button>
+  <button class="btn-filme" onclick="showScreen('filme')">&#127916; Filme ou Desenho</button>
+  <button class="btn-memoria" onclick="showScreen('memoria')">&#9889; Memória Relâmpago</button>
+  <button class="btn-verdade" onclick="showScreen('verdade')">&#10004; Verdadeiro ou Falso</button>
+  <button class="btn-embaralha" onclick="showScreen('embaralha')">&#128295; Palavras Embaralhadas</button>
+  <button class="btn-intruso" onclick="showScreen('intruso')">&#128270; Quem é o Intruso?</button>
 </div>
 
 <!-- ==================== 3 PISTAS ==================== -->
@@ -198,7 +523,7 @@
 <!-- ==================== JOGO DO MILHÃO ==================== -->
 <section id="milhao" class="screen card">
   <h2 style="text-align:center; color:#ffd200; margin-bottom:6px;">Jogo do Milhão</h2>
-  <p class="center" style="color:#ccc; margin-bottom:10px;">Responda 15 perguntas e tente chegar ao prêmio máximo! Nível fácil.</p>
+  <p class="center" style="color:#ccc; margin-bottom:10px;">Responda 50 perguntas e tente chegar ao prêmio máximo! Nível fácil.</p>
 
   <div id="milhaoStart" class="center">
     <p style="margin-bottom:16px; color:#ccc;">Você pode usar o "Pulo" para trocar de pergunta e "Parar" para levar o dinheiro acumulado.</p>
@@ -207,7 +532,7 @@
 
   <div id="milhaoGame" class="hidden">
     <div class="milhao-header">
-      <span style="font-size:1.1rem;">Pergunta <b id="qNumber">1</b>/15</span>
+      <span style="font-size:1.1rem;">Pergunta <b id="qNumber">1</b>/50</span>
       <span class="prize" id="prizeNow">R$ 0</span>
     </div>
     <div class="question" id="qText"></div>
@@ -221,7 +546,190 @@
   </div>
 </section>
 
-<footer>Criado para crianças e adolescentes &#128516;</footer>
+<!-- ==================== QUEM SOU EU? ==================== -->
+<section id="quem" class="screen card">
+  <h2 style="text-align:center; color:#a29bfe; margin-bottom:6px;">&#128064; Quem sou eu?</h2>
+  <p class="center" style="color:#ccc; margin-bottom:10px;">Leia as dicas e tente adivinhar! Cada dica vale menos pontos.</p>
+
+  <div id="quemStart" class="center">
+    <p style="margin-bottom:8px; color:#ccc;">50 desafios! Pode ser um <b>animal</b>, um <b>famoso</b> ou <b>algo</b>.</p>
+    <p style="margin-bottom:16px; color:#aaa; font-size:.95rem;">A primeira dica vale 50 pts, a última vale 10 pts.</p>
+    <button class="btn btn-green" onclick="startQuem()">&#127919; Começar</button>
+  </div>
+
+  <div id="quemGame" class="hidden">
+    <div class="quem-progress" id="quemProgress"></div>
+    <div class="center">
+      <span class="category-badge" id="quemCategory"></span>
+      <span style="font-size:1.1rem; color:#ccc;">Pergunta <b id="quemNum">1</b>/50</span>
+      <span style="font-size:1.1rem; color:#ffd200; margin-left:12px;">Pontos: <b id="quemPts">0</b></span>
+    </div>
+    <ul class="hint-list" id="hintList"></ul>
+    <div id="quemMsg" class="result hidden"></div>
+    <div class="quem-input-row">
+      <input type="text" id="quemInput" placeholder="Quem sou eu? Digite sua resposta..." autocomplete="off">
+      <button class="btn btn-green" onclick="checkQuem()">Chutar</button>
+    </div>
+    <div class="center" style="margin-top:14px;">
+      <button class="btn btn-blue" id="quemNextHint" onclick="showNextHint()">&#128161; Próxima dica</button>
+      <button class="btn btn-orange" id="quemReveal" onclick="revealAnswer()">&#128065; Ver resposta</button>
+      <button class="btn btn-red" onclick="resetQuem()">&#9199; Recomeçar</button>
+    </div>
+    <div class="score center" id="quemResult" style="margin-top:14px;"></div>
+  </div>
+</section>
+
+<!-- ==================== FILME OU DESENHO ==================== -->
+<section id="filme" class="screen card">
+  <h2 style="text-align:center; color:#fd79a8; margin-bottom:6px;">&#127916; Filme ou Desenho</h2>
+  <p class="center" style="color:#ccc; margin-bottom:10px;">Leia as dicas e adivinhe se é um <b>filme</b> ou um <b>desenho</b>!</p>
+
+  <div id="filmeStart" class="center">
+    <p style="margin-bottom:8px; color:#ccc;">50 desafios com dicas para te ajudar.</p>
+    <p style="margin-bottom:16px; color:#aaa; font-size:.95rem;">A primeira dica vale 50 pts, a última vale 10 pts.</p>
+    <button class="btn btn-green" onclick="startFilme()">&#127919; Começar</button>
+  </div>
+
+  <div id="filmeGame" class="hidden">
+    <div class="center">
+      <span class="filme-badge" id="filmeType"></span>
+      <span style="font-size:1.1rem; color:#ccc;">Pergunta <b id="filmeNum">1</b>/50</span>
+      <span style="font-size:1.1rem; color:#ffd200; margin-left:12px;">Pontos: <b id="filmePts">0</b></span>
+    </div>
+    <div id="filmeHints" style="margin-top:16px;"></div>
+    <div id="filmeMsg" class="result hidden"></div>
+    <div class="filme-input-row">
+      <input type="text" id="filmeInput" placeholder="Qual é o filme ou desenho? Digite sua resposta..." autocomplete="off">
+      <button class="btn btn-green" onclick="checkFilme()">Chutar</button>
+    </div>
+    <div class="center" style="margin-top:14px;">
+      <button class="btn btn-blue" id="filmeNextHint" onclick="showFilmeHint()">&#128161; Próxima dica</button>
+      <button class="btn btn-orange" id="filmeReveal" onclick="revealFilme()">&#128065; Ver resposta</button>
+      <button class="btn btn-red" onclick="resetFilme()">&#9199; Recomeçar</button>
+    </div>
+    <div class="score center" id="filmeResult" style="margin-top:14px;"></div>
+  </div>
+</section>
+
+<!-- ==================== MEMÓRIA RELÂMPAGO ==================== -->
+<section id="memoria" class="screen card">
+  <h2 style="text-align:center; color:#fdcb6e; margin-bottom:6px;">&#9889; Memória Relâmpago</h2>
+  <p class="center" style="color:#ccc; margin-bottom:10px;">Memorize 6 palavras/objetos! Uma vai sumir — descubra qual era!</p>
+
+  <div id="memoriaStart" class="center">
+    <p style="margin-bottom:8px; color:#ccc;">6 itens aparecem por <b>3 segundos</b>. Depois, um some e você precisa acertar!</p>
+    <p style="margin-bottom:16px; color:#aaa; font-size:.95rem;">Cada acerto vale pontos. Mais rápido = mais pontos.</p>
+    <button class="btn btn-green" onclick="startMemoria()">&#127919; Começar</button>
+  </div>
+
+  <div id="memoriaGame" class="hidden">
+    <div class="memoria-timer" id="memoriaTimer"></div>
+    <div class="center">
+      <span style="font-size:1.1rem; color:#ccc;">Rodada <b id="memoriaNum">1</b>/30</span>
+      <span style="font-size:1.1rem; color:#ffd200; margin-left:12px;">Pontos: <b id="memoriaPts">0</b></span>
+    </div>
+    <div class="memoria-grid" id="memoriaGrid"></div>
+    <div id="memoriaMsg" class="result hidden"></div>
+    <div class="memoria-options" id="memoriaOptions"></div>
+    <div class="center" style="margin-top:14px;">
+      <button class="btn btn-red" onclick="resetMemoria()">&#9199; Recomeçar</button>
+    </div>
+    <div class="score center" id="memoriaResult" style="margin-top:14px;"></div>
+  </div>
+</section>
+
+<!-- ==================== VERDADEIRO OU FALSO ==================== -->
+<section id="verdade" class="screen card">
+  <h2 style="text-align:center; color:#00cec9; margin-bottom:6px;">&#10004; Verdadeiro ou Falso</h2>
+  <p class="center" style="color:#ccc; margin-bottom:10px;">50 curiosidades! Será que você sabe o que é verdade?</p>
+
+  <div id="verdadeStart" class="center">
+    <p style="margin-bottom:8px; color:#ccc;">Leia a afirmação e escolha <b>Verdadeiro</b> ou <b>Falso</b>.</p>
+    <p style="margin-bottom:16px; color:#aaa; font-size:.95rem;">Acerto = 10 pts | Erro = 0 pts</p>
+    <button class="btn btn-green" onclick="startVerdade()">&#127919; Começar</button>
+  </div>
+
+  <div id="verdadeGame" class="hidden">
+    <div class="center" style="margin-bottom:14px;">
+      <span style="font-size:1.1rem; color:#ccc;">Pergunta <b id="verdNum">1</b>/50</span>
+      <span style="font-size:1.1rem; color:#ffd200; margin-left:12px;">Pontos: <b id="verdPts">0</b></span>
+      <span style="font-size:1.1rem; color:#38ef7d; margin-left:12px;">Acertos: <b id="verdAcertos">0</b></span>
+    </div>
+    <div class="verdade-question" id="verdQuestion"></div>
+    <div class="verdade-btns" id="verdBtns">
+      <button class="btn-v" onclick="answerVerdade(true)">&#10004; Verdadeiro</button>
+      <button class="btn-f" onclick="answerVerdade(false)">&#10008; Falso</button>
+    </div>
+    <div class="verdade-expl hidden" id="verdExpl"></div>
+    <div id="verdadeMsg" class="result hidden"></div>
+    <div class="center" style="margin-top:14px;">
+      <button class="btn btn-blue" id="verdNext" onclick="nextVerdade()">&#10148; Próxima</button>
+      <button class="btn btn-red" onclick="resetVerdade()">&#9199; Recomeçar</button>
+    </div>
+    <div class="score center" id="verdadeResult" style="margin-top:14px;"></div>
+  </div>
+</section>
+
+<!-- ==================== PALAVRAS EMBARALHADAS ==================== -->
+<section id="embaralha" class="screen card">
+  <h2 style="text-align:center; color:#b2bec3; margin-bottom:6px;">&#128295; Palavras Embaralhadas</h2>
+  <p class="center" style="color:#ccc; margin-bottom:10px;">Desembaralhe a palavra! Você tem <b>30 segundos</b> por rodada.</p>
+
+  <div id="embaralhaStart" class="center">
+    <p style="margin-bottom:8px; color:#ccc;">As letras estão bagunçadas — descubra a palavra certa!</p>
+    <p style="margin-bottom:16px; color:#aaa; font-size:.95rem;">Acerto = 10 pts | Sem tempo = 0 pts</p>
+    <button class="btn btn-green" onclick="startEmbaralha()">&#127919; Começar</button>
+  </div>
+
+  <div id="embaralhaGame" class="hidden">
+    <div class="center" style="margin-bottom:8px;">
+      <span style="font-size:1.1rem; color:#ccc;">Rodada <b id="embNum">1</b>/50</span>
+      <span style="font-size:1.1rem; color:#ffd200; margin-left:12px;">Pontos: <b id="embPts">0</b></span>
+    </div>
+    <div class="embaralha-timer-bar"><div class="embaralha-timer-fill" id="embTimerBar"></div></div>
+    <div class="center" style="font-size:1rem; color:#b2bec3; margin-bottom:10px;">Tempo: <b id="embTimerText">30</b>s</div>
+    <div class="embaralha-word" id="embWord"></div>
+    <div class="embaralha-input-row">
+      <input type="text" id="embaralhaInput" placeholder="Digite a palavra correta..." autocomplete="off">
+      <button class="btn btn-green" onclick="checkEmbaralha()">Chutar</button>
+    </div>
+    <div id="embaralhaMsg" class="result hidden"></div>
+    <div class="center" style="margin-top:14px;">
+      <button class="btn btn-orange" id="embSkip" onclick="skipEmbaralha()">&#9654; Pular</button>
+      <button class="btn btn-red" onclick="resetEmbaralha()">&#9199; Recomeçar</button>
+    </div>
+    <div class="score center" id="embaralhaResult" style="margin-top:14px;"></div>
+  </div>
+</section>
+
+<!-- ==================== QUEM É O INTRUSO? ==================== -->
+<section id="intruso" class="screen card">
+  <h2 style="text-align:center; color:#fdcb6e; margin-bottom:6px;">&#128270; Quem é o Intruso?</h2>
+  <p class="center" style="color:#ccc; margin-bottom:10px;">Um item não pertence ao grupo. Encontre o intruso!</p>
+
+  <div id="intrusoStart" class="center">
+    <p style="margin-bottom:8px; color:#ccc;">4 itens aparecem — 3 são parecidos e 1 é diferente.</p>
+    <p style="margin-bottom:16px; color:#aaa; font-size:.95rem;">Acerto = 10 pts</p>
+    <button class="btn btn-green" onclick="startIntruso()">&#127919; Começar</button>
+  </div>
+
+  <div id="intrusoGame" class="hidden">
+    <div class="center" style="margin-bottom:10px;">
+      <span style="font-size:1.1rem; color:#ccc;">Rodada <b id="intrNum">1</b>/50</span>
+      <span style="font-size:1.1rem; color:#ffd200; margin-left:12px;">Pontos: <b id="intrPts">0</b></span>
+    </div>
+    <div class="intruso-category" id="intrCategory"></div>
+    <div class="intruso-grid" id="intrGrid"></div>
+    <div id="intrusoMsg" class="result hidden"></div>
+    <div class="center" style="margin-top:14px;">
+      <button class="btn btn-blue" id="intrNext" onclick="nextIntruso()">&#10148; Próxima</button>
+      <button class="btn btn-red" onclick="resetIntruso()">&#9199; Recomeçar</button>
+    </div>
+    <div class="score center" id="intrusoResult" style="margin-top:14px;"></div>
+  </div>
+</section>
+
+<footer>Criado para crianças e adolescentes de 8 a 12 anos &#128516;</footer>
 
 <script>
 "use strict";
@@ -288,6 +796,146 @@ const PISTAS = [
     "Vivo na Austrália e pulo bem alto.",
     "Tenho uma bolsa na barriga para carregar meu filhote.",
     "Meu filhote se chama filhote de canguru e eu pulo com as patas traseiras." ] },
+  { r: "Girafa", pistas: [
+    "Sou o animal mais alto do mundo.",
+    "Tenho um pescoço enorme e manchas laranja.",
+    "Como folhas das árvores altas que ninguém mais alcança." ] },
+  { r: "Gato", pistas: [
+    "Sou um felino pequeno e doméstico.",
+    "Adoro dormir e ronronar de contente.",
+    "Tenho bigodes, garras afiadas e caço ratos à noite." ] },
+  { r: "Golfinho", pistas: [
+    "Vivo no mar e sou muito inteligente.",
+    "Pulo sobre a água para me divertir.",
+    "Sou um mamífero e comunico com cliques e sons." ] },
+  { r: "Tigre", pistas: [
+    "Tenho listras laranja e pretas pelo corpo.",
+    "Sou um grande felino da Ásia.",
+    "Adoro nadar, diferente de outros gatos." ] },
+  { r: "Coruja", pistas: [
+    "Sou ativa à noite e durmo de dia.",
+    "Giro minha cabeça quase 360 graus.",
+    "Tenho olhos grandes e voo quase sem barulho." ] },
+  { r: "Lobo", pistas: [
+    "Uivo para a lua nas noites frias.",
+    "Vivo em matilhas bem organizadas.",
+    "Sou ancestral do cachorro doméstico." ] },
+  { r: "Polvo", pistas: [
+    "Tenho oito braços com ventosas.",
+    "Vivo no fundo do mar e mudo de cor.",
+    "Tenho três corações e sangue azul." ] },
+  { r: "Panda", pistas: [
+    "Tenho pelagem preta e branca.",
+    "Vivo na China e adoro bambu.",
+    "Sou um urso que come apenas plantas." ] },
+  { r: "Fogão", pistas: [
+    "Sou quente e faço a comida pronta.",
+    "Tenho bocas de fogo e forno.",
+    "Sem mim, a cozinha não funciona." ] },
+  { r: "Relógio", pistas: [
+    "Marque o tempo e nunca paro.",
+    "Tenho ponteiros que giram em círculo.",
+    "Posso ser de parede, pulso ou mesa." ] },
+  { r: "Guarda-chuva", pistas: [
+    "Protejo da chuva e do sol.",
+    "Me abro quando precisa e fecho quando não.",
+    "Tenho bastão, telas e ponta." ] },
+  { r: "Teclado", pistas: [
+    "Tenho muitas teclas e escrevo no computador.",
+    "Posso ser musical ou digital.",
+    "Comigo você digita cartas e faz tarefas." ] },
+  { r: "Liquidificador", pistas: [
+    "Giro rápido e misturo tudo.",
+    "Faço sucos, vitaminas e massas.",
+    "Tenho um copo de vidro e uma tampa." ] },
+  { r: "Chapéu", pistas: [
+    "Uso na cabeça para me proteger.",
+    "Posso ser de palha, lã ou tecido.",
+    "Cowboys e magos me usam." ] },
+  { r: "Escova", pistas: [
+    "Tenho cerdas e limpo superfícies.",
+    "Posso ser de dentes, roupa ou cabelo.",
+    "Sem mim, nada fica limpo." ] },
+  { r: "Telhado", pistas: [
+    "Fico no topo da casa.",
+    "Protejo da chuva e do sol.",
+    "Sou feito de telhas ou lajes." ] },
+  { r: "Cobertor", pistas: [
+    "Aqueço você nas noites frias.",
+    "Sou macio e fofinho.",
+    "Você se enrola em mim na cama." ] },
+  { r: "Pássaro", pistas: [
+    "Tenho asas e penas.",
+    "Voo pelo céu e canto de manhã.",
+    "Faço ninhos nas árvores." ] },
+  { r: "Relâmpago", pistas: [
+    "Sou um clarão que ilumina a noite.",
+    "Nasço das nuvens carregadas.",
+    "Sou rápido e duro menos de um segundo." ] },
+  { r: "Bola", pistas: [
+    "Sou redonda e pulo no chão.",
+    "Sou usada em jogos e esportes.",
+    "Posso ser de futebol, basquete ou vôlei." ] },
+  { r: "Nuvem", pistas: [
+    "Voo no céu e sou fofa.",
+    "Sou feita de gotículas de água.",
+    "Quando fico escura, chovo." ] },
+  { r: "Cadeira", pistas: [
+    "Tenho quatro patas e um encosto.",
+    "Você se senta em mim para descansar.",
+    "Posso ser de madeira, plástico ou metal." ] },
+  { r: "Escada", pistas: [
+    "Subo e desço, mas não tenho pernas.",
+    "Ligo um andar ao outro.",
+    "Tenho degraus para pisar." ] },
+  { r: "Caneta", pistas: [
+    "Escrevo e desenho em papel.",
+    "Tenho tinta por dentro.",
+    "Posso ser azul, preta ou vermelha." ] },
+  { r: "Chave", pistas: [
+    "Abro portas e cadeados.",
+    "Sou pequena e de metal.",
+    "Tenho dentes que combinam com a fechadura." ] },
+  { r: "Cama", pistas: [
+    "Dormem em mim toda noite.",
+    "Tenho colchão, travesseiro e lençol.",
+    "Sou o lugar mais confortável da casa." ] },
+  { r: "Mochila", pistas: [
+    "Levo coisas nas suas costas.",
+    "Tenho alças e compartimentos.",
+    "Todo estudante me carrega para a escola." ] },
+  { r: "Sino", pistas: [
+    "Soo quando me balançam.",
+    "Sou de metal e tenho formato de copa.",
+    "Chamo as pessoas para a escola ou igreja." ] },
+  { r: "Lanterna", pistas: [
+    "Levo luz na ponta dos dedos.",
+    "Tenho pilhas que me dão energia.",
+    "Acendo no escuro para enxergar." ] },
+  { r: "Pizza", pistas: [
+    "Sou um prato italiano famoso no mundo inteiro.",
+    "Tenho massa redonda e borda recheada.",
+    "Posso levar queijo, presunto, tomate e mais." ] },
+  { r: "Câmera", pistas: [
+    "Capturo momentos para sempre.",
+    "Tenho lente que enxerga longe.",
+    "Posso ser fotografia ou filmadora." ] },
+  { r: "Foguete", pistas: [
+    "Levo astronautas ao espaço.",
+    "Tenho motor a jato e subo ao céu.",
+    "Voo mais rápido que o som." ] },
+  { r: "Bicicleta", pistas: [
+    "Tenho duas rodas e um guidão.",
+    "Você usa os pés para me movimentar.",
+    "Sou um transporte saudável e ecológico." ] },
+  { r: "Dinheiro", pistas: [
+    "Todo mundo quer me ter.",
+    "Posso ser papel ou moeda.",
+    "Comigo você compra o que quiser." ] },
+  { r: "Oceano", pistas: [
+    "Sou a maior massa de água do planeta.",
+    "Tenho ondas, correntes e profundezas.",
+    "Cobro mais de 70% da Terra." ] },
 ];
 
 let pistaIndex = 0;
@@ -500,9 +1148,43 @@ const MILHAO = [
   { q: "Qual é a estação do ano mais fria?", a: ["Verão", "Primavera", "Inverno", "Outono"], c: 2 },
   { q: "Qual destes é um esporte?", a: ["Futebol", "Dormir", "Comer", "Desenhar"], c: 0 },
   { q: "O que precisamos usar para atravessar na faixa de pedestres?", a: ["Correr rápido", "Fechar os olhos", "Olhar para os dois lados", "Pular"], c: 2 },
+  { q: "Qual é o maior planeta do sistema solar?", a: ["Terra", "Marte", "Júpiter", "Saturno"], c: 2 },
+  { q: "Quantos continentes existem?", a: ["5", "6", "7", "8"], c: 2 },
+  { q: "Qual é o maior oceano do mundo?", a: ["Atlântico", "Índico", "Pacífico", "Ártico"], c: 2 },
+  { q: "Qual animal é conhecido como o rei da selva?", a: ["Tigre", "Leão", "Urso", "Elefante"], c: 1 },
+  { q: "Quantos sentidos tem o corpo humano?", a: ["3", "4", "5", "6"], c: 2 },
+  { q: "Qual é a capital do Brasil?", a: ["São Paulo", "Rio de Janeiro", "Brasília", "Salvador"], c: 2 },
+  { q: "Qual fruta é verde por fora e vermelha por dentro?", a: ["Maçã", "Melancia", "Banana", "Laranja"], c: 1 },
+  { q: "De qual animal vem a lã?", a: ["Cachorro", "Ovelha", "Gato", "Coelho"], c: 1 },
+  { q: "Qual é a estação do ano mais quente?", a: ["Inverno", "Outono", "Primavera", "Verão"], c: 3 },
+  { q: "Quantos ossos tem o corpo humano adulto?", a: ["106", "206", "306", "406"], c: 1 },
+  { q: "Qual planeta é conhecido como planeta vermelho?", a: ["Vênus", "Júpiter", "Marte", "Saturno"], c: 2 },
+  { q: "Qual é o líquido que as vacas produzem?", a: ["Leite de soja", "Leite de vaca", "Leite de coco", "Leite de amêndoa"], c: 1 },
+  { q: "Quantas patas tem uma aranha?", a: ["4", "6", "8", "10"], c: 2 },
+  { q: "Qual é o maior mamífero terrestre?", a: ["Girafa", "Elefante", "Hipopótamo", "Rinoceronte"], c: 1 },
+  { q: "Qual é a capital da França?", a: ["Londres", "Roma", "Paris", "Madrid"], c: 2 },
+  { q: "Onde fica o coração no corpo humano?", a: ["Na cabeça", "No peito", "Na barriga", "Nas costas"], c: 1 },
+  { q: "Qual é o maior mamífero do mundo?", a: ["Elefante", "Baleia Azul", "Girafa", "Hipopótamo"], c: 1 },
+  { q: "Qual é o menor país do mundo?", a: ["Mônaco", "Vaticano", "San Marino", "Liechtenstein"], c: 1 },
+  { q: "De qual planta se tira o açúcar?", a: ["Trigo", "Cana-de-açúcar", "Milho", "Arroz"], c: 1 },
+  { q: "Qual é o maior rio do mundo?", a: ["Nilo", "Amazonas", "Mississipi", "Yangtze"], c: 0 },
+  { q: "Quantas patas tem uma centopeia (nome real)?", a: ["100", "30", "15", "42"], c: 1 },
+  { q: "Qual é o animal mais rápido do mundo?", a: ["Leão", "Guepardo", "Tigre", "Gazela"], c: 1 },
+  { q: "Qual é a cor do céu em um dia limpo?", a: ["Branco", "Azul", "Cinza", "Verde"], c: 1 },
+  { q: "Qual é o maior órgão do corpo humano?", a: ["Fígado", "Cérebro", "Pele", "Pulmão"], c: 2 },
+  { q: "Onde nasce o Sol?", a: ["No oeste", "No leste", "No norte", "No sul"], c: 1 },
+  { q: "Qual é o animal que mia?", a: ["Cachorro", "Gato", "Pássaro", "Peixe"], c: 1 },
+  { q: "Quantos minutos tem uma hora?", a: ["30", "45", "60", "90"], c: 2 },
+  { q: "Qual é a bebida feita de cacau?", a: ["Suco", "Café", "Chocolate", "Chá"], c: 2 },
+  { q: "Qual é o contrário de alto?", a: ["Longo", "Baixo", "Grande", "Pequeno"], c: 1 },
+  { q: "Qual desses é um vegetal?", a: ["Carne", "Arroz", "Feijão", "Brócolis"], c: 3 },
+  { q: "Quantas notas tem uma escala musical?", a: ["5", "6", "7", "8"], c: 2 },
+  { q: "Qual é o país da samba e do carnaval?", a: ["Argentina", "Brasil", "Colômbia", "México"], c: 1 },
+  { q: "O que a abelha produz?", a: ["Leite", "Mel", "Água", "Óleo"], c: 1 },
+  { q: "Qual é a cor das folhas de uma árvore saudável?", a: ["Vermelha", "Azul", "Verde", "Amarela"], c: 2 },
 ];
 
-const PREMIOS = [0, 1000, 2000, 5000, 10000, 20000, 40000, 80000, 100000, 150000, 250000, 400000, 600000, 800000, 1000000];
+const PREMIOS = [0, 1000, 2000, 5000, 10000, 20000, 40000, 80000, 100000, 150000, 250000, 400000, 600000, 800000, 1000000, 1500000, 2000000, 3000000, 4000000, 5000000, 7000000, 10000000, 15000000, 20000000, 30000000, 50000000, 75000000, 100000000, 150000000, 200000000, 300000000, 500000000, 750000000, 1000000000, 1500000000, 2000000000, 3000000000, 5000000000, 7500000000, 10000000000, 15000000000, 20000000000, 30000000000, 50000000000, 75000000000, 100000000000, 200000000000, 500000000000, 750000000000, 1000000000000];
 
 let qIndex = 0;
 let canAnswer = false;
@@ -590,6 +1272,1020 @@ function resetMilhao() {
   canAnswer = true;
   document.getElementById("milhaoResult").textContent = "";
   loadQuestion();
+}
+
+/* ==================== QUEM SOU EU? ==================== */
+const QUEM = [
+  { r:"Leão", cat:"animal", dicas:["Sou conhecido como o rei dos animais.", "Tenho uma juba bem grande ao redor do pescoço.", "Vivo na savana africana e caço em grupo.", "Meu rugido é um dos mais fortes do reino animal.", "Tenho pelagem dourada e uma cauda com tufo no final."] },
+  { r:"Golfinho", cat:"animal", dicas:["Vivo no mar e sou muito inteligente.", "Pulo sobre a água para me divertir.", "Sou um mamífero e preciso subir para respirar.", "Emite sons para se comunicar com a malfunction.", "Sou amigo dos humanos e adoro brincar."] },
+  { r:"Águia", cat:"animal", dicas:["Voo muito alto e tenho visão perfeita.", "Sou um símbolo de força e liberdade.", "Tenho garras afiadas e um bico curvado.", "Caço pequenos animais voando alto no céu.", "Tenho penas castanhas e uma cabeça branca em algumas espécies."] },
+  { r:"Elefante", cat:"animal", dicas:["Sou o maior animal terrestre que existe.", "Tenho uma tromba comprida e orelhas enormes.", "Sou cinza e adoro água e barro.", "Vivo em grupos e tenho memória excelente.", "Meus dentes são marfim e são muito cobiçados."] },
+  { r:"Tigre", cat:"animal", dicas:["Tenho listras laranja e pretas pelo corpo.", "Sou um grande felino que vive na Ásia.", "Adoro nadar, diferente de outros gatos.", "Caco sozinho e sou muito territorial.", "Cada tigre tem um padrão de listras único."] },
+  { r:"Lobo", cat:"animal", dicas:["Uivo para a lua nas noites frias.", "Vivo em matilhas e sou bem organizado.", "Tenho pelagem cinza e olhos amarelos.", "Sou ancestral do cachorro doméstico.", "Caço em grupo e comunico com-uivos."] },
+  { r:"Panda", cat:"animal", dicas:["Tenho pelagem preta e branca.", "Vivo na China e adoro bambu.", "Sou um urso, mas como apenas plantas.", "Tenho manchas pretas ao redor dos olhos.", "Sou um símbolo de paz e da WWF."] },
+  { r:"Baleia Azul", cat:"animal", dicas:["Sou o maior animal que já existiu no planeta.", "Vivo no oceano e filtro alimento com barbas.", "Meu coração do tamanho de um carro.", "MeuFilhote já nasce com 7 metros.", "Emite sons que viajam quilômetros debaixo d'água."] },
+  { r:"Cobra", cat:"animal", dicas:["Não tenho patas e me arrasto pelo chão.", "Tenho uma língua bifurcada para sentir o ambiente.", "Alguns de mim são peçonhentos.", "Mudo de pele para crescer.", "Tenho mandíbulas que se abrem muito para engolir presas."] },
+  { r:"Coruja", cat:"animal", dicas:["Sou ativa à noite e durmo de dia.", "Giro minha cabeça quase 360 graus.", "Tenho olhos grandes e visão noturna perfeita.", "Represento sabedoria em muitas culturas.", "Voo quase sem fazer barulho para caçar."] },
+  { r:"Tartaruga", cat:"animal", dicas:["Tenho um casco nas costas para me proteger.", "Ando muito devagar mas vivo muitos anos.", "Posso viver na água ou na terra.", "Meu casco é feito de ossos fundidos.", "Alguns de mim podem pesar mais de 200 kg."] },
+  { r:"Polvo", cat:"animal", dicas:["Tenho oito braços com ventosas.", "Vivo no fundo do mar e sou muito inteligente.", "Mudo de cor para me camuflar.", "Tenho três corações e sangue azul.", "Consigo abrir potes e resolver quebra-cabeças."] },
+  { r:"Pinguim", cat:"animal", dicas:["Vivo no frio e tenho terno preto e branco.", "Não voo mas sou excelente nadador.", "Vivo na Antártida e ovo em colônias.", "Os pais revezam para cuidar do filhote.", "Ando de lado e pareço um senhor de gravata."] },
+  { r:"Flamingo", cat:"animal", dicas:["Tenho penas cor de rosa.", "Fico de uma perna só quando durmo.", "Vivo em lagos rasos e filtro comida com o bico.", "MeuFilhote nasce branco e vai ficando rosa.", "A cor vem do camarão que como."] },
+  { r:"Tubarão", cat:"animal", dicas:["Sou um predador do oceano.", "Tenho várias fileiras de dentes afiados.", "Meu esqueleto é feito de cartilagem, não osso.", "Sinto o sangue a quilômetros de distância.", "Existem mais de 400 espécies de mim."] },
+  { r:"Cavalo", cat:"animal", dicas:["Sou um animal de grande porte que o homem monta.", "Tenho cascos e uma crina longa.", "Corro muito rápido e tenho resistência.", "Fui usado em guerras e no campo por séculos.", "Relincho e mordo para comunicar-me."] },
+  { r:"Gato", cat:"animal", dicas:["Sou um felino pequeno e doméstico.", "Adoro dormir e ronronar de contente.", "Tenho bigodes e garras afiadas.", "Caço ratos e tenho noite excelente.", "Existem raças como siamês, persa e vira-lata."] },
+  { r:"Cachorro", cat:"animal", dicas:["Sou o melhor amigo do homem.", "Tenho raças de todos os tamanhos.", "Abano o rabo quando estou feliz.", "Tenho um faro incrível para farejar.", "Fui o primeiro animal a ser domesticado."] },
+  { r:"Beija-flor", cat:"animal", dicas:["Sou uma ave muito pequena e colorida.", "Tenho bico comprido e fino.", "Voo muito rápido e paro no ar.", "Alimento-me do néctar das flores.", "Tenho penas que brilham com o sol."] },
+  { r:"Urso Polar", cat:"animal", dicas:["Tenho pelagem branca e vivo no gelo.", "Sou um grande nadador no Ártico.", "Caço focas e peixes no mar gelado.", "Minha pelagem não é branca, é transparente.", "Meu pele preta absorve o calor do sol."] },
+  { r:"Joaninha", cat:"animal", dicas:["Sou uma pequena besouro vermelho com pintas pretas.", "Os agricultores me adoram como controlador de pragas.", "Tenho asas sob as capas duras.", "Em português, meu nome significa 'João da lua'.", "Vo de flor em flor em jardins."] },
+  { r:"Einstein", cat:"famoso", dicas:["Fui um físico alemão que revolucionou a ciência.", "Minha teoria mais famosa é sobre a relatividade.", "Tenho uma equação famosa: E = mc².", "Tinha cabelo bagunçado e era muito engraçado.", "Ganhei o Prêmio Nobel de Física em 1921."] },
+  { r:"Messi", cat:"famoso", dicas:["Sou um jogador de futebol argentino.", "Jogrei a maior parte da minha carreira no Barcelona.", "Tenho apenas 1,70m de altura.", "Fui comparado a Maradona a vida inteira.", "Sou considerado um dos melhores de todos os tempos."] },
+  { r:"Pelé", cat:"famoso", dicas:["Sou conhecido como o Rei do Futebol.", "Sou brasileiro e tricampeão mundial.", "Marcou mais de 1.000 gols na carreira.", "Joguei no Santos e no New York Cosmos.", "Sou um dos maiores atletas da história."] },
+  { r:"Michael Jackson", cat:"famoso", dicas:["Sou conhecido como o Rei do Pop.", "Tenho uma dança famosa chamada moonwalk.", "Meu álbum mais vendido é Thriller.", "Fui membro da Jackson 5 desde criança.", "Minha roupa era uma luva branca e chapéu fedora."] },
+  { r:"Neymar", cat:"famoso", dicas:["Sou um atacante brasileiro.", "Joguei no Santos, Barcelona e PSG.", "Tenho um estilo de jogo muito habilidoso.", "Fui considerado o jogador mais caro da história.", "Adoro fazer fintas e dribles arretados."] },
+  { r:"Lady Gaga", cat:"famoso", dicas:["Sou uma cantora e atriz americana.", "Sou conhecida por roupas exageradas e performances.", "Meu primeiro hit foi Just Dance.", "Ganhei um Oscar pela trilha sonora de A Star Is Born.", "Tenho um piano e sou multi-instrumentista."] },
+  { r:"Rosalía", cat:"famoso", dicas:["Sou uma cantora espanhola.", "Misto pop com flamenco de forma moderna.", "Meu álbum 'El Mal Querer' foi um fenômeno.", "Colaborei com o Bad Bunny e o The Weeknd.", "Tenho um estilo visual muito marcante."] },
+  { r:"Chaves", cat:"famoso", dicas:["Sou um personagem de um seriado mexicano.", "Vivo no bairro da Vila e tenho um balde.", "Tenho um vizinho que não gosta de mim: o Quico.", "Minha melhor amiga é a Chiquinha.", "Digo 'É男孩' e 'Foi sem querer querendo'."] },
+  { r:"Darth Vader", cat:"famoso", dicas:["Sou um vilão de Star Wars.", "Tenho uma voz muito grave e sinistra.", "Uso uma armadura preta e respiro com ajuda.", "Sou pai de Luke Skywalker.", "Digo 'Eu sou seu pai' em uma cena icônica."] },
+  { r:"Batman", cat:"famoso", dicas:["Sou um super-herão que não tem poderes.", "Vivo em Gotham City e luto contra o crime.", "Tenho um manto e uma máscara de morcego.", "Meu maior inimigo é o Coringa.", "Sou Bruce Wayne de dia e herói à noite."] },
+  { r:"Harry Potter", cat:"famoso", dicas:["Sou um bruxo com uma cicatriz em forma de relâmpago.", "Estudo na Escola de Magia e Bruxaria de Hogwarts.", "Tenho uma varinha e um uniquely coat preto.", "Meus melhores amigos são Hermione e Ron.", "O vilão que me perseguiu era Voldemort."] },
+  { r:"Homem-Aranha", cat:"famoso", dicas:["Sou um super-herão agarrado a teias.", "Meu nome real é Peter Parker.", "Fui mordido por uma aranha radioativa.", "Vivo em Nova York e tiro teias dos pulsos.", "Com grande poder vem grande responsabilidade."] },
+  { r:"Princesa Leia", cat:"famoso", dicas:["Sou uma princesa e líder da Rebelião.", "Tenho um penteado de duas使用網路 no cabelo.", "Visto uma roupa branca e longa.", "Sou irmã gêmea de Luke Skywalker.", "Digo 'Ajuda-me Obi-Wan Kenobi' em um holograma."] },
+  { r:"Eiffel", cat:"famoso", dicas:["Sou uma torre icônica de Paris.", "Fui construída para a Feira Mundial de 1889.", "Sou feita de ferro e tenho 324 metros.", "Fui projetada por Gustave Eiffel.", "Sou o monumento mais visitado da França."] },
+  { r:"Pirâmide", cat:"algo", dicas:["Sou uma construção do antigo Egito.", "Fui feita para ser tumba de faraós.", "Tenho formato triangular e lados inclinados.", "A maior de mim é a de Quéops.", "Sou uma das Sete Maravilhas do Mundo Antigo."] },
+  { r:"Relógio", cat:"algo", dicas:["Marque o tempo e nunca paro.", "Tenho ponteiros que giram em círculo.", "Alguns de mim são digitais e outros analógicos.", "Nasço na parede, no pulso ou na mesa.", "Sem mim, você não saberia a hora."] },
+  { r:"Estrela", cat:"algo", dicas:["Brilho no céu à noite.", "Sou feita de gases quentes que brilham.", "Existem bilhões de mim no universo.", "A mais perto de você é o Sol.", "Algumas de mim explodem e viram supernovas."] },
+  { r:"Livro", cat:"algo", dicas:["Tenho páginas cheias de histórias.", "Posso te levar a mundos fantásticos.", "Sou feito de papel e tinta.", "Posso ser de romance, aventura ou fantasia.", "Abro-me pela capa e finjo pela última página."] },
+  { r:"Cadeira", cat:"algo", dicas:["Tenho quatro patas e um encosto.", "Você se senta em mim para descansar.", "Posso ser de madeira, plástico ou metal.", "Estou em salas, cozinhas e escritórios.", "Sem mim, você teria que ficar de pé o dia todo."] },
+  { r:"Dinheiro", cat:"algo", dicas:["Todo mundo quer me ter.", "Posso ser papel ou moeda.", "Comigo você compra o que quiser.", "Trabalho duro para me ganhar.", "Nasço no banco e morro na compra."] },
+  { r:"Música", cat:"algo", dicas:["Tenho notas, ritmos e melodias.", "Posso te fazer chorar de emoção.", "Sou tocada em instrumentos ou cantada.", "Cada cultura tem a sua.", "Sou arte que se ouve e se sente."] },
+  { r:"Chocolate", cat:"algo", dicas:["Sou um doce amado no mundo inteiro.", "Meu ingrediente principal vem do cacau.", "Posso ser ao leite, amargo ou branco.", "Embaralho em barra, bombom ou trufa.", "Nasço amargo e termino doce."] },
+  { r:"Sorriso", cat:"algo", dicas:["Nascço no rosto quando estou feliz.", "É de graça e contagia os outros.", "Posso ser de dentes ou de canto da boca.", "A melhor terapia do mundo é me dar.", "Quando te dou, você devolve."] },
+  { r:"Memória", cat:"algo", dicas:["Moro na sua cabeça e guardo tudo.", "Posso ser boa ou ruim, depende.", "Tenho fotos, sons e cheiros guardados.", "Alguns de mim são falsos.", "Sem mim, você não saberia quem é."] },
+  { r:"Sonho", cat:"algo", dicas:["Venho quando você dorme.", "Posso ser bom ou ser pesadelo.", "Nasço da sua imaginação.", "Nunca sei quando vou chegar.", "Às vezes profetizo o futuro."] },
+  { r:"Saudade", cat:"algo", dicas:["Sou um sentimento que dói no peito.", "Nasço quando alguém que amo se vai.", "Tenho gosto amargo e cheiro de memória.", "É brasileiro, mas o mundo inteiro me sente.", "Meu melhor remédio é um abraço."] },
+  { r:"Pizza", cat:"algo", dicas:["Sou um prato italiano famoso no mundo inteiro.", "Tenho massa redonda e borda recheada.", "Posso levar queijo, presunto, tomate e mais.", "A mais famosa é a margherita.", "Vem em caixa quentinha e cheirosa."] },
+  { r:"Bicicleta", cat:"algo", dicas:["Tenho duas rodas e um guidão.", "Você usa os pés para me movimentar.", "Sou um transporte saudável e ecológico.", "Não poluo o ar e fortaleço as pernas.", "Posso ser de rua, de montanha ou de passeio."] },
+  { r:"Fogão", cat:"algo", dicas:["Sou quente e faço a comida pronta.", "Tenho bocas de fogo e forno.", "Sem mim, a cozinha não funciona.", "Cozinheiros me acendem todo dia.", "Faço arroz, feijão e o melhor bolo."] },
+  { r:"Oceano", cat:"algo", dicas:["Sou a maior massa de água do planeta.", "Tenho ondas, correntes e profundezas.", "Cobro mais de 70% da Terra.", "Nasço onde o rio encontra o mar.", "Escondo tesouros e criaturas misteriosas."] },
+  { r:"Trovão", cat:"algo", dicas:["Sou o barulho que vem depois do relâmpago.", "Assusto quem tem medo de trovoada.", "Nasço das nuvens carregadas.", "É o som mais alto da natureza.", "Quando me ouço, é melhor ficar em casa."] },
+  { r:"Foguete", cat:"algo", dicas:["Levo astronautas ao espaço.", "Tenho motor a jato e subo ao céu.", "Sou feito de metal e cheio de combustível.", "Voo mais rápido que o som.", "Fui usado pela primeira vez na década de 1950."] },
+  { r:"Sino", cat:"algo", dicas:["Soo quando me balançam.", "Sou de metal e tenho formato de copa.", "Chamo as pessoas para a escola ou igreja.", "Tenho um badalo que bate por dentro.", "Quando toco, todo mundo ouve."] },
+  { r:"Fogareu", cat:"algo", dicas:["Sou uma tocha de mão que ilumina.", "Queimo com gás ou óleo.", "Levo luz onde não tem eletricidade.", "Sou usado em caminhadas e aventuras.", "Meu chama dança com o vento."] },
+  { r:"Lanterna", cat:"algo", dicas:["Levo luz na ponta dos dedos.", "Tenho pilhas que me dão energia.", "Acendo no escuro para enxergar.", "Posso ser de mão ou de cabeça.", "Sem pilhas, fico inútil."] },
+  { r:"Câmera", cat:"algo", dicas:["Capturo momentos para sempre.", "Tenho lente que enxerga longe.", "Posso ser fotografia ou filmadora.", "Guardo memórias em pixel ou película.", "Hoje, todo telefone me tem dentro."] },
+  { r:"Cama", cat:"algo", dicas:["Dormem em mim toda noite.", "Tenho colchão, travesseiro e lençol.", "Sou o lugar mais confortável da casa.", "Descanso em mim depois de um dia cansativo.", "Posso ser casal, solteiro ou beliche."] },
+  { r:"Escada", cat:"algo", dicas:["Subo e desço, mas não tenho pernas.", "Ligo um andar ao outro.", "Posso ser fixa ou móvel.", "Tenho degraus para pisar.", "Cuidado ao me usar, posso ser perigosa."] },
+  { r:"Chave", cat:"algo", dicas:["Abro portas e cadeados.", "Sou pequena e de metal.", "Tenho dentes que combinam com a fechadura.", "Sem mim, você fica do lado de fora.", "Posso ser de casa, carro ou cofre."] },
+  { r:"Caneta", cat:"algo", dicas:["Escrevo e desenho em papel.", "Tenho tinta por dentro.", "Posso ser azul, preta ou vermelha.", "Alunos me usam o dia todo.", "Quando acabar minha tinta, sou jogada fora."] },
+  { r:"Relâmpago", cat:"algo", dicas:["Sou um clarão que ilumina a noite.", "Nasço das nuvens carregadas.", "Sou rápido e duro menos de um segundo.", "Venho sempre antes do trovão.", "Tenho formato de galho no céu."] },
+  { r:"Bola", cat:"algo", dicas:["Rolei e quicam.", "Sou redonda e pulo no chão.", "Sou usada em jogos e esportes.", "Posso ser de futebol, basquete ou vôlei.", "Crianças adoram me chutar e jogar."] },
+  { r:"Mochila", cat:"algo", dicas:["Levo coisas nas suas costas.", "Tenho alças e compartimentos.", "Todo estudante me carrega para a escola.", "Posso levar livros, lanche e mais.", "Sou de tecido resistente e durável."] },
+  { r:"Nuvem", cat:"algo", dicas:["Voo no céu e sou fofa.", "Sou feita de gotículas de água.", "Posso ser branca, cinza ou escura.", "Quando fico escura, chovo.", "Faço sombras no chão no dia de sol."] },
+];
+
+let quemIndex = 0;
+let quemHintIndex = 0;
+let quemScore = 0;
+let quemOver = false;
+let quemOrder = [];
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuem() {
+  quemOrder = shuffleArray([...Array(QUEM.length).keys()]);
+  quemIndex = 0;
+  quemScore = 0;
+  document.getElementById("quemStart").classList.add("hidden");
+  document.getElementById("quemGame").classList.remove("hidden");
+  document.getElementById("quemResult").textContent = "";
+  document.getElementById("quemPts").textContent = "0";
+  loadQuem();
+}
+
+function loadQuem() {
+  quemHintIndex = 0;
+  quemOver = false;
+  const q = QUEM[quemOrder[quemIndex]];
+  document.getElementById("quemNum").textContent = quemIndex + 1;
+  document.getElementById("quemMsg").classList.add("hidden");
+  document.getElementById("quemInput").value = "";
+  document.getElementById("quemNextHint").disabled = false;
+  document.getElementById("quemReveal").disabled = false;
+  document.getElementById("quemInput").focus();
+
+  const catEl = document.getElementById("quemCategory");
+  catEl.textContent = q.cat === "animal" ? "🐾 Animal" : q.cat === "famoso" ? "⭐ Famoso" : "📦 Algo";
+  catEl.className = "category-badge " + (q.cat === "animal" ? "cat-animal" : q.cat === "famoso" ? "cat-famoso" : "cat-algo");
+
+  const hintList = document.getElementById("hintList");
+  hintList.innerHTML = "";
+  for (let i = 0; i < 5; i++) {
+    const li = document.createElement("li");
+    li.innerHTML = '<span class="hint-num">Dica ' + (i + 1) + ':</span>' + q.dicas[i];
+    hintList.appendChild(li);
+  }
+
+  buildQuemProgress();
+  showNextHint();
+}
+
+function buildQuemProgress() {
+  const c = document.getElementById("quemProgress");
+  c.innerHTML = "";
+  for (let i = 0; i < 5; i++) {
+    const d = document.createElement("span");
+    d.className = "quem-dot";
+    if (i < quemHintIndex) d.classList.add("active");
+    c.appendChild(d);
+  }
+}
+
+function showNextHint() {
+  if (quemOver || quemHintIndex >= 5) return;
+  const items = document.querySelectorAll("#hintList li");
+  items[quemHintIndex].classList.add("show");
+  quemHintIndex++;
+  buildQuemProgress();
+  if (quemHintIndex >= 5) {
+    document.getElementById("quemNextHint").disabled = true;
+  }
+}
+
+function revealAnswer() {
+  if (quemOver) return;
+  quemOver = true;
+  const q = QUEM[quemOrder[quemIndex]];
+  const msg = document.getElementById("quemMsg");
+  msg.className = "result no";
+  msg.textContent = "A resposta era: " + q.r;
+  msg.classList.remove("hidden");
+  document.querySelectorAll("#hintList li").forEach(li => li.classList.add("show"));
+  document.getElementById("quemNextHint").disabled = true;
+  const dots = document.querySelectorAll(".quem-dot");
+  dots[4].classList.add("fail");
+  advanceQuem();
+}
+
+function checkQuem() {
+  if (quemOver) return;
+  const input = document.getElementById("quemInput");
+  const guess = input.value.trim().toLowerCase();
+  if (!guess) { input.focus(); return; }
+
+  const q = QUEM[quemOrder[quemIndex]];
+  const resp = q.r.toLowerCase();
+  const acertou = guess === resp || resp.includes(guess) || guess.includes(resp);
+
+  if (acertou) {
+    quemOver = true;
+    const pontos = [50, 40, 30, 20, 10][quemHintIndex - 1] || 10;
+    quemScore += pontos;
+    document.getElementById("quemPts").textContent = quemScore;
+    const msg = document.getElementById("quemMsg");
+    msg.className = "result ok";
+    msg.textContent = "ACERTOU! + " + pontos + " pontos. Era: " + q.r;
+    msg.classList.remove("hidden");
+    document.querySelectorAll("#hintList li").forEach(li => li.classList.add("show"));
+    document.getElementById("quemNextHint").disabled = true;
+    const dots = document.querySelectorAll(".quem-dot");
+    dots[quemHintIndex - 1].classList.add("done");
+    advanceQuem();
+  } else {
+    const msg = document.getElementById("quemMsg");
+    msg.className = "result no";
+    msg.textContent = "Não é... Tente de novo ou peça a próxima dica!";
+    msg.classList.remove("hidden");
+  }
+  input.value = "";
+  input.focus();
+}
+
+document.getElementById("quemInput").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") checkQuem();
+});
+
+function advanceQuem() {
+  setTimeout(() => {
+    quemIndex++;
+    if (quemIndex >= QUEM.length) {
+      document.getElementById("quemResult").textContent = "FIM! Pontuação final: " + quemScore + " pontos";
+      document.getElementById("quemGame").classList.add("hidden");
+      document.getElementById("quemStart").classList.remove("hidden");
+      document.getElementById("quemStart").querySelector("button").textContent = "🔄 Jogar novamente";
+    } else {
+      loadQuem();
+    }
+  }, 2000);
+}
+
+function resetQuem() {
+  quemIndex = 0;
+  quemScore = 0;
+  document.getElementById("quemResult").textContent = "";
+  document.getElementById("quemPts").textContent = "0";
+  loadQuem();
+}
+
+/* ==================== FILME OU DESENHO ==================== */
+const FILMES = [
+  { r:"Frozen", tipo:"desenho", dicas:["Uma princesa que foge de casa e controla gelo.", "Tem uma irmã chamada Anna e um bicho de neve chamado Olaf.", "A música mais famosa é 'Let It Go'.", "A vilã é a própria irmã, mas depois se redime.", "O filme é da Disney e se passa em um reino gelado."] },
+  { r:"Shrek", tipo:"desenho", dicas:["Um ogro verde que mora num pântano.", "Se apaixona pela princesa Fiona.", "Tem um burro falante como melhor amigo.", "O vilão é o Lord Farquaad, um cara bem baixinho.", "Diz 'É melhor cedo do que nunca' e vive fugindo."] },
+  { r:"Toy Story", tipo:"desenho", dicas:["Brinquedos ganham vida quando ninguém olha.", "O cowboy Woody é o brinquedo favorito.", "Um astronauta chamado Buzz Lightyear chega e muda tudo.", "O tema de amizade é muito forte.", "É o primeiro filme feito inteiramente por computador."] },
+  { r:"O Rei Leão", tipo:"desenho", dicas:["Um filhote de leão é o herdeiro do trono.", "Seu pai morre e ele foge culpado.", "Tem dois amigos engraçados: um guaxinim e um porco.", "O vilão é seu tio, chamado Scar.", "A música 'Circle of Life' é inesquecível."] },
+  { r:"Cinderela", tipo:"desenho", dicas:["Uma menina que serve na casa da madrasta.", "Tem duas meias-irmãs bem malvadas.", "Uma fada madrinha transforma uma abóbora em carruagem.", "Perde um sapato de cristal na escadaria.", "O príncipe a encontra com o sapato."] },
+  { r:"Peppa Pig", tipo:"desenho", dicas:["Uma porquinha que adora saltar em poças de lama.", "Tem um irmãozinho chamado George.", "O papai Pig tem uma barriga redonda.", "Vive situações do dia a dia com a família.", "É um desenho britânico para crianças pequeninhas."] },
+  { r:"Pantera Negra", tipo:"filme", dicas:["Um herói africano com um traje preto tecnológico.", "O país fictício se chama Wakanda.", "Usa garras afiadas nos pulsos.", "O herói é o rei do seu povo.", "O vilão é seu primo, chamado Killmonger."] },
+  { r:"Homem-Aranha", tipo:"filme", dicas:["Um jovem chamado Peter Parker é mordido por uma aranha.", "Ganha poderes de escalar paredes e jogar teias.", "Luta contra vilões como o Duende Verde.", "Vive em Nova York e trabalha como fotógrafo.", "Diz 'Com grande poder vem grande responsabilidade'."] },
+  { r:"Batman", tipo:"filme", dicas:["Um homem morcego que luta contra o crime à noite.", "Seu pai foi morto e ele jurou vingança.", "Usa um manto preto e uma máscara.", "Vive em Gotham City, uma cidade perigosa.", "Seu maior inimigo é o Coringa."] },
+  { r:"Vingadores", tipo:"filme", dicas:["Um grupo de super-heróis se une para salvar o mundo.", "Tem o Homem de Ferro, o Capitão América e o Thor.", "O vilão mais poderoso é o Thanos.", "O filme reúne heróis de várias franquias da Marvel.", "É um dos filmes que mais arrecadou na história."] },
+  { r:"A Pequena Sereia", tipo:"desenho", dicas:["Uma sereia que quer virar gente.", "Ariel troca sua voz por três dias de pernas.", "O vilão é a bruxa do mar, Úrsula.", "O príncipe Eric não pode ouvir sua voz.", "Tem um caranguejo que toca música."] },
+  { r:"Moana", tipo:"desenho", dicas:["Uma menina que navega pelo oceano.", "O semideus Maui a ajuda na jornada.", "O Heart of Te Fiti precisa ser devolvido.", "O pai dela é chefe de uma ilha.", "Tem a música 'How Far I'll Go'."] },
+  { r:"Naruto", tipo:"desenho", dicas:["Um ninja ranheta que quer ser o líder da vila.", "Tem um espírito de raposa selado dentro de si.", "Usa roupas laranjas e faz jutsus.", "Seus melhores amigos são Sasuke e Sakura.", "Sonha em ser Hokage um dia."] },
+  { r:"Dragon Ball Z", tipo:"desenho", dicas:["Um guerreiro com poderes de luta sobre-humanos.", "Pode se transformar em Super Saiyajin.", "Coleta esferas do dragão para realizar desejos.", "Seu nome é Goku e ele é do planeta Planeta Vegeta.", "Defende a Terra de vilões do espaço."] },
+  { r:"O Nome da Rosa", tipo:"filme", dicas:["Um monge franciscano investiga mortes em uma abadia.", "A história se passa na Idade Média.", "O vilão quer destruir um livro proibido.", "Tem muitos corredores escuros e mistérios.", "O ator principal é Sean Connery."] },
+  { r:"Titanic", tipo:"filme", dicas:["Um navio gigante bate em um iceberg.", "Um jovem artista se apaixona por uma rica.", "Jack morre congelado no oceano gelado.", "Rose sobrevive e conta a história décadas depois.", "A música tema é de Celine Dion."] },
+  { r:"Avatar", tipo:"filme", dicas:["Humanos vão para o planeta Pandora.", "Os nativos se chamam Na'vi e são azuis.", "Um soldado paralítico controla um corpo Na'vi.", "Há uma árvore sagrada e um link entre todos.", "O filme revolucionou o cinema 3D."] },
+  { r:"Coco", tipo:"desenho", dicas:["Um menino quer ser músico, mas a família proíbe.", "Viaja acidentalmente ao Mundo dos Mortos.", "Encontra seu bisavô e descobre segredos.", "O filme é mexicano e tem o Dia dos Mortos.", "A música 'Remember Me' emociona até os adultos."] },
+  { r:"Meu Malvado Favorito", tipo:"desenho", dicas:["Um vilão chamado Gru quer roubar a Lua.", "Adota três órfãs para usar em seu plano.", "Tem minionzinhos amarelos trabalhando para ele.", "Gru se apaixona por uma agente secreta.", "Acaba se tornando um pai amoroso."] },
+  { r:"Os Incríveis", tipo:"desenho", dicas:["Uma família inteira tem poderes de super-heróis.", "O pai pode crescer e a mãe pode esticar.", "Os filhos têm super velocidade e invisibilidade.", "O filme é da Pixar e tem muito ação.", "O vilão tem poderes baseados em tecnologia."] },
+  { r:"Aladdin", tipo:"desenho", dicas:["Um jovem ladrão encontra uma lâmpada mágica.", "Sai um gênio azul que concede desejos.", "Ele se apaixona pela Princesa Jasmine.", "O vilão é o Jafar, conselheiro do sultão.", "O tapete voador é um personagem importante."] },
+  { r:"Spirited Away", tipo:"desenho", dicas:["Uma menina entra num mundo de espíritos.", "Os pais viram porcos por comerem à toa.", "Ela trabalha em uma casa de banho para espíritos.", "O dono do lugar é uma bruxa叫 Yubaba.", "O filme é japonês e ganhou o Oscar."] },
+  { r:"O Livro da Selva", tipo:"desenho", dicas:["Um menino criado por lobos na selva.", "Tem um urso chamado Baloo que é preguiçoso.", "A pantera Bagheera o protege.", "O tigre Shere Khan quer caçá-lo.", "A música 'Sob os Telhados de Paris' é clássica."] },
+  { r:"Pocahontas", tipo:"desenho", dicas:["Uma princesa indígena que faz amizade com colonizadores.", "Tem um amigo esquilo chamado Meeko.", "Ensinou que todas as pessoas são iguais.", "OEuropeu John Smith se apaixona por ela.", "Tem a bela música 'Colors of the Wind'."] },
+  { r:"Lilo & Stitch", tipo:"desenho", dicas:["Uma menina havaiana adota um 'cachorro' estranho.", "O 'cachorro' é na verdade um experimento alienígena.", "O experimento se chama Stitch, número 626.", "Ela tem uma irmã mais velha que a criou.", "A frase 'Ohana significa família' é famosa."] },
+  { r:"Kung Fu Panda", tipo:"desenho", dicas:["Um panda gordinho quer ser mestre de kung fu.", "O Mestre Oogway o escolhe como guerreiro dragão.", "Tem um dedo dragão que concede poder ilimitado.", "O vilão é o Tai Lung, um leopardo da neve.", "O panda Po aprende que a chave é acreditar em si."] },
+  { r:"Branca de Neve", tipo:"desenho", dicas:["Uma princesa mais bela que a rainha má.", "A rainha quer seu coração numa caixa de vidro.", "Sete anjinhos da floresta a acolhem.", "Come uma maçã envenenada e adormece.", "O príncipe a desperta com um beijo."] },
+  { r:"Peter Pan", tipo:"desenho", dicas:["Um menino que nunca cresce.", "Vive na Terra do Nunca com fadas.", "Tem uma fadinha chamada Sininho.", "Luta contra o Capitão Gancho.", "Wendy e seus irmãos voam até lá com pó de fada."] },
+  { r:"A Bela e a Fera", tipo:"desenho", dicas:["Uma menina troca o pai prisioneiro de uma fera.", "A fera é na verdade um príncipe amaldiçoado.", "Vivem num castelo encantado com móveis que falam.", "A rosa mágica está desabando.", "O amor quebra a maldição no final."] },
+  { r:"Dumbo", tipo:"desenho", dicas:["Um elefante que tem orelhas gigantes.", "Voar usando suas orelhas enormes.", "Atrai chacota no circo por ser diferente.", "Sua mãe fica presa num vagão trancado.", "O filme é da Disney e é muito emocionante."] },
+  { r:"Bambi", tipo:"desenho", dicas:["Um filhote de veado perde a mãe num tiroteio.", "Cresce na floresta com seus amigos.", "Tem uma coelhinha chamada Faline.", "O pai é o Grande Príncipe da Floresta.", "O filme é sobre amadurecimento e perda."] },
+  { r:"Ratatouille", tipo:"desenho", dicas:["Um rato que sonha ser chef de cozinha.", "Morre em Paris e controla um cozinheiro pelo cabelo.", "O crítico de comida Anton Ego muda de opinião.", "O lema é 'Qualquer um pode cozinhar'.", "O rato se chama Remy e ama refrigerantes."] },
+  { r:"Up: Uma Aventura nas Alturas", tipo:"desenho", dicas:["Um velhinho solitário que voa sua casa com balões.", "Prometeu à esposa falecida ir ao Parque do Perdei.", "Um boy scout acidental o acompanha.", "Tem um cachorro que fala e um pássaro raro.", "A casa voa até a América do Sul."] },
+  { r:"A Boquinha do Silêncio", tipo:"desenho", dicas:["Uma princesa que desenha em todas as superfícies.", "A mãe desapareceu e ela busca respostas.", "Tem um companheiro chamado Ovo Frito.", "A vila proíbe qualquer tipo de arte.", "O desenho é coreano e visualmente deslumbrante."] },
+  { r:"Como Treinar seu Dragão", tipo:"desenho", dicas:["Um jovem viking que não quer matar dragões.", "Encontra um dragão ferido e o cura.", "O dragão se chama Esfinge e é preto.", "A vila dele vive de matar dragões.", "A amizade deles muda a história dos vikings."] },
+  { r:"O Protagonista", tipo:"filme", dicas:["Um homem descobre que sua vida é um reality show.", "Todos ao redor são atores exceto ele.", "Vive numa ilha gigante que é um estúdio.", "O criador do programa é um homem sorridente.", "O filme estrela Jim Carrey."] },
+  { r:"Matrix", tipo:"filme", dicas:["O mundo real é uma simulação criada por máquinas.", "O herói se chama Neo e escolhe a pílula vermelha.", "Pode dodging de balas em câmera lenta.", "Morpheus é o mentor que acredita nele.", "O filme mistura filosofia com ação."] },
+  { r:"E.T.", tipo:"filme", dicas:["Um alienígena perde a busca de sua nave.", "Uma criança o esconde no quarto.", "Eles se comunicam com um dedo brilhante.", "O alienígena quer 'Casa' para voltar ao planeta.", "A bicicleta voa diante da lua cheia."] },
+  { r:"Procurando Nemo", tipo:"desenho", dicas:["Um peixe-palhaço perde seu filho no oceano.", "O filho se chama Nemo e é levado para um aquário.", "A mãe Dory tem problemas de memória.", "Nemo viaja pelo oceano inteiro atrás do filho.", "A frase 'Para trás e para frente' é clássica."] },
+  { r:"Monstros S.A.", tipo:"desenho", dicas:["Monstros trabalham assustando crianças.", "O emprego deles é gerar energia pelo grito.", "Um monstro azul e um roxo são melhores amigos.", "Uma menina chamada Boo invade o mundo dos monstros.", "O chefe da empresa é um monstro grande e bravo."] },
+  { r:"A Origem", tipo:"filme", dicas:["Um ladrão entra nos sonhos das pessoas.", "Usa um dispositivo chamado PASIV.", "Cria sonhos dentro de sonhos (layered dreams).", "O objetivo é plantar uma ideia na mente de alguém.", "O filme termina com um girando-top sem cair."] },
+  { r:"Luca", tipo:"desenho", dicas:["Um monstro marinho que quer descobrir o mundo humano.", "Na superfície vira um menino normal.", "Tem um amigo chamado Alberto.", "Sonham em ter uma Vespa.", "O filme se passa na Itália e tem muito pesto."] },
+  { r:"Turner & Hooch", tipo:"filme", dicas:["Um policial metódico adota um cão bagunceiro.", "O cão tem um faro incrível para resolver crimes.", "Os dois não se entendem no começo.", "O filme é uma comédia com Tom Hanks.", "Hooch é um cão Dogue Francês gigante."] },
+  { r:"Lightyear", tipo:"desenho", dicas:["O space ranger real que inspirou o brinquedo.", "Viaja no tempo e envelhece enquanto os amigos ficam parados.", "Tem um gato robótico chamado Sox.", "O vilão é um corrupted do passado dele.", "O filme é da Pixar e é uma pré-história de Toy Story."] },
+  { r:"Valente", tipo:"desenho", dicas:["Uma princesa arqueira que não quer casar.", "Foge do casamento e se transforma em urso.", "A mãe a transforma para ensiná-la lição.", "Precisa de 'amor verdadeiro' para desfazer a maldição.", "O filme é da Pixar/Marvel e tem mitologia escocesa."] },
+  { r:"Divertida Mente", tipo:"desenho", dicas:["As emoções de uma menina ganham vida na cabeça.", "Alegria e Tristeza são as protagonistas.", "A Riley se muda para São Francisco e fica triste.", "Tem os Personagens Projeção e o Vão da Memória.", "O filme é da Pixar e explica como o cérebro funciona."] },
+  { r:"Sing", tipo:"desenho", dicas:["Animais se preparam para um concurso de canto.", "O organizador é um koala otimista.", "Tem um urso, uma porca, um macaco e uma elefanta.", "O teatro está prestes a ser fechado.", "A trilha sonora tem músicas famosas de vários estilos."] },
+  { r:"Zootopia", tipo:"desenho", dicas:["Uma cidade onde animais convivem como humanos.", "A coelha Judy quer ser policial.", "O raposa Nick é seu parceiro de investigação.", "Há uma conspiração com predadores selvagens.", "O filme fala sobre preconceito e diversidade."] },
+  { r:"Encanto", tipo:"desenho", dicas:["Uma família colombiana com poderes mágicos.", "A protagonist Mirabel não ganha poder.", "A casa mágica se chama Casita.", "Cada membro tem um dom especial.", "O vilão é o próprio segredo da família."] },
+  { r:"Soul", tipo:"desenho", dicas:["Um professor de música morre antes de debutar.", "Viaja ao Mundo dos Pré-Nascidos antes de nascer.", "O 22 não quer nascer na Terra.", "O filme é da Pixar e fala sobre propósito.", "O protagonista é um homem negro em Nova York."] },
+  { r:"Elemental", tipo:"desenho", dicas:["Em um mundo de elementos, Fogo e Água se apaixonam.", "A garota é feita de fogo e o garoto de água.", "Vivem na Elemental City.", "Os pais dela são imigrantes.", "O filme é da Pixar e tem metáforas sobre diversidade."] },
+  { r:"Wish", tipo:"desenho", dicas:["Uma jovem faz um pedido à estrela.", "O rei tem o poder de conceder desejos.", "A estrela ganha vida e a ajuda.", "O filme é da Disney comemorando 100 anos.", "A protagonista se chama Asha."] },
+];
+
+let filmeIndex = 0;
+let filmeHintIndex = 0;
+let filmeScore = 0;
+let filmeOver = false;
+let filmeOrder = [];
+
+function shuffleArr(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startFilme() {
+  filmeOrder = shuffleArr([...Array(FILMES.length).keys()]);
+  filmeIndex = 0;
+  filmeScore = 0;
+  document.getElementById("filmeStart").classList.add("hidden");
+  document.getElementById("filmeGame").classList.remove("hidden");
+  document.getElementById("filmeResult").textContent = "";
+  document.getElementById("filmePts").textContent = "0";
+  loadFilme();
+}
+
+function loadFilme() {
+  filmeHintIndex = 0;
+  filmeOver = false;
+  const f = FILMES[filmeOrder[filmeIndex]];
+  document.getElementById("filmeNum").textContent = filmeIndex + 1;
+  document.getElementById("filmeMsg").classList.add("hidden");
+  document.getElementById("filmeInput").value = "";
+  document.getElementById("filmeNextHint").disabled = false;
+  document.getElementById("filmeReveal").disabled = false;
+  document.getElementById("filmeInput").focus();
+
+  const typeEl = document.getElementById("filmeType");
+  typeEl.textContent = f.tipo === "filme" ? "🎬 Filme" : "🎨 Desenho";
+  typeEl.className = "filme-badge " + (f.tipo === "filme" ? "badge-filme" : "badge-desenho");
+
+  const hintsContainer = document.getElementById("filmeHints");
+  hintsContainer.innerHTML = "";
+  for (let i = 0; i < 5; i++) {
+    const div = document.createElement("div");
+    div.className = "filme-hint";
+    div.innerHTML = '<span class="fh-num">Dica ' + (i + 1) + ':</span>' + f.dicas[i];
+    hintsContainer.appendChild(div);
+  }
+  showFilmeHint();
+}
+
+function showFilmeHint() {
+  if (filmeOver || filmeHintIndex >= 5) return;
+  const hints = document.querySelectorAll(".filme-hint");
+  hints[filmeHintIndex].classList.add("show");
+  filmeHintIndex++;
+  if (filmeHintIndex >= 5) {
+    document.getElementById("filmeNextHint").disabled = true;
+  }
+}
+
+function revealFilme() {
+  if (filmeOver) return;
+  filmeOver = true;
+  const f = FILMES[filmeOrder[filmeIndex]];
+  const msg = document.getElementById("filmeMsg");
+  msg.className = "result no";
+  msg.textContent = "A resposta era: " + f.r + " (" + (f.tipo === "filme" ? "Filme" : "Desenho") + ")";
+  msg.classList.remove("hidden");
+  document.querySelectorAll(".filme-hint").forEach(h => h.classList.add("show"));
+  document.getElementById("filmeNextHint").disabled = true;
+  advanceFilme();
+}
+
+function checkFilme() {
+  if (filmeOver) return;
+  const input = document.getElementById("filmeInput");
+  const guess = input.value.trim().toLowerCase();
+  if (!guess) { input.focus(); return; }
+
+  const f = FILMES[filmeOrder[filmeIndex]];
+  const resp = f.r.toLowerCase();
+  const acertou = guess === resp || resp.includes(guess) || guess.includes(resp);
+
+  if (acertou) {
+    filmeOver = true;
+    const pontos = [50, 40, 30, 20, 10][filmeHintIndex - 1] || 10;
+    filmeScore += pontos;
+    document.getElementById("filmePts").textContent = filmeScore;
+    const msg = document.getElementById("filmeMsg");
+    msg.className = "result ok";
+    msg.textContent = "ACERTOU! + " + pontos + " pontos. Era: " + f.r;
+    msg.classList.remove("hidden");
+    document.querySelectorAll(".filme-hint").forEach(h => h.classList.add("show"));
+    document.getElementById("filmeNextHint").disabled = true;
+    advanceFilme();
+  } else {
+    const msg = document.getElementById("filmeMsg");
+    msg.className = "result no";
+    msg.textContent = "Não é... Tente de novo ou peça a próxima dica!";
+    msg.classList.remove("hidden");
+  }
+  input.value = "";
+  input.focus();
+}
+
+document.getElementById("filmeInput").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") checkFilme();
+});
+
+function advanceFilme() {
+  setTimeout(() => {
+    filmeIndex++;
+    if (filmeIndex >= FILMES.length) {
+      document.getElementById("filmeResult").textContent = "FIM! Pontuação final: " + filmeScore + " pontos";
+      document.getElementById("filmeGame").classList.add("hidden");
+      document.getElementById("filmeStart").classList.remove("hidden");
+      document.getElementById("filmeStart").querySelector("button").textContent = "🔄 Jogar novamente";
+    } else {
+      loadFilme();
+    }
+  }, 2000);
+}
+
+function resetFilme() {
+  filmeIndex = 0;
+  filmeScore = 0;
+  document.getElementById("filmeResult").textContent = "";
+  document.getElementById("filmePts").textContent = "0";
+  loadFilme();
+}
+
+/* ==================== MEMÓRIA RELÂMPAGO ==================== */
+const MEMORIA_ROUNDS = [
+  { itens:["&#128049; Gato","&#128054; Cachorro","&#127822; Maçã","&#9917; Bola","&#128218; Livro","&#9749; Caneca"], escondido:0 },
+  { itens:["&#127796; Palmeira","&#128301; Lupa","&#127856; Pizza","&#128187; Computador","&#127925; Violão","&#128293; Fogo"], escondido:3 },
+  { itens:["&#128690; Foguete","&#127800; Flor","&#128184; Envelope","&#9992; Avião","&#127934; Sapato","&#127848; Bolo"], escondido:5 },
+  { itens:["&#127774; Sol","&#128167; Gotas","&#127928; Teclado","&#128056; Macaco","&#128190; Relógio","&#127854; Espaguete"], escondido:1 },
+  { itens:["&#128163; Bomba","&#127880; Cone","&#127935; Prancha","&#128038; Caracol","&#128296; Chave inglesa","&#127868; Faca"], escondido:2 },
+  { itens:["&#128025; Trator","&#127812; Minhoca","&#128191; Pasta","&#9883; Âncora","&#127839; Pipa","&#128059; Urso"], escondido:4 },
+  { itens:["&#127982; Bandeira","&#128302; Poção","&#127859; Cookie","&#128193; Pasta de arquivo","&#127933; Skate","&#128029; Louva-a-deus"], escondido:0 },
+  { itens:["&#128171; Rocket","&#127803; Margarida","&#128190; Relógio","&#128293; Fogo","&#128175; Polegar para cima","&#127820; Uva"], escondido:5 },
+  { itens:["&#128176; Dinheiro","&#127942; Troféu","&#128296; Chave","&#127812; Minhoca","&#128038; Caracol","&#128164; Cometa"], escondido:3 },
+  { itens:["&#128301; Lupa","&#127800; Flor","&#128191; Pasta","&#127935; Prancha","&#128025; Trator","&#128058; Coelho"], escondido:2 },
+  { itens:["&#127848; Bolo","&#128163; Bomba","&#9883; Âncora","&#127934; Sapato","&#127839; Pipa","&#128049; Gato"], escondido:1 },
+  { itens:["&#128054; Cachorro","&#127822; Maçã","&#9917; Bola","&#128218; Livro","&#9749; Caneca","&#128171; Rocket"], escondido:4 },
+  { itens:["&#127796; Palmeira","&#127856; Pizza","&#128187; Computador","&#127925; Violão","&#128293; Fogo","&#128038; Caracol"], escondido:0 },
+  { itens:["&#128167; Gotas","&#128190; Relógio","&#127854; Espaguete","&#128056; Macaco","&#127928; Teclado","&#127859; Cookie"], escondido:5 },
+  { itens:["&#127880; Cone","&#127933; Skate","&#128029; Louva-a-deus","&#128193; Pasta de arquivo","&#128302; Poção","&#128049; Gato"], escondido:3 },
+  { itens:["&#127982; Bandeira","&#128176; Dinheiro","&#127942; Troféu","&#128164; Cometa","&#128058; Coelho","&#127820; Uva"], escondido:2 },
+  { itens:["&#128025; Trator","&#127812; Minhoca","&#9992; Avião","&#128301; Lupa","&#127803; Margarida","&#128059; Urso"], escondido:0 },
+  { itens:["&#128171; Rocket","&#127934; Sapato","&#127839; Pipa","&#128049; Gato","&#128054; Cachorro","&#127822; Maçã"], escondido:4 },
+  { itens:["&#9917; Bola","&#128218; Livro","&#9749; Caneca","&#127796; Palmeira","&#127856; Pizza","&#128187; Computador"], escondido:5 },
+  { itens:["&#127925; Violão","&#128293; Fogo","&#128167; Gotas","&#128190; Relógio","&#127854; Espaguete","&#128056; Macaco"], escondido:1 },
+  { itens:["&#127928; Teclado","&#127859; Cookie","&#127880; Cone","&#127933; Skate","&#128029; Louva-a-deus","&#128193; Pasta de arquivo"], escondido:3 },
+  { itens:["&#128302; Poção","&#128049; Gato","&#128054; Cachorro","&#127822; Maçã","&#9917; Bola","&#128218; Livro"], escondido:0 },
+  { itens:["&#9749; Caneca","&#127796; Palmeira","&#127856; Pizza","&#128187; Computador","&#127925; Violão","&#128293; Fogo"], escondido:2 },
+  { itens:["&#128167; Gotas","&#127928; Teclado","&#128056; Macaco","&#128190; Relógio","&#127854; Espaguete","&#127800; Flor"], escondido:4 },
+  { itens:["&#127859; Cookie","&#127880; Cone","&#127933; Skate","&#128029; Louva-a-deus","&#128193; Pasta de arquivo","&#128302; Poção"], escondido:1 },
+  { itens:["&#127803; Margarida","&#128059; Urso","&#128176; Dinheiro","&#127942; Troféu","&#128164; Cometa","&#128058; Coelho"], escondido:3 },
+  { itens:["&#127820; Uva","&#128025; Trator","&#127812; Minhoca","&#9992; Avião","&#128301; Lupa","&#128049; Gato"], escondido:5 },
+  { itens:["&#128054; Cachorro","&#127822; Maçã","&#9917; Bola","&#128218; Livro","&#9749; Caneca","&#127796; Palmeira"], escondido:0 },
+  { itens:["&#127856; Pizza","&#128187; Computador","&#127925; Violão","&#128293; Fogo","&#128167; Gotas","&#128190; Relógio"], escondido:2 },
+  { itens:["&#127854; Espaguete","&#128056; Macaco","&#127928; Teclado","&#127859; Cookie","&#127880; Cone","&#127933; Skate"], escondido:4 },
+];
+
+let memoriaIndex = 0;
+let memoriaScore = 0;
+let memoriaPhase = "show";
+let memoriaHidden = -1;
+let memoriaTimer = null;
+let memoriaTimeLeft = 0;
+let memoriaOrder = [];
+
+function shuffleMem(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startMemoria() {
+  memoriaOrder = shuffleMem([...Array(MEMORIA_ROUNDS.length).keys()]);
+  memoriaIndex = 0;
+  memoriaScore = 0;
+  document.getElementById("memoriaStart").classList.add("hidden");
+  document.getElementById("memoriaGame").classList.remove("hidden");
+  document.getElementById("memoriaResult").textContent = "";
+  document.getElementById("memoriaPts").textContent = "0";
+  loadMemoria();
+}
+
+function loadMemoria() {
+  memoriaPhase = "show";
+  document.getElementById("memoriaMsg").classList.add("hidden");
+  document.getElementById("memoriaOptions").innerHTML = "";
+  document.getElementById("memoriaNum").textContent = memoriaIndex + 1;
+
+  const r = MEMORIA_ROUNDS[memoriaOrder[memoriaIndex]];
+  memoriaHidden = r.escondido;
+
+  const grid = document.getElementById("memoriaGrid");
+  grid.innerHTML = "";
+  r.itens.forEach((item, i) => {
+    const parts = item.split(" ");
+    const emoji = parts[0];
+    const word = parts.slice(1).join(" ");
+    const card = document.createElement("div");
+    card.className = "memoria-card";
+    card.innerHTML = '<span class="card-emoji">' + emoji + '</span><span class="card-word">' + word + '</span>';
+    grid.appendChild(card);
+  });
+
+  memoriaTimeLeft = 3;
+  document.getElementById("memoriaTimer").innerHTML = "Memorize! Tempo: <b>" + memoriaTimeLeft + "s</b>";
+  memoriaTimer = setInterval(() => {
+    memoriaTimeLeft--;
+    document.getElementById("memoriaTimer").innerHTML = "Memorize! Tempo: <b>" + memoriaTimeLeft + "s</b>";
+    if (memoriaTimeLeft <= 0) {
+      clearInterval(memoriaTimer);
+      hideOne();
+    }
+  }, 1000);
+}
+
+function hideOne() {
+  memoriaPhase = "guess";
+  const grid = document.getElementById("memoriaGrid");
+  const cards = grid.querySelectorAll(".memoria-card");
+  cards[memoriaHidden].classList.add("hidden-card");
+
+  document.getElementById("memoriaTimer").innerHTML = "Qual item sumiu? &#128064;";
+
+  const r = MEMORIA_ROUNDS[memoriaOrder[memoriaIndex]];
+  const hiddenItem = r.itens[memoriaHidden].split(" ").slice(1).join(" ");
+
+  const options = [];
+  options.push(hiddenItem);
+  const otherIndices = r.itens.map((_, i) => i).filter(i => i !== memoriaHidden);
+  const shuffledOthers = shuffleMem(otherIndices);
+  for (let i = 0; i < 3 && i < shuffledOthers.length; i++) {
+    options.push(r.itens[shuffledOthers[i]].split(" ").slice(1).join(" "));
+  }
+  const shuffledOpts = shuffleMem(options);
+
+  const optContainer = document.getElementById("memoriaOptions");
+  optContainer.innerHTML = "";
+  shuffledOpts.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.onclick = () => guessMemoria(opt, hiddenItem, btn);
+    optContainer.appendChild(btn);
+  });
+}
+
+function guessMemoria(guess, correct, btn) {
+  if (memoriaPhase !== "guess") return;
+  memoriaPhase = "done";
+  clearInterval(memoriaTimer);
+
+  const allBtns = document.querySelectorAll("#memoriaOptions button");
+  allBtns.forEach(b => b.style.pointerEvents = "none");
+
+  const grid = document.getElementById("memoriaGrid");
+  const cards = grid.querySelectorAll(".memoria-card");
+  cards[memoriaHidden].classList.remove("hidden-card");
+  cards[memoriaHidden].classList.add("show-answer");
+
+  if (guess.toLowerCase() === correct.toLowerCase()) {
+    btn.classList.add("opt-correct");
+    const pontos = 15;
+    memoriaScore += pontos;
+    document.getElementById("memoriaPts").textContent = memoriaScore;
+    const msg = document.getElementById("memoriaMsg");
+    msg.className = "result ok";
+    msg.textContent = "ACERTOU! +" + pontos + " pontos. Era: " + correct;
+    msg.classList.remove("hidden");
+  } else {
+    btn.classList.add("opt-wrong");
+    allBtns.forEach(b => {
+      if (b.textContent.toLowerCase() === correct.toLowerCase()) b.classList.add("opt-correct");
+    });
+    cards[memoriaHidden].classList.add("wrong-card");
+    const msg = document.getElementById("memoriaMsg");
+    msg.className = "result no";
+    msg.textContent = "ERROU! A resposta era: " + correct;
+    msg.classList.remove("hidden");
+  }
+
+  setTimeout(() => {
+    memoriaIndex++;
+    if (memoriaIndex >= MEMORIA_ROUNDS.length) {
+      document.getElementById("memoriaResult").textContent = "FIM! Pontuação final: " + memoriaScore + " pontos";
+      document.getElementById("memoriaGame").classList.add("hidden");
+      document.getElementById("memoriaStart").classList.remove("hidden");
+      document.getElementById("memoriaStart").querySelector("button").textContent = "🔄 Jogar novamente";
+    } else {
+      loadMemoria();
+    }
+  }, 2200);
+}
+
+function resetMemoria() {
+  clearInterval(memoriaTimer);
+  memoriaIndex = 0;
+  memoriaScore = 0;
+  document.getElementById("memoriaResult").textContent = "";
+  document.getElementById("memoriaPts").textContent = "0";
+  loadMemoria();
+}
+
+/* ==================== VERDADEIRO OU FALSO ==================== */
+const VERDADE = [
+  { af:"O sol é uma estrela.", resp:true, expl:"O sol é uma estrela de tipo G, no centro do nosso sistema solar." },
+  { af:"Os humanos têm 206 ossos no corpo adulto.", resp:true, expl:"Bebês nascem com cerca de 270 ossos que se fundem ao longo da vida." },
+  { af:"A água ferve a 90°C ao nível do mar.", resp:false, expl:"A água ferve a 100°C ao nível do mar." },
+  { af:"Os golfinhos são mamíferos.", resp:true, expl:"Golfinhos respiram ar, amamentam filhotes e são mamíferos marinhos." },
+  { af:"A Lua é um planeta.", resp:false, expl:"A Lua é um satélite natural da Terra, não um planeta." },
+  { af:"Os penguins voam.", resp:false, expl:"Penguins são aves que nadam muito bem, mas não conseguem voar." },
+  { af:"O corpo humano tem 5 sentidos.", resp:true, expl:"Visão, audição, tato, olfato e paladar são os 5 sentidos clássicos." },
+  { af:"Os tardígrados são praticamente indestrutíveis.", resp:true, expl:"Tardígrados sobrevivem ao espaço, radiação e temperaturas extremas." },
+  { af:"Os corvos podem falar palavras.", resp:true, expl:"Corvos são aves muito inteligentes e podem imitar sons humanos." },
+  { af:"A Terra é plana.", resp:false, expl:"A Terra tem formato de esfera levemente achatada nos polos." },
+  { af:"O coala é um urso.", resp:false, expl:"O coala é um marsupial, não um urso." },
+  { af:"O trovão é causado pelo relâmpago.", resp:true, expl:"O trovão é o som da expansão rápida do ar aquecido pelo relâmpago." },
+  { af:"O cinema foi inventado no século XIX.", resp:true, expl:"Os Irmãos Lumière fizeram a primeira exibição em 1895." },
+  { af:"As borboletas têm 6 patas.", resp:true, expl:"Insetos têm 6 patas — borboletas são insetos." },
+  { af:"Os humanos usam apenas 10% do cérebro.", resp:false, expl:"Usamos praticamente 100% do cérebro ao longo do dia." },
+  { af:"As estrelas cadentes são estrelas de verdade.", resp:false, expl:"São pedaços de rocha que queimam ao entrar na atmosfera." },
+  { af:"O colar do filme Titanic era real.", resp:false, expl:"O colar era uma joia fictícia do filme." },
+  { af:"O elefante é o maior animal terrestre.", resp:true, expl:"O elefante africano é o maior animal terrestre que existe." },
+  { af:"O Som viaja mais rápido que a luz.", resp:false, expl:"A luz é muito mais rápida que o som." },
+  { af:"A vaca tem quatro estômagos.", resp:true, expl:"Ruminantes como a vaca têm 4 câmaras estomacais para digerir celulose." },
+  { af:"O diamante é a substância mais dura da natureza.", resp:true, expl:"O diamante tem dureza 10 na escala de Mohs." },
+  { af:"O trovão é mais rápido que o relâmpago.", resp:false, expl:"O relâmpago é instantâneo; o trovão chega depois porque o som é mais lento." },
+  { af:"O Brasil foi colonizado por Portugal.", resp:true, expl:"Portugal chegou ao Brasil em 1500 e colonizou o país." },
+  { af:"O arco-íris tem 6 cores.", resp:false, expl:"O arco-íris tem 7 cores: vermelho, laranja, amarelo, verde, azul, anil e violeta." },
+  { af:"Os gatos ronronam quando felizes.", resp:true, expl:"O ronronar é uma vibração que gatos fazem geralmente de contentamento." },
+  { af:"A Terra demora 365 dias para girar ao redor do Sol.", resp:true, expl:"A órbita da Terra dura aproximadamente 365 dias e 6 horas." },
+  { af:"O pássaro-pimpão pode voar para trás.", resp:false, expl:"Nenhum pássaro voa de verdade para trás; o beija-flor é o mais próximo." },
+  { af:"O ouro é um metal precioso.", resp:true, expl:"O ouro é considerado metal precioso e usado em joias e eletrônicos." },
+  { af:"O deserto do Saara é o maior do mundo.", resp:false, expl:"O maior deserto do mundo é o deserto da Antártida (polar)." },
+  { af:"As abelhas morrem depois de picar.", resp:true, expl:"A maioria das abelhas morre ao picar porque o ferrão fica preso na pele." },
+  { af:"Os dinossauros ainda existem.", resp:true, expl:"As aves são descendentes diretas dos dinossauros terópodes." },
+  { af:"O sangue humano é azul dentro do corpo.", resp:false, expl:"O sangue é sempre vermelho — arterial mais claro, venoso mais escuro." },
+  { af:"A banana é uma fruta baga.", resp:true, expl:"Botanicamente, a banana é classificada como baga." },
+  { af:"O Pacífico é o maior oceano do mundo.", resp:true, expl:"O Pacífico cobre cerca de 30% da superfície da Terra." },
+  { af:"Os morcegos são cegos.", resp:false, expl:"Morcegos enxergam — usam ecolocalização complementarmente." },
+  { af:"A pizza foi inventada na Itália.", resp:true, expl:"A pizza moderna nasceu em Nápoles, Itália, no século XVIII." },
+  { af:"O sangue dos moluscos é azul.", resp:true, expl:"Moluscos como caracóis têm hemocianina (cobre) em vez de hemoglobina." },
+  { af:"A luz do Sol leva 8 minutos para chegar à Terra.", resp:true, expl:"A luz solar percorre 150 milhões de km em ~8 minutos e 20 segundos." },
+  { af:"O camelo guarda água na corcunda.", resp:false, expl:"A corcunda guarda gordura; a água fica no organismo." },
+  { af:"A universidade mais antiga do mundo é em Portugal.", resp:false, expl:"A Universidade de Al-Azhar, no Egito, é mais antiga (970 d.C.)." },
+  { af:"O morcego é o único mamífero que voa de verdade.", resp:true, expl:"Morcegos são os únicos mamíferos com voo verdadeiro (não planar)." },
+  { af:"A Terra tem 2 luas.", resp:false, expl:"A Terra tem apenas 1 lua natural." },
+  { af:"O rio Amazonas é o maior do mundo em volume de água.", resp:true, expl:"O Amazona é o mais volumoso; o Nilo é o mais longo." },
+  { af:"As cobras são venenosas.", resp:false, expl:"Nem todas as cobras são venenosas — a maioria é inofensiva." },
+  { af:"A Amazônia é o maior floresta tropical do mundo.", resp:true, expl:"A Floresta Amazônica cobre cerca de 5,5 milhões de km²." },
+  { af:"Os tubarões têm ossos.", resp:false, expl:"Tubarões têm esqueleto de cartilagem, não de osso." },
+  { af:"A água cobre 70% da superfície da Terra.", resp:true, expl:"Cerca de 71% da superfície terrestre é coberta por água." },
+  { af:"O chocolate é tóxico para cães.", resp:true, expl:"A teobromina do chocolate é venenosa para cães e gatos." },
+  { af:"O trovão é causado por nuvens colidindo.", resp:false, expl:"O trovão vem da expansão súbita do ar aquecido pelo relâmpago." },
+  { af:"O T-Rex tinha braços curtos.", resp:true, expl:"O Tiranossauro Rex tinha braços surpreendentemente pequenos para seu tamanho." },
+  { af:"As estrelas piscam porque tremem.", resp:false, expl:"A atmosfera terrestre distorce a luz, fazendo parecer que piscam." },
+  { af:"Os ursos-polares são canhotos.", resp:false, expl:"Não há comprovado de que ursos-polares tenham preferência por pata." },
+];
+
+let verdadeIndex = 0;
+let verdadeScore = 0;
+let verdadeAcertos = 0;
+let verdadeOrder = [];
+let verdadeAnswered = false;
+
+function startVerdade() {
+  verdadeOrder = shuffleArr([...Array(VERDADE.length).keys()]);
+  verdadeIndex = 0;
+  verdadeScore = 0;
+  verdadeAcertos = 0;
+  document.getElementById("verdadeStart").classList.add("hidden");
+  document.getElementById("verdadeGame").classList.remove("hidden");
+  document.getElementById("verdadeResult").textContent = "";
+  document.getElementById("verdPts").textContent = "0";
+  document.getElementById("verdAcertos").textContent = "0";
+  loadVerdade();
+}
+
+function loadVerdade() {
+  verdadeAnswered = false;
+  const v = VERDADE[verdadeOrder[verdadeIndex]];
+  document.getElementById("verdNum").textContent = verdadeIndex + 1;
+  document.getElementById("verdQuestion").textContent = v.af;
+  document.getElementById("verdadeMsg").classList.add("hidden");
+  document.getElementById("verdExpl").classList.add("hidden");
+  document.getElementById("verdNext").disabled = true;
+
+  const btns = document.querySelectorAll("#verdBtns button");
+  btns.forEach(b => { b.className = b.classList.contains("btn-v") ? "btn-v" : "btn-f"; b.classList.remove("disabled"); });
+}
+
+function answerVerdade(chosen) {
+  if (verdadeAnswered) return;
+  verdadeAnswered = true;
+  const v = VERDADE[verdadeOrder[verdadeIndex]];
+  const correct = v.resp === chosen;
+
+  const btns = document.querySelectorAll("#verdBtns button");
+  btns.forEach(b => b.classList.add("disabled"));
+
+  const msg = document.getElementById("verdadeMsg");
+  const expl = document.getElementById("verdExpl");
+
+  if (correct) {
+    verdadeScore += 10;
+    verdadeAcertos++;
+    msg.className = "result ok";
+    msg.textContent = "✅ VERDADEIRO! +10 pontos";
+    const chosenBtn = chosen ? btns[0] : btns[1];
+    chosenBtn.classList.add("chosen-correct");
+  } else {
+    msg.className = "result no";
+    msg.textContent = "❌ FALSO! A resposta era: " + (v.resp ? "Verdadeiro" : "Falso");
+    const chosenBtn = chosen ? btns[0] : btns[1];
+    chosenBtn.classList.add("chosen-wrong");
+    const correctBtn = v.resp ? btns[0] : btns[1];
+    correctBtn.classList.add("reveal-correct");
+  }
+  msg.classList.remove("hidden");
+
+  expl.textContent = v.expl;
+  expl.classList.remove("hidden");
+
+  document.getElementById("verdPts").textContent = verdadeScore;
+  document.getElementById("verdAcertos").textContent = verdadeAcertos;
+  document.getElementById("verdNext").disabled = false;
+}
+
+function nextVerdade() {
+  verdadeIndex++;
+  if (verdadeIndex >= VERDADE.length) {
+    document.getElementById("verdadeResult").textContent = "FIM! " + verdadeAcertos + "/50 acertos | " + verdadeScore + " pontos";
+    document.getElementById("verdadeGame").classList.add("hidden");
+    document.getElementById("verdadeStart").classList.remove("hidden");
+    document.getElementById("verdadeStart").querySelector("button").textContent = "🔄 Jogar novamente";
+  } else {
+    loadVerdade();
+  }
+}
+
+function resetVerdade() {
+  verdadeIndex = 0;
+  verdadeScore = 0;
+  verdadeAcertos = 0;
+  document.getElementById("verdadeResult").textContent = "";
+  document.getElementById("verdPts").textContent = "0";
+  document.getElementById("verdAcertos").textContent = "0";
+  loadVerdade();
+}
+
+/* ==================== PALAVRAS EMBARALHADAS ==================== */
+const EMBARALHA = [
+  "GATO","ESCOLA","AMIGO","MUNDI","LIVRO","BOLA",
+  "FLOR","SOLUCAO","CAMISA","PRATO","CINCO","NOVE",
+  "FRUTA","RELOGIO","ESCRITA","PORTA","JANELA","CHUVA",
+  "QUARTO","COZINHA","SAPATO","COPO","FACA","COLHER",
+  "CABELO","OLHO","NARIZ","BOCA","MAO","PE",
+  "CIDADE","RUA","PRAIA","MONTANHA","RIO","MAR",
+  "TIGRE","URSO","COELHO","MACACO","GIRAFA","ELEFANTE",
+  "PIPOCA","CHOCOLATE","SORVETE","BISCOITO","SUCO","LEITE",
+  "CINEMA","HISTORIA","MUSICA","DANCA","TEATRO","FESTA"
+];
+
+let embaralhaIndex = 0;
+let embaralhaScore = 0;
+let embaralhaOrder = [];
+let embaralhaTimer = null;
+let embaralhaTimeLeft = 20;
+
+function shuffleStr(s) {
+  const arr = s.split("");
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  const result = arr.join("");
+  return result === s && s.length > 1 ? shuffleStr(s) : result;
+}
+
+function startEmbaralha() {
+  embaralhaOrder = shuffleArr([...Array(EMBARALHA.length).keys()]);
+  embaralhaIndex = 0;
+  embaralhaScore = 0;
+  document.getElementById("embaralhaStart").classList.add("hidden");
+  document.getElementById("embaralhaGame").classList.remove("hidden");
+  document.getElementById("embaralhaResult").textContent = "";
+  document.getElementById("embPts").textContent = "0";
+  loadEmbaralha();
+}
+
+function loadEmbaralha() {
+  clearInterval(embaralhaTimer);
+  document.getElementById("embaralhaMsg").classList.add("hidden");
+  document.getElementById("embaralhaInput").value = "";
+  document.getElementById("embaralhaInput").disabled = false;
+  document.getElementById("embaralhaInput").focus();
+  document.getElementById("embNum").textContent = embaralhaIndex + 1;
+  document.getElementById("embSkip").disabled = false;
+
+  const word = EMBARALHA[embaralhaOrder[embaralhaIndex]];
+  let scrambled = shuffleStr(word);
+  document.getElementById("embWord").textContent = scrambled;
+
+  embaralhaTimeLeft = 20;
+  document.getElementById("embTimerText").textContent = "20";
+  document.getElementById("embTimerBar").style.width = "100%";
+  document.getElementById("embTimerBar").classList.remove("urgent");
+
+  embaralhaTimer = setInterval(() => {
+    embaralhaTimeLeft--;
+    document.getElementById("embTimerText").textContent = embaralhaTimeLeft;
+    document.getElementById("embTimerBar").style.width = (embaralhaTimeLeft / 20 * 100) + "%";
+    if (embaralhaTimeLeft <= 5) document.getElementById("embTimerBar").classList.add("urgent");
+    if (embaralhaTimeLeft <= 0) {
+      clearInterval(embaralhaTimer);
+      timeUpEmbaralha();
+    }
+  }, 1000);
+}
+
+function timeUpEmbaralha() {
+  document.getElementById("embaralhaInput").disabled = true;
+  const word = EMBARALHA[embaralhaOrder[embaralhaIndex]];
+  const msg = document.getElementById("embaralhaMsg");
+  msg.className = "result no";
+  msg.textContent = "⏰ Tempo esgotado! A resposta era: " + word;
+  msg.classList.remove("hidden");
+  document.getElementById("embSkip").disabled = true;
+  setTimeout(() => {
+    embaralhaIndex++;
+    if (embaralhaIndex >= EMBARALHA.length) finishEmbaralha();
+    else loadEmbaralha();
+  }, 2000);
+}
+
+function checkEmbaralha() {
+  if (embaralhaTimeLeft <= 0) return;
+  const input = document.getElementById("embaralhaInput");
+  const guess = input.value.trim().toUpperCase();
+  if (!guess) { input.focus(); return; }
+
+  clearInterval(embaralhaTimer);
+  document.getElementById("embaralhaInput").disabled = true;
+  const word = EMBARALHA[embaralhaOrder[embaralhaIndex]];
+  const msg = document.getElementById("embaralhaMsg");
+
+  if (guess === word) {
+    const bonus = embaralhaTimeLeft >= 15 ? 5 : 0;
+    embaralhaScore += 10 + bonus;
+    msg.className = "result ok";
+    msg.textContent = "ACERTOU! + " + (10 + bonus) + " pontos" + (bonus ? " (bônus rapidez!)" : "") + ". Resposta: " + word;
+  } else {
+    msg.className = "result no";
+    msg.textContent = "ERROU! A resposta era: " + word;
+  }
+  msg.classList.remove("hidden");
+  document.getElementById("embPts").textContent = embaralhaScore;
+  document.getElementById("embSkip").disabled = true;
+  setTimeout(() => {
+    embaralhaIndex++;
+    if (embaralhaIndex >= EMBARALHA.length) finishEmbaralha();
+    else loadEmbaralha();
+  }, 2000);
+}
+
+document.getElementById("embaralhaInput").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") checkEmbaralha();
+});
+
+function skipEmbaralha() {
+  clearInterval(embaralhaTimer);
+  embaralhaIndex++;
+  if (embaralhaIndex >= EMBARALHA.length) finishEmbaralha();
+  else loadEmbaralha();
+}
+
+function finishEmbaralha() {
+  clearInterval(embaralhaTimer);
+  document.getElementById("embaralhaResult").textContent = "FIM! Pontuação final: " + embaralhaScore + " pontos";
+  document.getElementById("embaralhaGame").classList.add("hidden");
+  document.getElementById("embaralhaStart").classList.remove("hidden");
+  document.getElementById("embaralhaStart").querySelector("button").textContent = "🔄 Jogar novamente";
+}
+
+function resetEmbaralha() {
+  clearInterval(embaralhaTimer);
+  embaralhaIndex = 0;
+  embaralhaScore = 0;
+  document.getElementById("embaralhaResult").textContent = "";
+  document.getElementById("embPts").textContent = "0";
+  loadEmbaralha();
+}
+
+/* ==================== QUEM É O INTRUSO? ==================== */
+const INTRUSO = [
+  { cat:"Animais que vivem no mar", itens:["&#128011; Baleia","&#129416; Polvo","&#129424; Tubarão","&#128056; Macaco"], idx:3 },
+  { cat:"Frutas", itens:["&#127822; Maçã","&#127820; Uva","&#127819; Banana","&#128085; Camisa"], idx:3 },
+  { cat:"Meios de transporte", itens:["&#128663; Carro","&#128666; Ônibus","&#128661; Bicicleta","&#127848; Bolo"], idx:3 },
+  { cat:"Instrumentos musicais", itens:["&#127927; Violino","&#127929; Bateria","&#127926; Flauta","&#128070; Sapato"], idx:3 },
+  { cat:"Cores", itens:["&#128992; Amarelo","&#128994; Verde","&#128995; Azul","&#127774; Sol"], idx:3 },
+  { cat:"Animais que voam", itens:["&#129413; Coruja","&#129415; Águia","&#129412; Beija-flor","&#128054; Cachorro"], idx:3 },
+  { cat:"Peças de xadrez", itens:["&#128081; Rei","&#128081; Rainha","&#9818; Bispo","&#9917; Bola"], idx:3 },
+  { cat:"Alimentos doces", itens:["&#127851; Bombom","&#127848; Bolo","&#127856; Pizza","&#129361; Abacate"], idx:2 },
+  { cat:"Animais da fazenda", itens:["&#128005; Vaca","&#128007; Cabra","&#128001; Ovelha","&#128004; Leão"], idx:3 },
+  { cat:"Números pares", itens:["&#128290; 2","&#128292; 4","&#128294; 6","&#128293; 5"], idx:3 },
+  { cat:"Móveis", itens:["&#129681; Cadeira","&#129717; Mesa","&#129683; Sofá","&#128293; Fogo"], idx:3 },
+  { cat:"Esportes", itens:["&#9917; Futebol","&#127936; Basquete","&#9918; Vôlei","&#128218; Livro"], idx:3 },
+  { cat:"Estrelas do céu", itens:["&#11088; Estrela","&#127769; Lua","&#9728; Sol","&#128059; Urso"], idx:3 },
+  { cat:"Bebidas", itens:["&#129380; Suco","&#9749; Café","&#127861; Leite","&#129382; Brócolis"], idx:3 },
+  { cat:"Países da América do Sul", itens:["&#127463;&#127479; Brasil","&#127466;&#127480; Argentina","&#127474;&#127485; Chile","&#127482;&#127480; EUA"], idx:3 },
+  { cat:"Vestuário", itens:["&#128085; Camisa","&#128086; Calça","&#128070; Sapato","&#128167; Água"], idx:3 },
+  { cat:"Animais com casco", itens:["&#128014; Cavalo","&#128003; Vaca","&#128001; Ovelha","&#128028; Borboleta"], idx:3 },
+  { cat:"Insetos", itens:["&#128028; Borboleta","&#128029; Formiga","&#128028; Abelha","&#128049; Gato"], idx:3 },
+  { cat:"Nuvens", itens:["&#9729; Cirrus","&#9729; Cumulus","&#9729; Nimbus","&#127836; Arroz"], idx:3 },
+  { cat:"Materiais de construção", itens:["&#9968; Tijolo","&#129692; Pedra","&#127912; Tinta","&#127827; Morango"], idx:3 },
+  { cat:"Aves", itens:["&#128020; Galinha","&#128038; Pato","&#129413; Coruja","&#128019; Porco"], idx:3 },
+  { cat:"Alimentos salgados", itens:["&#127835; Macarrão","&#127836; Arroz","&#127838; Feijão","&#127851; Bombom"], idx:3 },
+  { cat:"Animais que nadam", itens:["&#128031; Peixe","&#129416; Polvo","&#128011; Baleia","&#128020; Galinha"], idx:3 },
+  { cat:"Frutas cítricas", itens:["&#127818; Laranja","&#127817; Limão","&#127815; Tangerina","&#128086; Calça"], idx:3 },
+  { cat:"Sentidos", itens:["&#128065; Visão","&#128066; Audição","&#128068; Olfato","&#127912; Tinta"], idx:3 },
+  { cat:"Brinquedos", itens:["&#127912; Carrinho","&#127934; Patins","&#128171; Pipa","&#127838; Feijão"], idx:3 },
+  { cat:"Frutas vermelhas", itens:["&#127827; Morango","&#127826; Cereja","&#127825; Melancia","&#129380; Suco"], idx:3 },
+  { cat:"Vestuário de inverno", itens:["&#129508; Luva","&#129509; Cachecol","&#129507; Bota","&#128031; Peixe"], idx:3 },
+  { cat:"Cores primárias", itens:["&#128995; Azul","&#128992; Amarelo","&#128308; Vermelho","&#128014; Cavalo"], idx:3 },
+  { cat:"Animais domésticos", itens:["&#128049; Gato","&#128054; Cachorro","&#128058; Coelho","&#129409; Tigre"], idx:3 },
+  { cat:"Alimentos que vêm do milho", itens:["&#127839; Pipoca","&#129377; Pamonha","&#127836; Canjica","&#128086; Calça"], idx:3 },
+  { cat:"Energia", itens:["&#9889; Relâmpago","&#128161; Lâmpada","&#127777; Raio","&#128049; Gato"], idx:3 },
+  { cat:"Objetos da escola", itens:["&#9998; Lápis","&#128221; Caderno","&#128222; Tesoura","&#128011; Baleia"], idx:3 },
+  { cat:"Partes do corpo", itens:["&#129522; Braço","&#129520; Perna","&#128064; Olho","&#128663; Carro"], idx:3 },
+  { cat:"Animais com penas", itens:["&#129413; Coruja","&#128020; Galinha","&#129415; Faisão","&#128008; Gato"], idx:3 },
+  { cat:"Frutas amarelas", itens:["&#127822; Maçã","&#127819; Banana","&#127821; Abacaxi","&#128308; Vermelho"], idx:3 },
+  { cat:"Objetos que voam", itens:["&#128171; Pipa","&#9992; Avião","&#128176; Balão","&#129382; Brócolis"], idx:3 },
+  { cat:"Animais de estimação", itens:["&#128049; Gato","&#128054; Cachorro","&#128058; Coelho","&#128004; Leão"], idx:3 },
+  { cat:"Alimentos de hortifruti", itens:["&#127813; Cenoura","&#129382; Brócolis","&#127834; Batata","&#127851; Bombom"], idx:3 },
+  { cat:"Objetos da cozinha", itens:["&#127861; Colher","&#127862; Faca","&#127863; Garfo","&#129412; Onça"], idx:3 },
+  { cat:"Animais que pulam", itens:["&#128008; Gato","&#128058; Coelho","&#128007; Cabra","&#128038; Pato"], idx:3 },
+  { cat:"Objetos que giram", itens:["&#9917; Bola","&#128663; Carro","&#127929; Bateria","&#128218; Livro"], idx:3 },
+  { cat:"Animais fofos", itens:["&#128049; Gato","&#128058; Coelho","&#128011; Baleia","&#128019; Porco"], idx:3 },
+  { cat:"Coisas redondas", itens:["&#9917; Bola","&#127769; Lua","&#128293; Fogo","&#128085; Camisa"], idx:3 },
+  { cat:"Animais que cantam", itens:["&#129413; Coruja","&#128038; Pato","&#129415; Faisão","&#128056; Macaco"], idx:3 },
+  { cat:"Objetos que brilham", itens:["&#128161; Lâmpada","&#11088; Estrela","&#9889; Raio","&#128086; Calça"], idx:3 },
+  { cat:"Animais peludos", itens:["&#128059; Urso","&#128008; Gato","&#128054; Cachorro","&#128031; Peixe"], idx:3 },
+  { cat:"Coisas que mudam de cor", itens:["&#127752; Arco-íris","&#127800; Flor","&#128167; Água","&#129692; Pedra"], idx:3 },
+];
+
+let intrusoIndex = 0;
+let intrusoScore = 0;
+let intrusoOrder = [];
+let intrusoOver = false;
+
+function startIntruso() {
+  intrusoOrder = shuffleArr([...Array(INTRUSO.length).keys()]);
+  intrusoIndex = 0;
+  intrusoScore = 0;
+  document.getElementById("intrusoStart").classList.add("hidden");
+  document.getElementById("intrusoGame").classList.remove("hidden");
+  document.getElementById("intrusoResult").textContent = "";
+  document.getElementById("intrPts").textContent = "0";
+  loadIntruso();
+}
+
+function loadIntruso() {
+  intrusoOver = false;
+  const r = INTRUSO[intrusoOrder[intrusoIndex]];
+  document.getElementById("intrNum").textContent = intrusoIndex + 1;
+  document.getElementById("intrCategory").textContent = "Categoria: " + r.cat;
+  document.getElementById("intrusoMsg").classList.add("hidden");
+  document.getElementById("intrNext").disabled = true;
+
+  const grid = document.getElementById("intrGrid");
+  grid.innerHTML = "";
+  r.itens.forEach((item, i) => {
+    const parts = item.split(" ");
+    const emoji = parts[0];
+    const word = parts.slice(1).join(" ");
+    const card = document.createElement("div");
+    card.className = "intruso-card";
+    card.innerHTML = '<span class="intruso-emoji">' + emoji + '</span><span class="intruso-text">' + word + '</span>';
+    card.onclick = () => guessIntruso(i, card);
+    grid.appendChild(card);
+  });
+}
+
+function guessIntruso(i, card) {
+  if (intrusoOver) return;
+  intrusoOver = true;
+  const r = INTRUSO[intrusoOrder[intrusoIndex]];
+  const cards = document.querySelectorAll("#intrGrid .intruso-card");
+  cards.forEach(c => c.classList.add("disabled"));
+
+  const msg = document.getElementById("intrusoMsg");
+
+  if (i === r.idx) {
+    intrusoScore += 10;
+    card.classList.add("chosen-right");
+    msg.className = "result ok";
+    msg.textContent = "ACERTOU! +10 pontos";
+  } else {
+    card.classList.add("chosen-wrong");
+    cards[r.idx].classList.add("show-intruso");
+    msg.className = "result no";
+    msg.textContent = "ERROU! O intruso era: " + r.itens[r.idx].split(" ").slice(1).join(" ");
+  }
+  msg.classList.remove("hidden");
+  document.getElementById("intrPts").textContent = intrusoScore;
+  document.getElementById("intrNext").disabled = false;
+}
+
+function nextIntruso() {
+  intrusoIndex++;
+  if (intrusoIndex >= INTRUSO.length) {
+    document.getElementById("intrusoResult").textContent = "FIM! Pontuação final: " + intrusoScore + " pontos";
+    document.getElementById("intrusoGame").classList.add("hidden");
+    document.getElementById("intrusoStart").classList.remove("hidden");
+    document.getElementById("intrusoStart").querySelector("button").textContent = "🔄 Jogar novamente";
+  } else {
+    loadIntruso();
+  }
+}
+
+function resetIntruso() {
+  intrusoIndex = 0;
+  intrusoScore = 0;
+  document.getElementById("intrusoResult").textContent = "";
+  document.getElementById("intrPts").textContent = "0";
+  loadIntruso();
 }
 
 /* ==================== GERAL ==================== */
