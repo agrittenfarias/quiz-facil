@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Mundo Mágico - Alfabetização & Matemática</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+--pink:#FF6B9D;--blue:#4ECDC4;--yellow:#FFE66D;--green:#95E86E;
+--purple:#A78BFA;--orange:#FF9F43;--red:#FF6B6B;--dark:#2D3436;
+--light:#F8F9FA;--gradient1:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+--gradient2:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);
+--gradient3:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%);
+--gradient4:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%);
+--gradient5:linear-gradient(135deg,#fa709a 0%,#fee140 100%);
+}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;overflow-x:hidden;color:var(--dark)}
+.screen{display:none;min-height:100vh;padding:20px;animation:fadeIn .3s ease}
+.screen.active{display:flex;flex-direction:column;align-items:center}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.7}}
+@keyframes confettiFall{0%{transform:translateY(-100vh) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+@keyframes starPop{0%{transform:scale(0) rotate(-180deg)}50%{transform:scale(1.3) rotate(0deg)}100%{transform:scale(1) rotate(0deg)}}
+@keyframes glow{0%,100%{box-shadow:0 0 5px currentColor}50%{box-shadow:0 0 20px currentColor,0 0 40px currentColor}}
+@keyframes slideUp{from{transform:translateY(100px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes rainbow{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
+
+/* HEADER */
+.header{width:100%;max-width:800px;display:flex;justify-content:space-between;align-items:center;padding:10px 0;margin-bottom:10px}
+.score-box{background:rgba(255,255,255,.9);border-radius:20px;padding:8px 16px;font-weight:bold;font-size:1.1em;display:flex;align-items:center;gap:8px;box-shadow:0 4px 15px rgba(0,0,0,.1)}
+.score-box .stars{color:#FFD700;font-size:1.2em}
+.btn-back{background:rgba(255,255,255,.9);border:none;border-radius:50%;width:45px;height:45px;font-size:1.5em;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:all .2s}
+.btn-back:hover{transform:scale(1.1);background:#fff}
+.btn-sound{background:rgba(255,255,255,.9);border:none;border-radius:50%;width:45px;height:45px;font-size:1.5em;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:all .2s}
+.btn-sound:hover{transform:scale(1.1)}
+
+/* MENU PRINCIPAL */
+.menu-title{text-align:center;color:#fff;margin:20px 0;font-size:2.5em;text-shadow:3px 3px 6px rgba(0,0,0,.3);animation:float 3s ease-in-out infinite}
+.menu-subtitle{color:rgba(255,255,255,.9);text-align:center;margin-bottom:20px;font-size:1.1em}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:15px;width:100%;max-width:800px;padding:0 10px}
+.menu-item{background:rgba(255,255,255,.95);border-radius:20px;padding:20px 10px;text-align:center;cursor:pointer;transition:all .3s;box-shadow:0 8px 25px rgba(0,0,0,.15);position:relative;overflow:hidden}
+.menu-item:hover{transform:translateY(-5px) scale(1.02);box-shadow:0 12px 35px rgba(0,0,0,.2)}
+.menu-item:active{transform:scale(.95)}
+.menu-item .icon{font-size:2.5em;margin-bottom:8px;display:block;animation:float 2s ease-in-out infinite}
+.menu-item .name{font-weight:bold;font-size:.9em;color:var(--dark)}
+.menu-item .badge{position:absolute;top:8px;right:8px;background:var(--yellow);border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:.7em;font-weight:bold}
+
+/* GAME CONTAINER */
+.game-container{width:100%;max-width:600px;text-align:center}
+.game-title{color:#fff;font-size:1.8em;margin:10px 0;text-shadow:2px 2px 4px rgba(0,0,0,.3)}
+.game-instruction{color:rgba(255,255,255,.9);font-size:1.1em;margin-bottom:15px;padding:10px;background:rgba(255,255,255,.15);border-radius:15px}
+.progress-bar{width:100%;height:12px;background:rgba(255,255,255,.3);border-radius:6px;margin:10px 0;overflow:hidden}
+.progress-fill{height:100%;background:var(--gradient4);border-radius:6px;transition:width .5s ease}
+
+/* GAME AREA */
+.game-area{background:rgba(255,255,255,.95);border-radius:25px;padding:25px;min-height:300px;box-shadow:0 10px 40px rgba(0,0,0,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px;width:100%}
+
+/* BUTTONS */
+.btn{border:none;border-radius:15px;padding:12px 24px;font-size:1.1em;font-weight:bold;cursor:pointer;transition:all .2s;box-shadow:0 4px 15px rgba(0,0,0,.1)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.15)}
+.btn:active{transform:scale(.95)}
+.btn-primary{background:var(--gradient1);color:#fff}
+.btn-success{background:var(--gradient4);color:#fff}
+.btn-danger{background:var(--gradient2);color:#fff}
+.btn-warning{background:var(--gradient5);color:#fff}
+.btn-option{background:#fff;border:3px solid var(--blue);color:var(--dark);font-size:1.3em;padding:15px 30px;min-width:80px;border-radius:15px;transition:all .2s}
+.btn-option:hover{background:var(--blue);color:#fff;transform:scale(1.05)}
+.btn-option.correct{background:var(--green);border-color:var(--green);color:#fff;animation:bounce .3s}
+.btn-option.wrong{background:var(--red);border-color:var(--red);color:#fff;animation:shake .3s}
+.btn-option:disabled{opacity:.5;cursor:not-allowed}
+
+/* LETTER DISPLAY */
+.letter-display{font-size:5em;font-weight:bold;color:var(--purple);text-shadow:3px 3px 6px rgba(0,0,0,.1);animation:float 2s ease-in-out infinite;margin:10px 0}
+.options-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%}
+.options-grid.cols-4{grid-template-columns:repeat(4,1fr)}
+
+/* MEMORY GAME */
+.memory-board{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;width:100%;max-width:400px}
+.memory-card{aspect-ratio:1;background:var(--gradient3);border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.5em;font-weight:bold;color:#fff;transition:all .3s;transform-style:preserve-3d;position:relative}
+.memory-card.flipped{transform:rotateY(180deg)}
+.memory-card .front,.memory-card .back{position:absolute;width:100%;height:100%;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;border-radius:12px}
+.memory-card .front{background:var(--gradient1);transform:rotateY(180deg)}
+.memory-card .back{background:var(--gradient3)}
+.memory-card.matched{background:var(--green);animation:bounce .5s}
+.memory-card .front{font-size:1.8em}
+
+/* DRAG AND DROP */
+.drag-zone{min-height:80px;border:3px dashed var(--purple);border-radius:15px;display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap;padding:10px;width:100%;background:rgba(167,139,250,.1)}
+.drag-letter{background:var(--gradient5);color:#fff;padding:10px 18px;border-radius:12px;font-size:1.5em;font-weight:bold;cursor:grab;user-select:none;transition:all .2s}
+.drag-letter:hover{transform:scale(1.1)}
+.drag-letter:active{cursor:grabbing}
+.letter-pool{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.hint-image{font-size:4em;margin:10px 0;animation:float 2s ease-in-out infinite}
+.word-label{font-size:1.3em;color:var(--dark);font-weight:bold;margin:5px 0}
+
+/* WORD SEARCH */
+.word-grid{display:grid;gap:3px;width:100%;max-width:350px}
+.word-grid-cell{background:#f0f0f0;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.2em;font-weight:bold;cursor:pointer;transition:all .2s;aspect-ratio:1}
+.word-grid-cell:hover{background:var(--blue);color:#fff}
+.word-grid-cell.selected{background:var(--yellow);color:var(--dark)}
+.word-grid-cell.found{background:var(--green);color:#fff;font-weight:bold;animation:bounce .3s}
+.word-list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+.word-list-item{background:rgba(0,0,0,.1);padding:5px 12px;border-radius:10px;font-size:.9em;transition:all .3s}
+.word-list-item.found{background:var(--green);color:#fff;text-decoration:line-through;text-decoration-color:#fff;text-decoration-thickness:3px;opacity:.7;transform:scale(.95)}
+
+/* HANGMAN */
+.hangman-display{font-size:3em;letter-spacing:8px;color:var(--dark);font-weight:bold;margin:10px 0}
+.hangman-word{display:flex;gap:8px;justify-content:center;margin:15px 0}
+.hangman-letter{width:40px;height:50px;border-bottom:4px solid var(--dark);display:flex;align-items:center;justify-content:center;font-size:1.8em;font-weight:bold;color:var(--purple)}
+.hangman-letter.revealed{border-color:var(--green);color:var(--green)}
+.keyboard{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:400px}
+.key-btn{width:38px;height:38px;border:none;border-radius:8px;background:var(--gradient3);color:#fff;font-weight:bold;cursor:pointer;transition:all .2s;font-size:.9em}
+.key-btn:hover{transform:scale(1.1)}
+.key-btn:disabled{background:#ccc;cursor:not-allowed}
+.key-btn.correct{background:var(--green)}
+.key-btn.wrong{background:var(--red)}
+.hint-text{background:var(--yellow);padding:8px 16px;border-radius:10px;font-weight:bold;margin:10px 0}
+.lives{font-size:1.5em;color:var(--red);margin:5px 0}
+
+/* MATH GAMES */
+.math-expression{font-size:2em;font-weight:bold;color:var(--dark);margin:10px 0}
+.math-visual{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;font-size:2em}
+.math-emoji{animation:float 1s ease-in-out infinite}
+.math-emoji:nth-child(even){animation-delay:.5s}
+.answer-options{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%}
+.number-btn{background:#fff;border:3px solid var(--purple);border-radius:15px;padding:15px;font-size:1.8em;font-weight:bold;cursor:pointer;transition:all .2s}
+.number-btn:hover{background:var(--purple);color:#fff;transform:scale(1.05)}
+.number-btn.correct{background:var(--green);border-color:var(--green);color:#fff}
+.number-btn.wrong{background:var(--red);border-color:var(--red);color:#fff}
+.count-objects{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:15px 0;font-size:2.5em}
+.count-object{animation:float 1.5s ease-in-out infinite}
+.count-object:nth-child(2){animation-delay:.2s}
+.count-object:nth-child(3){animation-delay:.4s}
+.count-object:nth-child(4){animation-delay:.6s}
+.count-object:nth-child(5){animation-delay:.8s}
+
+/* SHAPES */
+.shapes-display{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;width:100%;max-width:350px}
+.shape-btn{aspect-ratio:1;border:4px solid var(--dark);border-radius:15px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;font-size:3em;background:#fff}
+.shape-btn:hover{transform:scale(1.1);box-shadow:0 5px 20px rgba(0,0,0,.2)}
+.shape-btn.correct{border-color:var(--green);background:rgba(149,232,110,.2);animation:bounce .3s}
+.shape-btn.wrong{border-color:var(--red);background:rgba(255,107,107,.2);animation:shake .3s}
+
+/* RESULTS SCREEN */
+.results{text-align:center;animation:slideUp .5s ease}
+.results-title{font-size:2.5em;color:#fff;text-shadow:2px 2px 4px rgba(0,0,0,.3);margin:20px 0}
+.results-stars{font-size:3em;margin:20px 0}
+.results-star{display:inline-block;animation:starPop .5s ease forwards;opacity:0}
+.results-star:nth-child(1){animation-delay:.2s}
+.results-star:nth-child(2){animation-delay:.5s}
+.results-star:nth-child(3){animation-delay:.8s}
+.results-score{font-size:1.5em;color:#fff;margin:10px 0}
+.results-message{color:rgba(255,255,255,.9);font-size:1.1em;margin:10px 0;padding:15px;background:rgba(255,255,255,.15);border-radius:15px}
+.results-achievements{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:15px 0}
+.achievement{background:rgba(255,255,255,.9);border-radius:12px;padding:10px 15px;display:flex;align-items:center;gap:8px;animation:slideUp .5s ease forwards;opacity:0}
+.achievement:nth-child(1){animation-delay:.3s}
+.achievement:nth-child(2){animation-delay:.5s}
+.achievement:nth-child(3){animation-delay:.7s}
+.achievement .badge-icon{font-size:1.5em}
+.results-buttons{display:flex;gap:10px;justify-content:center;margin-top:15px;flex-wrap:wrap}
+
+/* CONFETTI */
+.confetti{position:fixed;top:-10px;width:10px;height:10px;border-radius:2px;animation:confettiFall linear forwards;pointer-events:none;z-index:1000}
+
+/* MASCOT */
+.mascot{position:fixed;bottom:20px;right:20px;font-size:3em;animation:float 2s ease-in-out infinite;z-index:100;cursor:pointer;transition:all .3s}
+.mascot:hover{transform:scale(1.2)}
+.mascot-speech{position:fixed;bottom:80px;right:20px;background:#fff;border-radius:15px;padding:10px 15px;box-shadow:0 5px 20px rgba(0,0,0,.15);max-width:200px;font-size:.9em;z-index:100;animation:slideUp .3s ease;display:none}
+.mascot-speech::after{content:'';position:absolute;bottom:-10px;right:30px;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid #fff}
+
+/* ACHIEVEMENT POPUP */
+.achievement-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:20px;padding:20px 30px;box-shadow:0 10px 50px rgba(0,0,0,.3);z-index:2000;text-align:center;animation:slideUp .5s ease;display:none}
+.achievement-popup .badge-big{font-size:3em;margin:10px 0}
+.achievement-popup .badge-title{font-size:1.3em;font-weight:bold;color:var(--dark)}
+.achievement-popup .badge-desc{color:#666;margin:5px 0}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:1999;display:none}
+
+/* RESPONSIVE */
+@media(max-width:480px){
+.menu-title{font-size:1.8em}
+.menu-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+.menu-item .icon{font-size:2em}
+.memory-board{grid-template-columns:repeat(4,1fr)}
+.letter-display{font-size:3.5em}
+.game-area{padding:15px}
+.btn-option{padding:10px 20px;font-size:1.1em}
+}
+</style>
+</head>
+<body>
+
+<!-- MENU PRINCIPAL -->
+<div id="menuScreen" class="screen active">
+<div class="menu-title">✨ Mundo Mágico ✨</div>
+<div class="menu-subtitle">Alfabetização & Matemática</div>
+<div class="menu-grid">
+<div class="menu-item" onclick="startGame('cliqueLetra')">
+<span class="icon">🔤</span>
+<span class="name">Clique na Letra</span>
+</div>
+<div class="menu-item" onclick="startGame('memoriaLetras')">
+<span class="icon">🃏</span>
+<span class="name">Memória de Letras</span>
+</div>
+<div class="menu-item" onclick="startGame('formeNome')">
+<span class="icon">✏️</span>
+<span class="name">Forme o Nome</span>
+</div>
+<div class="menu-item" onclick="startGame('caçaPalavras')">
+<span class="icon">🔍</span>
+<span class="name">Caça-Palavras</span>
+</div>
+<div class="menu-item" onclick="startGame('forca')">
+<span class="icon">📝</span>
+<span class="name">Jogo da Forca</span>
+</div>
+<div class="menu-item" onclick="startGame('conteObjetos')">
+<span class="icon">🍎</span>
+<span class="name">Conte os Objetos</span>
+</div>
+<div class="menu-item" onclick="startGame('numerosQtd')">
+<span class="icon">🔢</span>
+<span class="name">Números e Qtd</span>
+</div>
+<div class="menu-item" onclick="startGame('soma')">
+<span class="icon">➕</span>
+<span class="name">Soma Divertida</span>
+</div>
+<div class="menu-item" onclick="startGame('subtracao')">
+<span class="icon">➖</span>
+<span class="name">Subtração Simples</span>
+</div>
+<div class="menu-item" onclick="startGame('formasCores')">
+<span class="icon">🔷</span>
+<span class="name">Formas e Cores</span>
+</div>
+</div>
+</div>
+
+<!-- GAME SCREENS -->
+<div id="gameScreen" class="screen">
+<div class="header">
+<button class="btn-back" onclick="goToMenu()">🏠</button>
+<div class="score-box">
+<span class="stars" id="headerStars">⭐ 0</span>
+<span id="headerScore">0 pts</span>
+</div>
+<button class="btn-sound" id="btnSound" onclick="toggleSound()">🔊</button>
+</div>
+<div class="game-container">
+<div class="game-title" id="gameTitle"></div>
+<div class="game-instruction" id="gameInstruction"></div>
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+<div class="game-area" id="gameArea"></div>
+</div>
+</div>
+
+<!-- RESULTS SCREEN -->
+<div id="resultsScreen" class="screen">
+<div class="results" id="resultsContent"></div>
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeAchievement()"></div>
+
+<!-- ACHIEVEMENT POPUP -->
+<div class="achievement-popup" id="achievementPopup">
+<div class="badge-big" id="achBadge"></div>
+<div class="badge-title" id="achTitle"></div>
+<div class="badge-desc" id="achDesc"></div>
+</div>
+
+<!-- MASCOT -->
+<div class="mascot" id="mascot" onclick="showMascotTip()">⭐</div>
+<div class="mascot-speech" id="mascotSpeech"></div>
+
+<script>
+// ==================== SOUND SYSTEM ====================
+const AudioCtx=window.AudioContext||window.webkitAudioContext;
+let audioCtx,soundEnabled=true;
+function initAudio(){if(!audioCtx)audioCtx=new AudioCtx()}
+function playTone(freq,dur,type='sine',vol=0.3){
+if(!soundEnabled)return;
+initAudio();
+const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+o.type=type;o.frequency.setValueAtTime(freq,audioCtx.currentTime);
+g.gain.setValueAtTime(vol,audioCtx.currentTime);
+g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+dur);
+o.connect(g);g.connect(audioCtx.destination);
+o.start();o.stop(audioCtx.currentTime+dur);
+}
+function playCorrect(){playTone(523,.1);setTimeout(()=>playTone(659,.1),100);setTimeout(()=>playTone(784,.2),200)}
+function playWrong(){playTone(200,.3,'sawtooth',0.2)}
+function playClick(){playTone(800,.05,'sine',0.1)}
+function playStar(){playTone(1047,.08);setTimeout(()=>playTone(1319,.08),80);setTimeout(()=>playTone(1568,.15),160)}
+function playLevelUp(){playTone(523,.15);setTimeout(()=>playTone(659,.15),150);setTimeout(()=>playTone(784,.15),300);setTimeout(()=>playTone(1047,.3),450)}
+function playClapping(){
+if(!soundEnabled)return;
+initAudio();
+for(let i=0;i<8;i++){
+setTimeout(()=>{playTone(800+Math.random()*400,.08,'triangle',0.15)},i*100);
+}
+}
+function playButton(){playTone(600,.05,'sine',0.08)}
+function toggleSound(){soundEnabled=!soundEnabled;document.getElementById('btnSound').textContent=soundEnabled?'🔊':'🔇'}
+
+// ==================== GAME STATE ====================
+let currentGame='',score=0,totalStars=0,questions=[],currentQ=0,streak=0,maxStreak=0;
+let achievements=[];
+
+// ==================== DATA ====================
+
+// ALFABETIZAÇÃO - Clique na Letra
+const cliqueLetraData=[];
+const letterEmojis={A:'🥑',B:'⚽',C:'🏠',D:'💃',E:'🐘',F:'🌸',G:'🦒',H:'🏨',I:'🏝️',J:'🪟',K:'🥝',L:'🦁',M:'🐒',N:'🌙',O:'🥚',P:'🐷',Q:'🧀',R:'⏰',S:'🐍',T:'🐢',U:'🍇',V:'🎻',W:'🏄',X:'☕',Y:'🧶',Z:'🦓'};
+for(let l='A';l<='Z';l=String.fromCharCode(l.charCodeAt(0)+1)){
+const opts=[l];while(opts.length<4){const r=String.fromCharCode(65+Math.floor(Math.random()*26));if(!opts.includes(r))opts.push(r)}
+cliqueLetraData.push({letter:l,options:opts.sort(()=>Math.random()-.5),emoji:letterEmojis[l]||'⭐',prompt:`Clique na letra ${l}`});
+}
+for(let l='a';l<='z';l=String.fromCharCode(l.charCodeAt(0)+1)){
+const opts=[l];while(opts.length<4){const r=String.fromCharCode(97+Math.floor(Math.random()*26));if(!opts.includes(r))opts.push(r)}
+cliqueLetraData.push({letter:l,options:opts.sort(()=>Math.random()-.5),emoji:letterEmojis[l.toUpperCase()]||'⭐',prompt:`Clique na letra minúscula ${l}`});
+}
+
+// ALFABETIZAÇÃO - Memória de Letras
+const memoriaLetrasData=[];
+for(let l='A';l<='Z';l=String.fromCharCode(l.charCodeAt(0)+1)){
+memoriaLetrasData.push({uppercase:l,lowercase:l.toLowerCase()});
+}
+
+// ALFABETIZAÇÃO - Forme o Nome
+const formeNomeData=[
+{word:'MAÇÃ',hint:'🍎 Fruta vermelha',category:'Frutas'},
+{word:'BANANA',hint:'🍌 Fruta amarela',category:'Frutas'},
+{word:'LARANJA',hint:'🍊 Fruta laranja',category:'Frutas'},
+{word:'UVA',hint:'🍇 Fruta pequena e roxa',category:'Frutas'},
+{word:'MELANCIA',hint:'🍉 Fruta grande e verde',category:'Frutas'},
+{word:'ABACAXI',hint:'🍍 Fruta com coroa',category:'Frutas'},
+{word:'MORANGO',hint:'🍓 Fruta pequena e doce',category:'Frutas'},
+{word:'PERA',hint:'🍐 Fruta verde suave',category:'Frutas'},
+{word:'MANGA',hint:'🥭 Fruta tropical',category:'Frutas'},
+{word:'CAQUI',hint:'🟠 Fruta outonal',category:'Frutas'},
+{word:'CACHORRO',hint:'🐕 Animal de estimação',category:'Animais'},
+{word:'GATO',hint:'🐱 Mia e caça ratos',category:'Animais'},
+{word:'PÁSSARO',hint:'🐦 Voa pelo céu',category:'Animais'},
+{word:'PEIXE',hint:'🐟 Vive na água',category:'Animais'},
+{word:'COELHO',hint:'🐰 Tem orelhas longas',category:'Animais'},
+{word:'ELEFANTE',hint:'🐘 Maior animal terrestre',category:'Animais'},
+{word:'GIRAFA',hint:'🦒 Tem pescoço longo',category:'Animais'},
+{word:'MACACO',hint:'🐒 Sobe em árvores',category:'Animais'},
+{word:'CASA',hint:'🏠 Onde moramos',category:'Objetos'},
+{word:'MESA',hint:'🪑 Usada para comer',category:'Objetos'},
+{word:'LIVRO',hint:'📖 Tem histórias',category:'Objetos'},
+{word:'BOLA',hint:'⚽ Usada para brincar',category:'Objetos'},
+{word:'CANETA',hint:'🖊️ Escreve na folha',category:'Objetos'},
+{word:'CHAPÉU',hint:'🎩 Vai na cabeça',category:'Objetos'},
+{word:'RELÓGIO',hint:'⏰ Mostra as horas',category:'Objetos'},
+{word:'SAPATO',hint:'👟 Vai nos pés',category:'Objetos'},
+{word:'TESOURA',hint:'✂️ Corta papel',category:'Objetos'},
+{word:'ESCOLA',hint:'📚 Onde aprendemos',category:'Objetos'},
+{word:'VERMELHO',hint:'🔴 Cor do fogo',category:'Cores'},
+{word:'AZUL',hint:'🔵 Cor do céu',category:'Cores'},
+{word:'AMARELO',hint:'🟡 Cor do sol',category:'Cores'},
+{word:'VERDE',hint:'🟢 Cor da grama',category:'Cores'},
+{word:'ROXO',hint:'🟣 Cor da uva',category:'Cores'},
+{word:'ROSA',hint:'🩷 Cor das flores',category:'Cores'},
+{word:'LARANJA',hint:'🟠 Cor da fruta',category:'Cores'},
+{word:'MARROM',hint:'🟤 Cor da terra',category:'Cores'},
+{word:'PRETO',hint:'⬛ Cor da noite',category:'Cores'},
+{word:'BRANCO',hint:'⬜ Cor da neve',category:'Cores'}
+];
+
+// ALFABETIZAÇÃO - Caça-Palavras
+const caçaPalavrasData={
+words:[
+['G','A','T','O'],['C','Ã','O'],['R','A','T','O'],['T','O','U','R','O'],['C','A','V','A','L','O'],
+['V','A','C','A'],['O','V','E','L','H','A'],['P','A','T','O'],['C','O','B','R','A'],['T','U','C','A','N','O'],
+['M','E','L','Ã','O'],['U','V','A'],['F','I','G','O'],['P','E','R','A'],['L','I','M','A'],
+['A','M','E','I','X','A'],['C','E','R','E','J','A'],['A','Z','U','L'],['R','O','X','O'],['R','O','S','A'],
+['P','R','E','T','O'],['M','A','R','R','O','M'],['O','L','H','O'],['N','A','R','I','Z'],['M','Ã','O'],
+['P','É'],['B','O','C','A'],['D','E','N','T','E'],['O','U','V','I','D','O'],['S','O','L','H','O'],
+['L','U','A'],['S','O','L'],['M','A','R'],['N','U','V','E','M'],['C','H','U','V','A']
+]
+};
+
+// ALFABETIZAÇÃO - Forca
+const forcaData=[
+{word:'ELEFANTE',hint:'🐘 Maior animal terrestre',category:'Animais'},
+{word:'GIRAFA',hint:'🦒 Pescoço longo',category:'Animais'},
+{word:'LEÃO',hint:'🦁 Rei da selva',category:'Animais'},
+{word:'TIGRE',hint:'🐅 Felino listrado',category:'Animais'},
+{word:'MACACO',hint:'🐒 Sobe em árvores',category:'Animais'},
+{word:'COBRA',hint:'🐍 Animal sem pernas',category:'Animais'},
+{word:'TUCANO',hint:'🦜 Pássaro com bico grande',category:'Animais'},
+{word:'BALEIA',hint:'🐋 Maior animal do mar',category:'Animais'},
+{word:'TUBARÃO',hint:'🦈 Predador do oceano',category:'Animais'},
+{word:'PAPAGAIO',hint:'🦜 Fala palavras',category:'Animais'},
+{word:'ABACATE',hint:'🥑 Fruta verde e cremosa',category:'Frutas'},
+{word:'GOIABA',hint:'🟪 Fruta roxa por dentro',category:'Frutas'},
+{word:'JACA',hint:'🍈 Fruta grande e doce',category:'Frutas'},
+{word:'LIMÃO',hint:'🍋 Fruta ácida',category:'Frutas'},
+{word:'MEXERICA',hint:'🍊 Tangerina pequena',category:'Frutas'},
+{word:'PITAYA',hint:'🐉 Fruta dragão',category:'Frutas'},
+{word:'CARAMBOLA',hint:'⭐ Fruta em forma de estrela',category:'Frutas'},
+{word:'BICICLETA',hint:'🚲 Tem duas rodas',category:'Objetos'},
+{word:'CADERNO',hint:'📓 Escrevemos nele',category:'Objetos'},
+{word:'FOGÃO',hint:'🍳 Cozinhamos nele',category:'Objetos'},
+{word:'GELADEIRA',hint:'🧊 Guarda comida',category:'Objetos'},
+{word:'LÁPIS',hint:'✏️ Escreve e apaga',category:'Objetos'},
+{word:'TROFEU',hint:'🏆 Prêmio de vitória',category:'Objetos'},
+{word:'VIOLINO',hint:'🎻 Instrumento de cordas',category:'Objetos'},
+{word:'SANFONA',hint:'🪗 Instrumento de sopro',category:'Objetos'},
+{word:'MÉDICO',hint:'👨‍⚕️ Cuida da saúde',category:'Profissões'},
+{word:'PROFESSOR',hint:'👩‍🏫 Ensina na escola',category:'Profissões'},
+{word:'BOMBEIRO',hint:'🧑‍🚒 Apaga incêndios',category:'Profissões'},
+{word:'POLICIAL',hint:'👮 Mantém a ordem',category:'Profissões'},
+{word:'COZINHEIRO',hint:'👨‍🍳 Prepara comida',category:'Profissões'},
+{word:'PINTOR',hint:'🎨 Pinta quadros',category:'Profissões'},
+{word:'MOTORISTA',hint:'🚗 Dirige veículos',category:'Profissões'},
+{word:'DANÇARINO',hint:'💃 Dança no palco',category:'Profissões'},
+{word:'ATOR',hint:'🎭 Faz personagens',category:'Profissões'},
+{word:'PESCADOR',hint:'🎣 Pesca peixes',category:'Profissões'}
+];
+
+// MATEMÁTICA - Conte os Objetos
+const conteObjetosData=[];
+const countEmojis=['🍎','🍌','🍊','🍇','🍓','🐶','🐱','🐰','🐻','🐼','⚽','🏀','🎈','🎯','⭐','🌟','❤️','💎','🌈','🔥'];
+for(let i=0;i<50;i++){
+const qty=Math.floor(Math.random()*5)+1;
+const emoji=countEmojis[Math.floor(Math.random()*countEmojis.length)];
+const opts=[qty];while(opts.length<4){const r=Math.floor(Math.random()*5)+1;if(!opts.includes(r))opts.push(r)}
+conteObjetosData.push({qty,emoji,options:opts.sort(()=>Math.random()-.5)});
+}
+
+// MATEMÁTICA - Números e Quantidades
+const numerosQtdData=[];
+const qtyEmojis=['🍎','🐶','⭐','❤️','🎈','🌸','🐝','🦋','🐞','🌺'];
+for(let i=0;i<40;i++){
+const qty=Math.floor(Math.random()*10)+1;
+const emoji=qtyEmojis[Math.floor(Math.random()*qtyEmojis.length)];
+numerosQtdData.push({number:qty,emoji});
+}
+
+// MATEMÁTICA - Soma
+const somaData=[];
+for(let i=0;i<15;i++){const a=Math.floor(Math.random()*4)+1,b=Math.floor(Math.random()*4)+1;somaData.push({a,b,op:'+',result:a+b,level:1})}
+for(let i=0;i<15;i++){const a=Math.floor(Math.random()*7)+1,b=Math.floor(Math.random()*7)+1;somaData.push({a,b,op:'+',result:a+b,level:2})}
+for(let i=0;i<20;i++){const a=Math.floor(Math.random()*10)+1,b=Math.floor(Math.random()*10)+1;somaData.push({a,b,op:'+',result:a+b,level:3})}
+
+// MATEMÁTICA - Subtração
+const subtracaoData=[];
+for(let i=0;i<15;i++){const b=Math.floor(Math.random()*4);const a=b+Math.floor(Math.random()*4)+1;subtracaoData.push({a,b,op:'-',result:a-b,level:1})}
+for(let i=0;i<15;i++){const b=Math.floor(Math.random()*7);const a=b+Math.floor(Math.random()*7)+1;subtracaoData.push({a,b,op:'-',result:a-b,level:2})}
+for(let i=0;i<20;i++){const b=Math.floor(Math.random()*10);const a=b+Math.floor(Math.random()*10)+1;subtracaoData.push({a,b,op:'-',result:a-b,level:3})}
+
+// MATEMÁTICA - Formas e Cores
+const formasCoresData=[];
+const shapes=['🔴','🟡','🟢','🔵','🟣'];
+const shapeNames=['Círculo','Quadrado','Triângulo','Retângulo','Estrela'];
+const colors=['vermelho','amarelo','verde','azul','roxo'];
+const shapeEmojis={'Círculo':'⭕','Quadrado':'⬛','Triângulo':'<span style="display:inline-block;width:0;height:0;border-left:20px solid transparent;border-right:20px solid transparent;border-bottom:35px solid #FF6B6B"></span>','Retângulo':'▬','Estrela':'⭐'};
+
+// Perguntas de clique
+for(const s of shapeNames){
+const opts=[];while(opts.length<4){const r=shapeNames[Math.floor(Math.random()*5)];if(!opts.includes(r))opts.push(r)}
+if(!opts.includes(s))opts[0]=s;
+formasCoresData.push({question:`Onde está o ${s}?`,answer:s,options:opts.sort(()=>Math.random()-.5),type:'shape'});
+}
+for(const c of colors){
+const opts=[];while(opts.length<4){const r=colors[Math.floor(Math.random()*5)];if(!opts.includes(r))opts.push(r)}
+if(!opts.includes(c))opts[0]=c;
+formasCoresData.push({question:`Clique na cor ${c.toUpperCase()}`,answer:c,options:opts.sort(()=>Math.random()-.5),type:'color'});
+}
+
+// ==================== UTILITY FUNCTIONS ====================
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function updateHeader(){document.getElementById('headerStars').textContent=`⭐ ${totalStars}`;document.getElementById('headerScore').textContent=`${score} pts`}
+function updateProgress(current,total){document.getElementById('progressFill').style.width=`${(current/total)*100}%`}
+function showMascotTip(){
+const tips=['Você está indo muito bem! ⭐','Continue tentando! 💪','Eu acredito em você! 🌟','Que tal tentar de novo? 🎯','Você é um gênio! 🧠'];
+document.getElementById('mascotSpeech').textContent=tips[Math.floor(Math.random()*tips.length)];
+document.getElementById('mascotSpeech').style.display='block';
+setTimeout(()=>document.getElementById('mascotSpeech').style.display='none',3000);
+}
+function showAchievement(icon,title,desc){
+playStar();
+document.getElementById('achBadge').textContent=icon;
+document.getElementById('achTitle').textContent=title;
+document.getElementById('achDesc').textContent=desc;
+document.getElementById('achievementPopup').style.display='block';
+document.getElementById('overlay').style.display='block';
+}
+function closeAchievement(){document.getElementById('achievementPopup').style.display='none';document.getElementById('overlay').style.display='none'}
+
+function createConfetti(){
+const colors=['#FF6B9D','#4ECDC4','#FFE66D','#95E86E','#A78BFA','#FF9F43','#FF6B6B'];
+for(let i=0;i<30;i++){
+const c=document.createElement('div');c.className='confetti';
+c.style.left=Math.random()*100+'vw';
+c.style.background=colors[Math.floor(Math.random()*colors.length)];
+c.style.width=(Math.random()*8+5)+'px';
+c.style.height=(Math.random()*8+5)+'px';
+c.style.animationDuration=(Math.random()*2+2)+'s';
+c.style.animationDelay=(Math.random()*.5)+'s';
+document.body.appendChild(c);
+setTimeout(()=>c.remove(),4000);
+}
+}
+
+function shuffleAndLimit(arr,n){return shuffle([...arr]).slice(0,n)}
+
+// ==================== GAME FUNCTIONS ====================
+
+function goToMenu(){
+playButton();
+show('menuScreen');
+currentGame='';
+}
+
+function startGame(game){
+playClick();
+initAudio();
+currentGame=game;
+currentQ=0;score=0;streak=0;maxStreak=0;
+show('gameScreen');
+updateHeader();
+switch(game){
+case 'cliqueLetra':startCliqueLetra();break;
+case 'memoriaLetras':startMemoriaLetras();break;
+case 'formeNome':startFormeNome();break;
+case 'caçaPalavras':startCaçaPalavras();break;
+case 'forca':startForca();break;
+case 'conteObjetos':startConteObjetos();break;
+case 'numerosQtd':startNumerosQtd();break;
+case 'soma':startSoma();break;
+case 'subtracao':startSubtracao();break;
+case 'formasCores':startFormasCores();break;
+}
+}
+
+// ==================== 1. CLIQUE NA LETRA ====================
+function startCliqueLetra(){
+questions=shuffleAndLimit(cliqueLetraData,50);
+document.getElementById('gameTitle').textContent='🔤 Clique na Letra';
+showNextCliqueLetra();
+}
+function showNextCliqueLetra(){
+if(currentQ>=questions.length){endGame();return}
+const q=questions[currentQ];
+updateProgress(currentQ,questions.length);
+document.getElementById('gameInstruction').textContent=q.prompt;
+const area=document.getElementById('gameArea');
+area.innerHTML=`
+<div class="hint-image">${q.emoji}</div>
+<div class="letter-display">${q.letter}</div>
+<div class="options-grid cols-4">
+${q.options.map(o=>`<button class="btn btn-option" onclick="checkCliqueLetra(this,'${o}','${q.letter}')">${o}</button>`).join('')}
+</div>
+<button class="btn btn-danger" style="margin-top:15px" onclick="skipCliqueLetra()">⏭️ Passar</button>`;
+}
+function checkCliqueLetra(btn,selected,correct){
+if(selected===correct){
+playCorrect();playClapping();
+btn.classList.add('correct');
+score+=10+streak*5;streak++;if(streak>maxStreak)maxStreak=streak;
+totalStars++;
+updateHeader();
+createConfetti();
+if(streak===5)showAchievement('🔥','Sequência de 5!','Incrível!');
+if(streak===10)showAchievement('⚡','Sequência de 10!','Fantástico!');
+setTimeout(()=>{currentQ++;showNextCliqueLetra()},800);
+}else{
+playWrong();
+btn.classList.add('wrong');
+streak=0;
+updateHeader();
+setTimeout(()=>btn.classList.remove('wrong'),500);
+}
+}
+function skipCliqueLetra(){
+playClick();
+streak=0;
+updateHeader();
+currentQ++;
+showNextCliqueLetra();
+}
+
+// ==================== 2. MEMÓRIA DE LETRAS ====================
+let memoryCards=[],memoryFlipped=[],memoryMatched=[];
+function startMemoriaLetras(){
+document.getElementById('gameTitle').textContent='🃏 Memória de Letras';
+document.getElementById('gameInstruction').textContent='Parear letras maiúsculas com minúsculas';
+const pairs=shuffleAndLimit(memoriaLetrasData,12);
+memoryCards=[];memoryFlipped=[];memoryMatched=[];
+pairs.forEach((p,i)=>{
+memoryCards.push({id:i*2,letter:p.uppercase,type:'upper',matched:false});
+memoryCards.push({id:i*2+1,letter:p.lowercase,type:'lower',matched:false});
+});
+shuffle(memoryCards);
+renderMemoryBoard();
+}
+function renderMemoryBoard(){
+updateProgress(memoryMatched.length/2,12);
+const area=document.getElementById('gameArea');
+area.innerHTML=`<div class="memory-board">
+${memoryCards.map(c=>`<div class="memory-card ${c.matched?'matched':''} ${memoryFlipped.includes(c.id)?'flipped':''}" onclick="flipMemoryCard(${c.id})">
+<div class="back">❓</div>
+<div class="front">${c.letter}</div>
+</div>`).join('')}
+</div>`;
+}
+function flipMemoryCard(id){
+if(memoryFlipped.length>=2)return;
+const card=memoryCards.find(c=>c.id===id);
+if(!card||card.matched||memoryFlipped.includes(id))return;
+playClick();
+memoryFlipped.push(id);
+renderMemoryBoard();
+if(memoryFlipped.length===2){
+const c1=memoryCards.find(c=>c.id===memoryFlipped[0]);
+const c2=memoryCards.find(c=>c.id===memoryFlipped[1]);
+if(c1.letter.toLowerCase()===c2.letter.toLowerCase()){
+playCorrect();playClapping();
+c1.matched=true;c2.matched=true;
+memoryMatched.push(c1);
+score+=20;totalStars++;updateHeader();
+createConfetti();
+if(memoryMatched.length===12){
+playLevelUp();
+setTimeout(()=>endGame(),1000);
+}
+setTimeout(()=>{memoryFlipped=[];renderMemoryBoard()},500);
+}else{
+playWrong();streak=0;
+setTimeout(()=>{memoryFlipped=[];renderMemoryBoard()},1000);
+}
+}
+}
+
+// ==================== 3. FORME O NOME ====================
+let formeNomeCurrent={},formeNomePositions=[];
+function startFormeNome(){
+questions=shuffleAndLimit(formeNomeData,40);
+currentQ=0;
+document.getElementById('gameTitle').textContent='✏️ Forme o Nome';
+showNextFormeNome();
+}
+function showNextFormeNome(){
+if(currentQ>=questions.length){endGame();return}
+formeNomeCurrent=questions[currentQ];
+formeNomePositions=Array(formeNomeCurrent.word.length).fill(null);
+updateProgress(currentQ,questions.length);
+document.getElementById('gameInstruction').textContent=`Complete o nome: ${formeNomeCurrent.category}`;
+const letters=shuffle(formeNomeCurrent.word.split(''));
+const area=document.getElementById('gameArea');
+// Create blank boxes for each letter
+const blanks=formeNomeCurrent.word.split('').map((l,i)=>`<div class="hangman-letter" id="blank${i}" style="border-color:#A78BFA;width:45px;height:55px;font-size:1.6em;display:inline-flex;align-items:center;justify-content:center;margin:0 3px;background:rgba(167,139,250,.1);border-radius:8px;cursor:pointer" onclick="removeFromBlank(${i})"></div>`).join('');
+area.innerHTML=`
+<div class="hint-image">${formeNomeCurrent.hint}</div>
+<div class="word-label">${formeNomeCurrent.word.length} letras - Clique na letra para preencher</div>
+<div style="display:flex;flex-wrap:wrap;justify-content:center;margin:15px 0" id="wordBlanks">${blanks}</div>
+<div class="letter-pool" id="letterPool">
+${letters.map((l,i)=>`<div class="drag-letter" id="letter${i}" onclick="addToBlank('${l}',${i})">${l}</div>`).join('')}
+</div>`;
+}
+function addToBlank(letter,letterIndex){
+playClick();
+// Find first empty blank
+const emptyIndex=formeNomePositions.findIndex(p=>p===null);
+if(emptyIndex===-1)return;
+formeNomePositions[emptyIndex]={letter,letterIndex};
+// Fill the blank
+const blank=document.getElementById('blank'+emptyIndex);
+blank.textContent=letter;
+blank.style.color='#A78BFA';
+blank.style.fontWeight='bold';
+// Hide the clicked letter
+const letterEl=document.getElementById('letter'+letterIndex);
+letterEl.style.opacity='.3';
+letterEl.style.pointerEvents='none';
+// Auto-check when all blanks are filled
+if(!formeNomePositions.some(p=>p===null)){
+setTimeout(()=>checkFormeNome(),600);
+}
+}
+function removeFromBlank(blankIndex){
+if(!formeNomePositions[blankIndex])return;
+playClick();
+const {letterIndex}=formeNomePositions[blankIndex];
+// Restore the letter in pool
+const letterEl=document.getElementById('letter'+letterIndex);
+letterEl.style.opacity='1';
+letterEl.style.pointerEvents='auto';
+// Clear the blank
+const blank=document.getElementById('blank'+blankIndex);
+blank.textContent='';
+blank.style.color='';
+formeNomePositions[blankIndex]=null;
+}
+function checkFormeNome(){
+const userWord=formeNomePositions.map(p=>p?p.letter:'').join('');
+if(userWord===formeNomeCurrent.word){
+playCorrect();playClapping();score+=30;totalStars+=2;updateHeader();createConfetti();
+showAchievement('🎉','Perfeito!',`${formeNomeCurrent.word} está correto!`);
+setTimeout(()=>{currentQ++;showNextFormeNome()},2000);
+}else{
+playWrong();streak=0;updateHeader();
+alert(`A resposta correta é: ${formeNomeCurrent.word}`);
+currentQ++;showNextFormeNome();
+}
+}
+
+// ==================== 4. CAÇA-PALAVRAS ====================
+let wordSearchGrid=[],wordSearchWords=[],wordSearchFound=[];
+function startCaçaPalavras(){
+document.getElementById('gameTitle').textContent='🔍 Caça-Palavras';
+document.getElementById('gameInstruction').textContent='Encontre as palavras escondidas!';
+wordSearchWords=shuffleAndLimit(caçaPalavrasData.words,15);
+wordSearchFound=[];
+buildWordSearchGrid();
+}
+function buildWordSearchGrid(){
+const size=10;
+wordSearchGrid=Array.from({length:size},()=>Array(size).fill(''));
+const dirs=[[0,1],[1,0],[1,1]];
+wordSearchWords.forEach(word=>{
+let placed=false;
+while(!placed){
+const dir=dirs[Math.floor(Math.random()*dirs.length)];
+const r=Math.floor(Math.random()*size);
+const c=Math.floor(Math.random()*size);
+let fits=true;
+for(let i=0;i<word.length;i++){
+const nr=r+dir[0]*i,nc=c+dir[1]*i;
+if(nr>=size||nc>=size||wordSearchGrid[nr][nc]!==''){fits=false;break}
+}
+if(fits){
+for(let i=0;i<word.length;i++)wordSearchGrid[r+dir[0]*i][c+dir[1]*i]=word[i];
+placed=true;
+}
+}
+});
+for(let r=0;r<size;r++)for(let c=0;c<size;c++){
+if(wordSearchGrid[r][c]==='')wordSearchGrid[r][c]=String.fromCharCode(65+Math.floor(Math.random()*26));
+}
+renderWordSearch();
+}
+function renderWordSearch(){
+updateProgress(wordSearchFound.length,wordSearchWords.length);
+const area=document.getElementById('gameArea');
+area.innerHTML=`
+<div class="word-list">
+${wordSearchWords.map(w=>{
+const found=wordSearchFound.some(f=>f.join('')===w.join(''));
+return `<span class="word-list-item ${found?'found':''}" ${found?'style="text-decoration:line-through;background:#95E86E;color:#fff"':''}>${w.join('')} ${found?'✓':''}</span>`;
+}).join('')}
+</div>
+<div class="word-grid" style="grid-template-columns:repeat(10,1fr)">
+${wordSearchGrid.map((row,r)=>row.map((cell,c)=>{
+const isFound=wordSearchFound.some(w=>{
+for(let i=0;i<w.length;i++){
+for(const dir of [[0,1],[1,0],[1,1]]){
+let match=true;
+for(let j=0;j<w.length;j++){
+const nr=r+dir[0]*(j-i),nc=c+dir[1]*(j-i);
+if(nr<0||nr>=10||nc<0||nc>=10||wordSearchGrid[nr]?.[nc]!==w[j]){match=false;break}
+}
+if(match)return true;
+}
+}
+return false;
+});
+return `<div class="word-grid-cell ${isFound?'found':''}" onclick="selectWordCell(${r},${c})">${cell}</div>`;
+}).join('')).join('')}
+</div>`;
+}
+let selectedCells=[];
+function selectWordCell(r,c){
+playClick();
+const cell=document.querySelector(`.word-grid > div:nth-child(${r*10+c+1})`);
+if(cell.classList.contains('selected')){cell.classList.remove('selected');selectedCells=selectedCells.filter(s=>s[0]!==r||s[1]!==c)}
+else{cell.classList.add('selected');selectedCells.push([r,c])}
+if(selectedCells.length>=2){
+const word=selectedCells.map(([r,c])=>wordSearchGrid[r][c]);
+const match=wordSearchWords.find(w=>w.join('')===word.join('')&&!wordSearchFound.some(f=>f.join('')===w.join('')));
+if(match){
+playCorrect();playClapping();score+=25;totalStars+=2;updateHeader();
+wordSearchFound.push(match);createConfetti();
+// Mark found cells
+selectedCells.forEach(([r,c])=>{
+const cell=document.querySelector(`.word-grid > div:nth-child(${r*10+c+1})`);
+cell.classList.add('found');
+cell.style.background='var(--green)';
+cell.style.color='#fff';
+});
+selectedCells=[];
+// Show celebration message
+const msg=document.createElement('div');
+msg.textContent=`🎉 Encontrou: ${match.join('')}!`;
+msg.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#95E86E;color:#fff;padding:15px 30px;border-radius:15px;font-size:1.3em;font-weight:bold;z-index:1000;animation:slideUp .3s ease';
+document.body.appendChild(msg);
+setTimeout(()=>msg.remove(),1500);
+if(wordSearchFound.length===wordSearchWords.length){playLevelUp();setTimeout(()=>endGame(),1000)}
+renderWordSearch();
+}
+}
+}
+
+// ==================== 5. JOGO DA FORCA ====================
+let forcaWord='',forcaHint='',forcaGuessed=[],forcaLives=6,forcaCurrentQ=0;
+function startForca(){
+questions=shuffleAndLimit(forcaData,40);
+forcaCurrentQ=0;
+document.getElementById('gameTitle').textContent='📝 Jogo da Forca';
+showNextForca();
+}
+function showNextForca(){
+if(forcaCurrentQ>=questions.length){endGame();return}
+const q=questions[forcaCurrentQ];
+forcaWord=q.word;forcaHint=q.hint;forcaGuessed=[];forcaLives=6;
+updateProgress(forcaCurrentQ,questions.length);
+document.getElementById('gameInstruction').textContent=`Dica: ${q.category}`;
+renderForca();
+}
+function renderForca(){
+const area=document.getElementById('gameArea');
+const wordDisplay=forcaWord.split('').map(l=>`<div class="hangman-letter ${forcaGuessed.includes(l)?'revealed':''}">${forcaGuessed.includes(l)?l:'_'}</div>`).join('');
+const keys='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(k=>`<button class="key-btn ${forcaGuessed.includes(k)?(forcaWord.includes(k)?'correct':'wrong'):''}" onclick="guessForca('${k}')" ${forcaGuessed.includes(k)?'disabled':''}>${k}</button>`).join('');
+area.innerHTML=`
+<div class="hint-text">${forcaHint}</div>
+<div class="lives">${'❤️'.repeat(forcaLives)}${'🖤'.repeat(6-forcaLives)}</div>
+<div class="hangman-word">${wordDisplay}</div>
+<div class="keyboard">${keys}</div>`;
+}
+function guessForca(letter){
+playClick();
+forcaGuessed.push(letter);
+if(forcaWord.includes(letter)){
+playCorrect();playClapping();score+=10;totalStars++;updateHeader();
+if(forcaWord.split('').every(l=>forcaGuessed.includes(l))){
+createConfetti();
+showAchievement('🎊','Parabéns!',`Você adivinhou: ${forcaWord}`);
+setTimeout(()=>{forcaCurrentQ++;showNextForca()},1500);
+return;
+}
+}else{
+playWrong();forcaLives--;streak=0;updateHeader();
+if(forcaLives<=0){
+playWrong();
+alert(`Fim de jogo! A palavra era: ${forcaWord}`);
+forcaCurrentQ++;showNextForca();
+return;
+}
+}
+renderForca();
+}
+
+// ==================== 6. CONTE OS OBJETOS ====================
+function startConteObjetos(){
+questions=shuffleAndLimit(conteObjetosData,50);
+currentQ=0;
+document.getElementById('gameTitle').textContent='🍎 Conte os Objetos';
+showNextConteObjetos();
+}
+function showNextConteObjetos(){
+if(currentQ>=questions.length){endGame();return}
+const q=questions[currentQ];
+updateProgress(currentQ,questions.length);
+document.getElementById('gameInstruction').textContent='Quantos objetos você vê?';
+const area=document.getElementById('gameArea');
+area.innerHTML=`
+<div class="count-objects">${Array(q.qty).fill(0).map((_,i)=>`<span class="count-object" style="animation-delay:${i*.2}s">${q.emoji}</span>`).join('')}</div>
+<div class="answer-options">
+${q.options.map(o=>`<button class="number-btn" onclick="checkConteObjetos(this,${o},${q.qty})">${o}</button>`).join('')}
+</div>`;
+}
+function checkConteObjetos(btn,selected,correct){
+if(selected===correct){
+playCorrect();playClapping();btn.classList.add('correct');
+score+=10+streak*5;streak++;if(streak>maxStreak)maxStreak=streak;
+totalStars++;updateHeader();createConfetti();
+setTimeout(()=>{currentQ++;showNextConteObjetos()},800);
+}else{
+playWrong();btn.classList.add('wrong');streak=0;updateHeader();
+setTimeout(()=>{currentQ++;showNextConteObjetos()},800);
+}
+}
+
+// ==================== 7. NÚMEROS E QUANTIDADES ====================
+function startNumerosQtd(){
+questions=shuffleAndLimit(numerosQtdData,40);
+currentQ=0;
+document.getElementById('gameTitle').textContent='🔢 Números e Quantidades';
+showNextNumerosQtd();
+}
+function showNextNumerosQtd(){
+if(currentQ>=questions.length){endGame();return}
+const q=questions[currentQ];
+updateProgress(currentQ,questions.length);
+document.getElementById('gameInstruction').textContent=`Qual número tem ${q.emoji.repeat(q.number)}?`;
+const opts=[q.number];while(opts.length<4){const r=Math.floor(Math.random()*10)+1;if(!opts.includes(r))opts.push(r)}
+const area=document.getElementById('gameArea');
+area.innerHTML=`
+<div class="count-objects">${Array(q.number).fill(0).map((_,i)=>`<span class="count-object" style="animation-delay:${i*.15}s">${q.emoji}</span>`).join('')}</div>
+<div class="answer-options">
+${opts.sort(()=>Math.random()-.5).map(o=>`<button class="number-btn" onclick="checkNumerosQtd(this,${o},${q.number})">${o}</button>`).join('')}
+</div>`;
+}
+function checkNumerosQtd(btn,selected,correct){
+if(selected===correct){
+playCorrect();playClapping();btn.classList.add('correct');
+score+=10+streak*5;streak++;totalStars++;updateHeader();createConfetti();
+setTimeout(()=>{currentQ++;showNextNumerosQtd()},800);
+}else{
+playWrong();btn.classList.add('wrong');streak=0;updateHeader();
+setTimeout(()=>{currentQ++;showNextNumerosQtd()},800);
+}
+}
+
+// ==================== 8. SOMA DIVERTIDA ====================
+function startSoma(){
+questions=shuffleAndLimit(somaData,50);
+currentQ=0;
+document.getElementById('gameTitle').textContent='➕ Soma Divertida';
+showNextSoma();
+}
+function showNextSoma(){
+if(currentQ>=questions.length){endGame();return}
+const q=questions[currentQ];
+updateProgress(currentQ,questions.length);
+document.getElementById('gameInstruction').textContent=q.level===1?'Nível 1: Soma até 5':q.level===2?'Nível 2: Soma até 10':'Nível 3: Soma até 20';
+const opts=[q.result];while(opts.length<4){const r=q.result+Math.floor(Math.random()*5)-2;if(!opts.includes(r)&&r>0)opts.push(r)}
+const emojis=['🍎','🍊','🍋','🍇','🍓','🐶','🐱','⭐','❤️','🎈'];
+const e1=emojis[Math.floor(Math.random()*emojis.length)],e2=emojis[Math.floor(Math.random()*emojis.length)];
+const area=document.getElementById('gameArea');
+area.innerHTML=`
+<div class="math-visual">
+${Array(q.a).fill(0).map((_,i)=>`<span class="math-emoji" style="animation-delay:${i*.1}s">${e1}</span>`).join('')}
+<span style="font-size:1.5em;margin:0 10px">+</span>
+${Array(q.b).fill(0).map((_,i)=>`<span class="math-emoji" style="animation-delay:${(q.a+i)*.1}s">${e2}</span>`).join('')}
+</div>
+<div class="math-expression">${q.a} + ${q.b} = ?</div>
+<div class="answer-options">
+${opts.sort(()=>Math.random()-.5).map(o=>`<button class="number-btn" onclick="checkSoma(this,${o},${q.result})">${o}</button>`).join('')}
+</div>`;
+}
+function checkSoma(btn,selected,correct){
+if(selected===correct){
+playCorrect();playClapping();btn.classList.add('correct');
+score+=10+streak*5;streak++;totalStars++;updateHeader();createConfetti();
+setTimeout(()=>{currentQ++;showNextSoma()},800);
+}else{
+playWrong();btn.classList.add('wrong');streak=0;updateHeader();
+setTimeout(()=>{currentQ++;showNextSoma()},800);
+}
+}
+
+// ==================== 9. SUBTRAÇÃO SIMPLES ====================
+let subtracaoCurrent={},subtracaoCrossed=[];
+function startSubtracao(){
+questions=shuffleAndLimit(subtracaoData,50);
+currentQ=0;
+document.getElementById('gameTitle').textContent='➖ Subtração Simples';
+showNextSubtracao();
+}
+function showNextSubtracao(){
+if(currentQ>=questions.length){endGame();return}
+subtracaoCurrent=questions[currentQ];
+subtracaoCrossed=[];
+updateProgress(currentQ,questions.length);
+document.getElementById('gameInstruction').textContent=`Clique em ${subtracaoCurrent.b} objetos para riscar e descubra quantos sobram!`;
+const emojis=['🍎','🍊','🍋','🍇','🍓','🐶','🐱','⭐','❤️','🎈'];
+const e=emojis[Math.floor(Math.random()*emojis.length)];
+const remaining=subtracaoCurrent.a-subtracaoCurrent.b;
+const opts=[remaining];while(opts.length<4){const r=remaining+Math.floor(Math.random()*5)-2;if(!opts.includes(r)&&r>=0)opts.push(r)}
+const area=document.getElementById('gameArea');
+area.innerHTML=`
+<div class="math-expression" style="margin-bottom:5px">${subtracaoCurrent.a} - ${subtracaoCurrent.b} = ?</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:15px 0" id="subtracaoObjects">
+${Array(subtracaoCurrent.a).fill(0).map((_,i)=>`<span class="count-object" id="subObj${i}" style="font-size:2.5em;cursor:pointer;transition:all .3s;animation:float 1.5s ease-in-out infinite;animation-delay:${i*.1}s" onclick="crossObject(${i})">${e}</span>`).join('')}
+</div>
+<div style="font-size:1em;color:#666;margin:10px 0">
+Riscados: <span id="crossedCount" style="font-weight:bold;color:var(--red)">0</span> / ${subtracaoCurrent.b}
+</div>
+<div class="answer-options" id="subtracaoOptions">
+${opts.sort(()=>Math.random()-.5).map(o=>`<button class="number-btn" onclick="checkSubtracao(this,${o},${remaining})">${o}</button>`).join('')}
+</div>`;
+}
+function crossObject(index){
+if(subtracaoCrossed.includes(index))return;
+if(subtracaoCrossed.length>=subtracaoCurrent.b)return;
+playClick();
+subtracaoCrossed.push(index);
+const obj=document.getElementById('subObj'+index);
+obj.style.opacity='.3';
+obj.style.textDecoration='line-through';
+obj.style.transform='scale(.8)';
+obj.style.filter='grayscale(1)';
+document.getElementById('crossedCount').textContent=subtracaoCrossed.length;
+}
+function checkSubtracao(btn,selected,correct){
+if(selected===correct){
+playCorrect();playClapping();btn.classList.add('correct');
+score+=10+streak*5;streak++;totalStars++;updateHeader();createConfetti();
+setTimeout(()=>{currentQ++;showNextSubtracao()},1200);
+}else{
+playWrong();btn.classList.add('wrong');streak=0;updateHeader();
+setTimeout(()=>{currentQ++;showNextSubtracao()},1200);
+}
+}
+
+// ==================== 10. FORMAS E CORES ====================
+function startFormasCores(){
+questions=shuffleAndLimit(formasCoresData,50);
+currentQ=0;
+document.getElementById('gameTitle').textContent='🔷 Formas e Cores';
+showNextFormasCores();
+}
+function showNextFormasCores(){
+if(currentQ>=questions.length){endGame();return}
+const q=questions[currentQ];
+updateProgress(currentQ,questions.length);
+document.getElementById('gameInstruction').textContent=q.question;
+const area=document.getElementById('gameArea');
+if(q.type==='shape'){
+const shapeEmojis={'Círculo':'⭕','Quadrado':'⬛','Triângulo':'<span style="display:inline-block;width:0;height:0;border-left:20px solid transparent;border-right:20px solid transparent;border-bottom:35px solid #FF6B6B"></span>','Retângulo':'▬','Estrela':'⭐'};
+area.innerHTML=`
+<div class="shapes-display">
+${q.options.map(o=>`<button class="shape-btn" onclick="checkFormasCores(this,'${o}','${q.answer}')">${shapeEmojis[o]||'?'}</button>`).join('')}
+</div>`;
+}else{
+const colorMap={'vermelho':'🔴','amarelo':'🟡','verde':'🟢','azul':'🔵','roxo':'🟣'};
+area.innerHTML=`
+<div class="shapes-display">
+${q.options.map(o=>`<button class="shape-btn" onclick="checkFormasCores(this,'${o}','${q.answer}')" style="background:${o==='vermelho'?'#FF6B6B':o==='amarelo'?'#FFE66D':o==='verde'?'#95E86E':o==='azul'?'#4ECDC4':'#A78BFA'};color:#fff;font-size:1.5em">${colorMap[o]||'?'}</button>`).join('')}
+</div>`;
+}
+}
+function checkFormasCores(btn,selected,correct){
+if(selected===correct){
+playCorrect();playClapping();btn.classList.add('correct');
+score+=10+streak*5;streak++;totalStars++;updateHeader();createConfetti();
+setTimeout(()=>{currentQ++;showNextFormasCores()},800);
+}else{
+playWrong();btn.classList.add('wrong');streak=0;updateHeader();
+setTimeout(()=>{currentQ++;showNextFormasCores()},800);
+}
+}
+
+// ==================== END GAME ====================
+function endGame(){
+playLevelUp();
+createConfetti();
+const stars=score>=400?3:score>=200?2:1;
+totalStars+=stars;
+const msgs=['Continue praticando! 💪','Muito bom! 🌟','Incrível! Você é um gênio! 🎉'];
+const badges=[];
+if(stars===3)badges.push({icon:'🏆',title:'Mestre!',desc:'3 estrelas conquistadas!'});
+if(maxStreak>=5)badges.push({icon:'🔥',title:'Em Chamas!',desc:`Sequência de ${maxStreak}!`});
+if(score>=300)badges.push({icon:'🧠',title:'Gênio!',desc:`${score} pontos no total!`});
+
+document.getElementById('resultsContent').innerHTML=`
+<div class="results-title">🎉 Fim de Jogo! 🎉</div>
+<div class="results-stars">
+<span class="results-star">${stars>=1?'⭐':'☆'}</span>
+<span class="results-star">${stars>=2?'⭐':'☆'}</span>
+<span class="results-star">${stars>=3?'⭐':'☆'}</span>
+</div>
+<div class="results-score">Pontuação: ${score} pts | Sequência máxima: ${maxStreak}</div>
+<div class="results-message">${msgs[stars-1]}</div>
+${badges.length?`<div class="results-achievements">
+${badges.map(b=>`<div class="achievement"><span class="badge-icon">${b.icon}</span><div><strong>${b.title}</strong><br>${b.desc}</div></div>`).join('')}
+</div>`:''}
+<div class="results-buttons">
+<button class="btn btn-primary" onclick="startGame('${currentGame}')">🔄 Jogar Novamente</button>
+<button class="btn btn-success" onclick="goToMenu()">🏠 Menu Principal</button>
+</div>`;
+show('resultsScreen');
+}
+
+// Init
+updateHeader();
+</script>
+</body>
+</html>
