@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fábrica de Histórias Maravilhosas</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&family=Bangers&family=Patrick+Hand&family=Indie+Flower&family=Permanent+Marker&display=swap');
+        :root { --primary: #FF6B6B; --secondary: #4ECDC4; --accent: #FFE66D; --text: #2F3E46; --purple: #9B59B6; --orange: #E67E22; --pink: #E91E63; --teal: #00BCD4; --lime: #8BC34A; --gray: #9E9E9E; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: var(--text); min-height: 100vh; padding: 20px; }
+        body.logado { padding-top: 65px; }
+        .hidden { display: none !important; }
+
+        /* ===== LOGIN ===== */
+        .login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; color: white; text-align: center; }
+        .login-screen h1 { font-family: 'Fredoka One', cursive; font-size: 3rem; text-shadow: 3px 3px 0 rgba(0,0,0,0.2); margin-bottom: 10px; }
+        .login-screen .sub { font-size: 1.2rem; opacity: 0.9; margin-bottom: 30px; }
+        .perfil-grid { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; max-width: 700px; margin-bottom: 25px; }
+        .perfil-card { width: 120px; background: rgba(255,255,255,0.95); border-radius: 20px; padding: 16px 10px; cursor: pointer; transition: all 0.25s; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+        .perfil-card:hover { transform: translateY(-6px); box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+        .perfil-card .avatar { font-size: 3rem; margin-bottom: 6px; }
+        .perfil-card .nome { font-weight: 700; font-size: 0.95rem; }
+        .perfil-card .qtd { font-size: 0.75rem; color: #999; margin-top: 3px; }
+        .perfil-card .btn-excluir-perfil { margin-top: 6px; padding: 3px 10px; background: var(--primary); color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 0.7rem; font-weight: 700; }
+        .btn-novo-perfil { width: 120px; background: rgba(255,255,255,0.2); border: 3px dashed rgba(255,255,255,0.6); border-radius: 20px; padding: 16px 10px; cursor: pointer; transition: all 0.25s; text-align: center; color: white; }
+        .btn-novo-perfil:hover { background: rgba(255,255,255,0.3); border-color: white; }
+        .btn-novo-perfil .icone { font-size: 3rem; margin-bottom: 6px; }
+        .btn-novo-perfil .texto { font-weight: 700; font-size: 0.9rem; }
+
+        /* ===== MODAIS ===== */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 100; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 20px; padding: 28px; max-width: 460px; width: 92vw; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: modalIn 0.3s ease; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .modal h2 { font-family: 'Fredoka One', cursive; color: var(--primary); margin-bottom: 14px; text-align: center; }
+        .modal .btn-fechar { float: right; background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #999; }
+        .modal label { display: block; font-size: 0.9rem; font-weight: 700; margin: 10px 0 5px; }
+        .modal input[type="text"] { width: 100%; padding: 10px; border: 2px solid #E0E0E0; border-radius: 10px; font-size: 0.95rem; font-family: 'Nunito', sans-serif; }
+        .modal input[type="text"]:focus { border-color: var(--secondary); outline: none; }
+        .btn-modal { width: 100%; padding: 12px; margin-top: 14px; background: linear-gradient(135deg, var(--primary), #ff5252); color: white; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: 700; font-family: 'Fredoka One', cursive; cursor: pointer; }
+        .btn-modal:hover { transform: translateY(-2px); }
+        .avatar-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .avatar-btn { width: 48px; height: 48px; font-size: 1.8rem; border: 3px solid #E0E0E0; border-radius: 50%; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .avatar-btn:hover { border-color: var(--secondary); transform: scale(1.1); }
+        .avatar-btn.selected { border-color: var(--primary); background: #fff0f0; transform: scale(1.15); }
+
+        /* ===== BARRA USUARIO ===== */
+        .barra-usuario { position: fixed; top: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); padding: 8px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 50; backdrop-filter: blur(10px); }
+        .barra-usuario .user-info { display: flex; align-items: center; gap: 10px; }
+        .barra-usuario .user-avatar { font-size: 1.8rem; }
+        .barra-usuario .user-nome { font-weight: 700; font-size: 1rem; }
+        .barra-usuario .user-historias { font-size: 0.8rem; color: #999; }
+        .barra-usuario .botoes-barra { display: flex; gap: 8px; align-items: center; }
+        .barra-usuario .botoes-barra button { padding: 6px 14px; border: none; border-radius: 20px; cursor: pointer; font-size: 0.85rem; font-weight: 700; }
+        .btn-trocar { background: var(--secondary); color: white; }
+        .btn-salvar-auto { background: var(--lime); color: white; font-size: 0.75rem !important; padding: 5px 10px !important; }
+        .status-auto-save { font-size: 0.7rem; color: #999; margin-right: 6px; }
+
+        header { text-align: center; margin-bottom: 20px; color: white; }
+        header h1 { font-family: 'Fredoka One', cursive; font-size: 2.4rem; text-shadow: 3px 3px 0 rgba(0,0,0,0.2); }
+        header p { font-size: 1rem; opacity: 0.9; }
+        .container { display: flex; flex-wrap: wrap; gap: 20px; max-width: 1400px; margin: 0 auto; }
+
+        .painel-lateral { width: 340px; display: flex; flex-direction: column; gap: 10px; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 5px; }
+        .painel-lateral::-webkit-scrollbar { width: 5px; }
+        .painel-lateral::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+        .painel { background: white; padding: 14px; border-radius: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+        .painel h3 { font-family: 'Fredoka One', cursive; font-size: 0.95rem; color: var(--primary); margin-bottom: 8px; }
+        .campo { margin-bottom: 10px; }
+        label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 4px; }
+        input[type="text"], textarea, select { width: 100%; padding: 8px 10px; border: 2px solid #E0E0E0; border-radius: 8px; font-size: 0.85rem; font-family: 'Nunito', sans-serif; }
+        input[type="text"]:focus, textarea:focus { border-color: var(--secondary); outline: none; }
+        textarea { resize: vertical; min-height: 60px; }
+
+        .btn-gerar { background: linear-gradient(135deg, var(--primary), #ff5252); color: white; border: none; padding: 10px; font-size: 1rem; font-weight: 700; border-radius: 50px; cursor: pointer; width: 100%; font-family: 'Fredoka One', cursive; }
+        .btn-acao { background: linear-gradient(135deg, var(--secondary), #3dbdb4); color: white; border: none; padding: 8px 12px; font-size: 0.85rem; font-weight: 700; border-radius: 50px; cursor: pointer; width: 100%; }
+        .botoes-row { display: flex; gap: 5px; }
+        .botoes-row .btn-acao { flex: 1; font-size: 0.75rem; padding: 8px 4px; }
+
+        .seletor-modo { display: flex; gap: 5px; }
+        .modo-btn { flex: 1; padding: 8px; border: 3px solid #E0E0E0; border-radius: 10px; background: white; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .modo-btn .icone { font-size: 1.5rem; }
+        .modo-btn .texto { font-size: 0.75rem; font-weight: 700; }
+        .modo-btn.selected { border-color: var(--primary); background: #fff0f0; }
+
+        .opcoes-emoji { display: flex; flex-wrap: wrap; gap: 4px; font-size: 1.3rem; max-height: 200px; overflow-y: auto; padding: 6px; background: #f5f5f5; border-radius: 10px; }
+        .emoji-btn { cursor: pointer; padding: 2px 3px; border-radius: 5px; transition: transform 0.15s; line-height: 1; }
+        .emoji-btn:hover { transform: scale(1.35); background: #e0e0e0; }
+        .emoji-btn.selected { background: var(--accent); transform: scale(1.15); }
+        .cat-emoji { width: 100%; font-size: 0.7rem; font-weight: 700; color: var(--secondary); margin-top: 6px; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid #e0e0e0; padding-top: 5px; }
+        .cat-emoji:first-child { border-top: none; margin-top: 0; }
+
+        .upload-area { margin-top: 6px; padding: 8px; border: 2px dashed var(--secondary); border-radius: 8px; text-align: center; cursor: pointer; font-size: 0.8rem; }
+        .upload-area:hover { background: #e0f7fa; }
+        .upload-area input[type="file"] { display: none; }
+        .upload-preview { margin-top: 5px; text-align: center; }
+        .upload-preview img { max-width: 70px; max-height: 70px; border-radius: 8px; }
+
+        .opcoes-cenario { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+        .cenario-btn { padding: 5px 2px; border: 2px solid #E0E0E0; border-radius: 6px; background: white; cursor: pointer; text-align: center; font-size: 0.7rem; }
+        .cenario-btn .emoji { font-size: 1.2rem; }
+        .cenario-btn.selected { border-color: var(--lime); background: #f1f8e9; }
+
+        .opcoes-tom { display: flex; gap: 4px; flex-wrap: wrap; }
+        .tom-btn { padding: 4px 8px; border: 2px solid #E0E0E0; border-radius: 12px; background: white; cursor: pointer; font-size: 0.75rem; }
+        .tom-btn.selected { border-color: var(--purple); background: var(--purple); color: white; }
+
+        .lista-paginas { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+        .pagina-thumb { width: 36px; height: 44px; border: 2px solid #ddd; border-radius: 5px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 700; font-size: 0.75rem; position: relative; }
+        .pagina-thumb.ativa { border-color: var(--primary); background: var(--accent); }
+        .pagina-thumb .remover-pagina { position: absolute; top: -4px; right: -4px; width: 13px; height: 13px; background: var(--primary); color: white; border: none; border-radius: 50%; font-size: 0.5rem; cursor: pointer; display: none; }
+        .pagina-thumb:hover .remover-pagina { display: flex; align-items: center; justify-content: center; }
+
+        .cor-fundo-opcoes { display: flex; gap: 4px; flex-wrap: wrap; }
+        .cor-fundo-btn { width: 24px; height: 24px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; }
+        .cor-fundo-btn.selected { border-color: var(--text); transform: scale(1.15); }
+
+        .tamanho-fonte { display: flex; gap: 5px; align-items: center; }
+        .tamanho-fonte input[type="range"] { flex: 1; accent-color: var(--secondary); }
+        .tamanho-fonte span { font-weight: 700; min-width: 28px; font-size: 0.8rem; }
+
+        .opcoes-alinhamento { display: flex; gap: 4px; }
+        .opcoes-alinhamento button { flex: 1; padding: 5px; border: 2px solid #E0E0E0; border-radius: 5px; background: white; cursor: pointer; font-size: 0.85rem; }
+        .opcoes-alinhamento button.selected { border-color: var(--secondary); background: var(--secondary); color: white; }
+
+        .prompt-area { background: #f0f9ff; border: 2px solid var(--teal); border-radius: 8px; padding: 8px; margin-top: 5px; }
+        .prompt-area .dica { font-size: 0.75rem; color: var(--teal); font-weight: 700; margin-bottom: 4px; }
+        .dicas-lista { display: flex; flex-wrap: wrap; gap: 4px; }
+        .dica-chip { background: var(--teal); color: white; border: none; padding: 3px 8px; border-radius: 12px; cursor: pointer; font-size: 0.7rem; }
+
+        .lista-personagens { display: flex; flex-direction: column; gap: 4px; max-height: 80px; overflow-y: auto; }
+        .personagem-item { display: flex; gap: 5px; align-items: center; padding: 4px 6px; background: #f5f5f5; border-radius: 5px; }
+        .personagem-item input { flex: 1; padding: 3px 5px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.75rem; }
+        .personagem-item .emoji-select { width: 26px; text-align: center; font-size: 1.1rem; cursor: pointer; }
+        .personagem-item .btn-remover-p { background: var(--primary); color: white; border: none; border-radius: 50%; width: 18px; height: 18px; cursor: pointer; font-size: 0.6rem; }
+        .btn-adicionar { background: var(--secondary); color: white; border: none; padding: 5px 10px; border-radius: 12px; cursor: pointer; font-size: 0.75rem; font-weight: 700; margin-top: 4px; }
+
+        .historia-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #f5f5f5; border-radius: 6px; margin-bottom: 5px; }
+        .historia-item .nome { font-weight: 700; font-size: 0.85rem; }
+        .historia-item .data { font-size: 0.7rem; color: #999; }
+        .historia-item .botoes-historia { display: flex; gap: 4px; }
+        .historia-item .botoes-historia button { padding: 3px 7px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.7rem; font-weight: 700; }
+        .btn-carregar { background: var(--secondary); color: white; }
+        .btn-excluir { background: var(--primary); color: white; }
+        .sem-historias { text-align: center; padding: 20px; color: #999; font-style: italic; }
+
+        /* ===== LIVRO ===== */
+        .livro-wrap { flex: 1; min-width: 340px; display: flex; flex-direction: column; align-items: center; }
+        .visualizacao-livro { width: 100%; max-width: 480px; background: white; border-radius: 14px; box-shadow: 0 10px 35px rgba(0,0,0,0.25); border: 7px solid #4A3728; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .capa-livro { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; text-align: center; min-height: 400px; transition: background-color 0.3s; position: relative; overflow: hidden; }
+        #livro-titulo { font-family: 'Fredoka One', cursive; font-size: 1.8rem; margin-bottom: 10px; color: #333; word-wrap: break-word; display: none; position: relative; z-index: 1; }
+        .elemento-livro { position: absolute; cursor: grab; user-select: none; transition: box-shadow 0.2s; }
+        .elemento-livro:hover { box-shadow: 0 0 0 3px var(--primary); }
+        .elemento-livro.selecionado { box-shadow: 0 0 0 3px var(--primary), 0 0 15px rgba(255,107,107,0.4); }
+        .elemento-livro.movable { cursor: grab; }
+        #livro-ilustracao { font-size: 4.5rem; }
+        #livro-ilustracao-img { max-width: 130px; max-height: 130px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        #livro-historia { font-size: 1rem; line-height: 1.6; white-space: pre-wrap; max-width: 90%; padding: 10px; background: rgba(255,255,255,0.85); border-radius: 10px; }
+        #livro-autor { font-size: 0.9rem; font-style: italic; color: #555; }
+        .numero-pagina { position: absolute; bottom: 8px; right: 12px; font-size: 0.75rem; color: #999; z-index: 1; }
+
+        /* ===== CONTROLES DE CAMADAS ===== */
+        .barra-camadas { display: flex; gap: 4px; align-items: center; justify-content: center; margin-top: 6px; flex-wrap: wrap; }
+        .barra-camadas button { padding: 4px 8px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.7rem; font-weight: 700; transition: all 0.2s; }
+        .barra-camadas .btn-frente { background: var(--lime); color: white; }
+        .barra-camadas .btn-tras { background: var(--orange); color: white; }
+        .barra-camadas .btn-up { background: var(--secondary); color: white; }
+        .barra-camadas .btn-down { background: var(--purple); color: white; }
+        .barra-camadas .btn-center { background: var(--teal); color: white; }
+        .barra-camadas button:hover { transform: translateY(-1px); }
+        .barra-camadas .layer-info { font-size: 0.7rem; color: white; font-weight: 700; }
+
+        .navegacao-paginas { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 12px; }
+        .navegacao-paginas button { background: var(--secondary); color: white; border: none; padding: 8px 14px; border-radius: 18px; cursor: pointer; font-size: 0.85rem; font-weight: 700; }
+        .navegacao-paginas button:hover { background: #3dbdb4; }
+        .navegacao-paginas button:disabled { background: #ccc; cursor: not-allowed; }
+        .navegacao-paginas span { font-weight: 700; color: white; font-size: 0.85rem; }
+
+        .barra-audio { display: flex; gap: 6px; align-items: center; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+        .barra-audio button { padding: 6px 12px; border: none; border-radius: 16px; cursor: pointer; font-size: 0.75rem; font-weight: 700; }
+        .btn-gravar { background: var(--primary); color: white; }
+        .btn-gravar.gravando { background: #c0392b; animation: pulse 1s infinite; }
+        .btn-parar { background: var(--gray); color: white; }
+        .btn-tocar { background: var(--secondary); color: white; }
+        .btn-tocar-todas { background: var(--purple); color: white; }
+        .btn-limpar-audio { background: #666; color: white; }
+        .status-audio { font-size: 0.75rem; color: white; font-weight: 700; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        /* ===== HQ ===== */
+        .hq-wrap { flex: 1; min-width: 340px; display: flex; flex-direction: column; align-items: center; }
+        .visualizacao-hq { width: 100%; max-width: 580px; background: white; border-radius: 14px; box-shadow: 0 10px 35px rgba(0,0,0,0.25); border: 5px solid #333; overflow: hidden; }
+        .hq-pagina { display: grid; gap: 0; padding: 8px; min-height: 400px; background: #f0f0f0; }
+        .hq-pagina.layout-1 { grid-template-columns: 1fr; }
+        .hq-pagina.layout-2 { grid-template-columns: 1fr 1fr; }
+        .hq-pagina.layout-3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+        .hq-pagina.layout-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+        .hq-pagina.layout-5 { grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; }
+        .hq-pagina.layout-6 { grid-template-columns: 1fr 1fr 1fr; }
+        .hq-painel { background: white; border: 3px solid #333; border-radius: 3px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; min-height: 90px; cursor: pointer; }
+        .hq-painel:hover { border-color: var(--primary); }
+        .hq-painel.selecionado { border-color: var(--primary); border-width: 4px; }
+        .hq-painel .emoji-painel { font-size: 2.5rem; }
+        .hq-painel .img-painel { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+        .hq-balao { position: absolute; background: white; border: 2px solid #333; border-radius: 18px; padding: 5px 8px; font-size: 0.7rem; font-weight: 700; text-align: center; max-width: 80%; z-index: 5; font-family: 'Patrick Hand', cursive; }
+        .hq-balao::after { content: ''; position: absolute; bottom: -8px; left: 15px; border-width: 8px 5px 0; border-style: solid; border-color: #333 transparent transparent; }
+        .hq-narracao { position: absolute; background: #FFE66D; border: 2px solid #333; border-radius: 3px; padding: 4px 6px; font-size: 0.65rem; font-style: italic; max-width: 85%; z-index: 5; }
+        .hq-exclamacao { position: absolute; background: #FF6B6B; color: white; border: 3px solid #333; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 900; z-index: 5; font-family: 'Bangers', cursive; }
+        .hq-efeito { position: absolute; font-family: 'Bangers', cursive; font-size: 1.5rem; color: #FF6B6B; text-shadow: 2px 2px 0 #333; z-index: 5; transform: rotate(-10deg); }
+        .hq-controles { display: flex; gap: 5px; padding: 8px; background: #333; flex-wrap: wrap; justify-content: center; }
+        .hq-controles button { padding: 5px 10px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 700; }
+        .hq-controles .btn-panel { background: var(--accent); color: #333; }
+        .hq-controles .btn-balao { background: white; color: #333; }
+        .hq-controles .btn-narracao { background: var(--accent); color: #333; }
+        .hq-controles .btn-exclamacao { background: var(--primary); color: white; }
+        .hq-controles .btn-efeito { background: var(--orange); color: white; }
+        .hq-controles .btn-remover-hq { background: #666; color: white; }
+        .hq-controles .btn-layout { background: var(--secondary); color: white; }
+
+        @keyframes flutuar { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-10px) rotate(2deg); } }
+
+        @media print { body { background: white; padding: 0; } .painel-lateral, header, .navegacao-paginas, .hq-controles, .numero-pagina, .barra-usuario, .barra-audio, .barra-camadas { display: none !important; } .container { display: block; } .visualizacao-livro, .visualizacao-hq { border: none; box-shadow: none; max-width: 100%; border-radius: 0; } .capa-livro { min-height: 100vh; } }
+        @media (max-width: 800px) { .container { flex-direction: column; align-items: center; } .painel-lateral { width: 100%; max-width: 500px; max-height: none; } header h1 { font-size: 1.6rem; } }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+    <h1>📖 Fábrica de Histórias 📖</h1>
+    <p class="sub">Quem vai criar histórias hoje?</p>
+    <div class="perfil-grid" id="perfil-grid"></div>
+    <div class="btn-novo-perfil" onclick="abrirModalNovoPerfil()"><div class="icone">➕</div><div class="texto">Novo Perfil</div></div>
+</div>
+
+<!-- MODAL NOVO PERFIL -->
+<div class="modal-overlay" id="modal-novo-perfil">
+    <div class="modal">
+        <button class="btn-fechar" onclick="fecharModal('modal-novo-perfil')">✕</button>
+        <h2>✨ Novo Perfil</h2>
+        <label>Seu nome:</label><input type="text" id="input-novo-nome" placeholder="Nome" maxlength="20">
+        <label>Avatar:</label><div class="avatar-grid" id="avatar-grid"></div>
+        <button class="btn-modal" onclick="criarPerfil()">🎯 Entrar!</button>
+    </div>
+</div>
+
+<!-- MODAL HISTORIAS -->
+<div class="modal-overlay" id="modal-historias">
+    <div class="modal">
+        <button class="btn-fechar" onclick="fecharModal('modal-historias')">✕</button>
+        <h2>📚 Minhas Histórias</h2>
+        <div id="lista-historias-salvas"></div>
+    </div>
+</div>
+
+<!-- MODAL GERAR -->
+<div class="modal-overlay" id="modal-gerar">
+    <div class="modal">
+        <button class="btn-fechar" onclick="fecharModal('modal-gerar')">✕</button>
+        <h2>✨ Gerar História</h2>
+        <label>Tema:</label><input type="text" id="gerar-tema" placeholder="amizade, aventura...">
+        <label>Personagem:</label><input type="text" id="gerar-personagem" placeholder="um dragão">
+        <label>Onde?</label><input type="text" id="gerar-local" placeholder="floresta encantada">
+        <button class="btn-modal" onclick="gerarHistoria()">🪄 Gerar</button>
+    </div>
+</div>
+
+<!-- BARRA USUARIO -->
+<div class="barra-usuario hidden" id="barra-usuario">
+    <div class="user-info">
+        <span class="user-avatar" id="user-avatar-barra"></span>
+        <div><div class="user-nome" id="user-nome-barra"></div><div class="user-historias" id="user-historias-barra"></div></div>
+    </div>
+    <div class="botoes-barra">
+        <span class="status-auto-save" id="status-auto-save"></span>
+        <button class="btn-salvar-auto" onclick="salvarAuto()">💾 Salvar</button>
+        <button class="btn-trocar" onclick="sair()">🔄 Trocar</button>
+    </div>
+</div>
+
+<!-- APP -->
+<div class="app hidden" id="app">
+    <header><h1>📖 Fábrica de Histórias 📖</h1><p>Crie livros, HQs e áudio-livros!</p></header>
+    <div class="container">
+        <div class="painel-lateral">
+            <div class="painel">
+                <h3>🎭 Modo</h3>
+                <div class="seletor-modo">
+                    <div class="modo-btn selected" onclick="mudarModo('livro', this)"><span class="icone">📖</span><span class="texto">Livro</span></div>
+                    <div class="modo-btn" onclick="mudarModo('hq', this)"><span class="icone">💥</span><span class="texto">HQ</span></div>
+                </div>
+            </div>
+
+            <div class="painel"><h3>📝 Info</h3>
+                <div class="campo"><label>Título</label><input type="text" id="input-titulo" placeholder="Nome da história"></div>
+                <div class="campo"><label>Autor(a)</label><input type="text" id="input-autor"></div>
+            </div>
+
+            <div class="painel"><h3>👤 Personagens</h3>
+                <div class="lista-personagens" id="lista-personagens"></div>
+                <button class="btn-adicionar" onclick="adicionarPersonagem()">+ Personagem</button>
+            </div>
+
+            <!-- ILUSTRACAO -->
+            <div class="painel"><h3>🎭 Ilustração</h3>
+                <div class="opcoes-emoji" id="lista-emojis">
+                    <div class="cat-emoji">🐾 Animais</div>
+                    <span class="emoji-btn selected" onclick="selecionarEmoji('🐉', this)">🐉</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🦄', this)">🦄</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🐸', this)">🐸</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🐱', this)">🐱</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🐶', this)">🐶</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🦊', this)">🦊</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🐻', this)">🐻</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🐼', this)">🐼</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🦁', this)">🦁</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🐯', this)">🐯</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🐰', this)">🐰</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🐵', this)">🐵</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🐧', this)">🐧</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🐙', this)">🐙</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🦋', this)">🦋</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🦈', this)">🦈</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🐢', this)">🐢</span>
+                    <div class="cat-emoji">🧙 Fantasia</div>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🧚', this)">🧚</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('👻', this)">👻</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('👽', this)">👽</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🤖', this)">🤖</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🧙‍♂️', this)">🧙‍♂️</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🦸', this)">🦸</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🧜', this)">🧜</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🧞', this)">🧞</span>
+                    <div class="cat-emoji">🚗 Transportes</div>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🚗', this)">🚗</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🚌', this)">🚌</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🚑', this)">🚑</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🚒', this)">🚒</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🚔', this)">🚔</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🚂', this)">🚂</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('✈️', this)">✈️</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🚀', this)">🚀</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🚁', this)">🚁</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🛸', this)">🛸</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🚢', this)">🚢</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🚲', this)">🚲</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('⛵', this)">⛵</span>
+                    <div class="cat-emoji">🏠 Lugares</div>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🏠', this)">🏠</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🏫', this)">🏫</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('⛪', this)">⛪</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🏖️', this)">🏖️</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🌌', this)">🌌</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🎪', this)">🎪</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🎭', this)">🎭</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🏙️', this)">🏙️</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🌳', this)">🌳</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🏰', this)">🏰</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🏥', this)">🏥</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🏪', this)">🏪</span>
+                    <div class="cat-emoji">🍎 Comida & Coisas</div>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🍕', this)">🍕</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🍔', this)">🍔</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🍩', this)">🍩</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🎂', this)">🎂</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('⭐', this)">⭐</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🌈', this)">🌈</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🔥', this)">🔥</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('💎', this)">💎</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🎈', this)">🎈</span>
+                    <span class="emoji-btn" onclick="selecionarEmoji('🎵', this)">🎵</span>
+                </div>
+                <div class="upload-area"><label for="upload-imagem"><div>📸 Envie imagem</div></label><input type="file" id="upload-imagem" accept="image/*" onchange="carregarImagem(event)"></div>
+                <div class="upload-preview" id="upload-preview"></div>
+                <div style="margin-top:5px;text-align:center;"><label style="font-size:0.7rem;cursor:pointer;"><input type="checkbox" id="chk-mover" checked onchange="toggleMover()"> 🖐️ Mover com clique</label></div>
+            </div>
+
+            <!-- CAMADAS -->
+            <div class="painel">
+                <h3>📚 Camadas (Z-Index)</h3>
+                <div style="font-size:0.75rem;color:#666;margin-bottom:6px;">Clique num elemento no livro para selecionar</div>
+                <div class="barra-camadas">
+                    <button class="btn-frente" onclick="moverCamada('frente')">⬆️ Frente</button>
+                    <button class="btn-tras" onclick="moverCamada('tras')">⬇️ Trás</button>
+                    <button class="btn-up" onclick="moverCamada('up')">🔼 +1</button>
+                    <button class="btn-down" onclick="moverCamada('down')">🔽 -1</button>
+                    <button class="btn-center" onclick="moverCamada('center')">🎯 Centro</button>
+                </div>
+                <div class="barra-camadas" style="margin-top:4px;">
+                    <span class="layer-info" id="layer-info">Nenhum selecionado</span>
+                </div>
+            </div>
+
+            <!-- CENARIO -->
+            <div class="painel"><h3>🏰 Cenário</h3>
+                <div class="opcoes-cenario">
+                    <div class="cenario-btn selected" onclick="selecionarCenario('🌌',this)"><span class="emoji">🌌</span></div>
+                    <div class="cenario-btn" onclick="selecionarCenario('🌊',this)"><span class="emoji">🌊</span></div>
+                    <div class="cenario-btn" onclick="selecionarCenario('🏰',this)"><span class="emoji">🏰</span></div>
+                    <div class="cenario-btn" onclick="selecionarCenario('🌲',this)"><span class="emoji">🌲</span></div>
+                    <div class="cenario-btn" onclick="selecionarCenario('🏜️',this)"><span class="emoji">🏜️</span></div>
+                    <div class="cenario-btn" onclick="selecionarCenario('🌋',this)"><span class="emoji">🌋</span></div>
+                    <div class="cenario-btn" onclick="selecionarCenario('🏙️',this)"><span class="emoji">🏙️</span></div>
+                    <div class="cenario-btn" onclick="selecionarCenario('🎪',this)"><span class="emoji">🎪</span></div>
+                    <div class="cenario-btn" onclick="selecionarCenario('❄️',this)"><span class="emoji">❄️</span></div>
+                    <div class="cenario-btn" onclick="selecionarCenario('🌴',this)"><span class="emoji">🌴</span></div>
+                    <div class="cenario-btn" onclick="selecionarCenario('🌙',this)"><span class="emoji">🌙</span></div>
+                    <div class="cenario-btn" onclick="selecionarCenario('☁️',this)"><span class="emoji">☁️</span></div>
+                </div>
+            </div>
+
+            <!-- TOM -->
+            <div class="painel"><h3>🎭 Tom</h3>
+                <div class="opcoes-tom">
+                    <button class="tom-btn selected" onclick="selecionarTom('aventura',this)">🗺️ Aventura</button>
+                    <button class="tom-btn" onclick="selecionarTom('comedia',this)">😂 Comédia</button>
+                    <button class="tom-btn" onclick="selecionarTom('emocionante',this)">😭 Emocionante</button>
+                    <button class="tom-btn" onclick="selecionarTom('magico',this)">✨ Mágico</button>
+                    <button class="tom-btn" onclick="selecionarTom('suspense',this)">😱 Suspense</button>
+                    <button class="tom-btn" onclick="selecionarTom('amizade',this)">❤️ Amizade</button>
+                </div>
+            </div>
+
+            <!-- HISTORIA -->
+            <div class="painel"><h3>✍️ História</h3>
+                <div class="campo"><textarea id="input-historia" rows="4" placeholder="Escreva aqui..."></textarea></div>
+                <div class="prompt-area"><div class="dica">💡 Inspiração:</div><div class="dicas-lista">
+                    <button class="dica-chip" onclick="usarDica('Era uma vez...')">Era uma vez...</button>
+                    <button class="dica-chip" onclick="usarDica('Um dia...')">Um dia...</button>
+                    <button class="dica-chip" onclick="usarDica('De repente...')">De repente...</button>
+                    <button class="dica-chip" onclick="usarDica('E foram felizes...')">Felizes...</button>
+                </div></div>
+                <button class="btn-gerar" style="margin-top:8px;" onclick="abrirModal('modal-gerar')">🪄 Gerar</button>
+            </div>
+
+            <!-- PAGINAS -->
+            <div class="painel"><h3>📄 Páginas</h3>
+                <div class="lista-paginas" id="lista-paginas"></div>
+                <div class="botoes-row" style="margin-top:5px;">
+                    <button class="btn-acao" onclick="adicionarPagina()">+ Página</button>
+                    <button class="btn-acao" onclick="duplicarPagina()" style="background:var(--orange);">📋 Dup.</button>
+                </div>
+            </div>
+
+            <!-- AUDIO -->
+            <div class="painel"><h3>🎙️ Áudio-Livro</h3>
+                <div class="barra-audio">
+                    <button class="btn-gravar" id="btn-gravar" onclick="gravarAudio()">🎙️ Gravar</button>
+                    <button class="btn-parar" id="btn-parar-audio" onclick="pararGravacao()" style="display:none;">⏹️</button>
+                    <button class="btn-tocar" onclick="tocarAudio()">▶️ Ouvir</button>
+                    <button class="btn-tocar-todas" onclick="tocarTodas()">🔊 Tudo</button>
+                    <button class="btn-limpar-audio" onclick="limparAudio()">🗑️</button>
+                </div>
+                <div class="status-audio" id="status-audio" style="text-align:center;margin-top:4px;"></div>
+            </div>
+
+            <!-- FORMATACAO -->
+            <div class="painel"><h3>🎨 Formato</h3>
+                <div class="campo"><label>Cor</label>
+                    <div class="cor-fundo-opcoes">
+                        <div class="cor-fundo-btn selected" style="background:#FFE66D;" onclick="selecionarCorFundo('#FFE66D',this)"></div>
+                        <div class="cor-fundo-btn" style="background:#FF6B6B;" onclick="selecionarCorFundo('#FF6B6B',this)"></div>
+                        <div class="cor-fundo-btn" style="background:#4ECDC4;" onclick="selecionarCorFundo('#4ECDC4',this)"></div>
+                        <div class="cor-fundo-btn" style="background:#9B59B6;" onclick="selecionarCorFundo('#9B59B6',this)"></div>
+                        <div class="cor-fundo-btn" style="background:#3498DB;" onclick="selecionarCorFundo('#3498DB',this)"></div>
+                        <div class="cor-fundo-btn" style="background:#E91E63;" onclick="selecionarCorFundo('#E91E63',this)"></div>
+                        <div class="cor-fundo-btn" style="background:#8BC34A;" onclick="selecionarCorFundo('#8BC34A',this)"></div>
+                        <div class="cor-fundo-btn" style="background:#FF9800;" onclick="selecionarCorFundo('#FF9800',this)"></div>
+                        <div class="cor-fundo-btn" style="background:#FFFFFF;" onclick="selecionarCorFundo('#FFFFFF',this)"></div>
+                    </div>
+                </div>
+                <div class="campo"><label>Tamanho</label><div class="tamanho-fonte"><input type="range" id="tamanho-fonte" min="12" max="28" value="16" oninput="mudarTamanhoFonte(this.value)"><span id="tamanho-fonte-valor">16px</span></div></div>
+                <div class="campo"><label>Alinhamento</label><div class="opcoes-alinhamento">
+                    <button onclick="mudarAlinhamento('left',this)">⬅</button>
+                    <button class="selected" onclick="mudarAlinhamento('center',this)">⬌</button>
+                    <button onclick="mudarAlinhamento('right',this)">➡</button>
+                    <button onclick="mudarAlinhamento('justify',this)">⬜</button>
+                </div></div>
+                <div class="campo"><label>Fonte</label><select id="fonte-texto" onchange="mudarFonte(this.value)">
+                    <option value="'Nunito',sans-serif">Nunito</option>
+                    <option value="'Comic Sans MS',cursive">Comic Sans</option>
+                    <option value="'Patrick Hand',cursive">Patrick Hand</option>
+                    <option value="'Indie Flower',cursive">Indie Flower</option>
+                    <option value="'Bangers',cursive">Bangers</option>
+                    <option value="'Fredoka One',cursive">Fredoka One</option>
+                </select></div>
+            </div>
+
+            <!-- ACOES -->
+            <div class="painel"><h3>⚙️ Ações</h3>
+                <div class="botoes-row">
+                    <button class="btn-acao" onclick="salvarHistoria()">💾 Salvar</button>
+                    <button class="btn-acao" onclick="abrirModal('modal-historias')">📂 Carregar</button>
+                </div>
+                <div class="botoes-row" style="margin-top:5px;">
+                    <button class="btn-acao" onclick="imprimirLivro()" style="background:var(--orange);">🖨️ Imprimir</button>
+                    <button class="btn-acao" onclick="exportarHTML()" style="background:var(--purple);">📦 Exportar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LIVRO -->
+        <div class="livro-wrap" id="livro-wrap">
+            <div class="visualizacao-livro">
+                <div class="capa-livro" id="capa" onclick="deselecionarElementos(event)">
+                    <h2 id="livro-titulo"></h2>
+                    <div id="livro-ilustracao" class="elemento-livro" onclick="selecionarElemento(event,'emoji')"></div>
+                    <img id="livro-ilustracao-img" class="elemento-livro" src="" alt="" onclick="selecionarElemento(event,'img')">
+                    <div id="livro-historia" class="elemento-livro" onclick="selecionarElemento(event,'texto')"></div>
+                    <p id="livro-autor" class="elemento-livro" onclick="selecionarElemento(event,'autor')"></p>
+                    <span class="numero-pagina" id="numero-pagina">1</span>
+                </div>
+            </div>
+            <div class="navegacao-paginas">
+                <button onclick="paginaAnterior()" id="btn-anterior">◀</button>
+                <span id="contador-paginas">1 / 1</span>
+                <button onclick="proximaPagina()" id="btn-proximo">▶</button>
+            </div>
+        </div>
+
+        <!-- HQ -->
+        <div class="hq-wrap" id="hq-wrap" style="display:none;">
+            <div class="visualizacao-hq">
+                <div class="hq-pagina layout-2" id="hq-pagina"></div>
+                <div class="hq-controles">
+                    <button class="btn-layout" onclick="mudarLayoutHQ()">📐</button>
+                    <button class="btn-panel" onclick="adicionarPainelHQ()">➕</button>
+                    <button class="btn-balao" onclick="adicionarBalaoHQ()">💬</button>
+                    <button class="btn-narracao" onclick="adicionarNarracaoHQ()">📜</button>
+                    <button class="btn-exclamacao" onclick="adicionarExclamacaoHQ()">💥</button>
+                    <button class="btn-efeito" onclick="adicionarEfeitoHQ()">⚡</button>
+                    <button class="btn-remover-hq" onclick="removerSelecionadoHQ()">🗑️</button>
+                </div>
+            </div>
+            <div class="navegacao-paginas">
+                <button onclick="paginaAnterior()" id="btn-anterior-hq">◀</button>
+                <span id="contador-paginas-hq">1 / 1</span>
+                <button onclick="proximaPagina()" id="btn-proximo-hq">▶</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ============ ESTADO ============ */
+let usuarioAtual=null,modo='livro',emojiSelecionado='🐉',cenario='🌌',tomHistoria='aventura';
+let corFundo='#FFE66D',tamanhoFonte=16,alinhamentoTexto='center',fonteTexto="'Nunito',sans-serif";
+let somLigado=true,avatarSelecionado='🦁',moverAtivo=true,elementoSelecionado=null;
+let paginas=[{titulo:'',historia:'',emoji:'🐉',imagem:null,cenario:'🌌',posImg:{x:0,y:0},layers:{emoji:10,texto:5,autor:3},hq:{layout:'layout-2',paineis:[]}}];
+let paginaAtual=0,personagens=[{nome:'',emoji:'🐉'}];
+let hqSelecionado=null,layoutHQIndex=1;
+const layoutsHQ=['layout-1','layout-2','layout-3','layout-4','layout-5','layout-6'];
+const avatarOptions=['🦁','🐉','🦄','🐸','🐱','🐶','🦊','🐻','🐼','🐯','🐰','🐵','🐧','🧚','Robot','👽','👻','🤖','🦸','💀','😎','🤠','🚀','🏰','🌈','⭐','🍕','🎮','🎨','🎵'];
+const avatarPlaces=['🏠','🏫','⛪','🏖️','🌌','🎪','🎭','🏙️','🌳','🏰'];
+let autoSaveTimer=null;
+
+/* ============ AUDIO ============ */
+let audioCtx=null;
+function tocarSom(f,d,t){if(!somLigado)return;try{audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=t||'sine';o.frequency.value=f;g.gain.setValueAtTime(0.1,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+d);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+d)}catch(e){}}
+function somClick(){tocarSom(600,0.08,'triangle')}
+function somSalvar(){tocarSom(523,0.15);tocarSom(659,0.15,'sine',0.15);tocarSom(784,0.2,'sine',0.3)}
+
+/* ============ AUTO SAVE ============ */
+function agendarAutoSave(){if(autoSaveTimer)clearTimeout(autoSaveTimer);autoSaveTimer=setTimeout(()=>{salvarAuto()},3000)}
+function salvarAuto(){if(!usuarioAtual)return;const dados=montarDados();localStorage.setItem('fh_autosave_'+usuarioAtual.nome,JSON.stringify(dados));document.getElementById('status-auto-save').textContent='✅ Salvo';setTimeout(()=>{const e=document.getElementById('status-auto-save');if(e)e.textContent=''},2000)}
+function carregarAutoSave(){if(!usuarioAtual)return false;const d=localStorage.getItem('fh_autosave_'+usuarioAtual.nome);if(!d)return false;const dados=JSON.parse(d);restaurarDados(dados);return true}
+function montarDados(){return{titulo:inputTitulo.value,autor:inputAutor.value,paginas:JSON.parse(JSON.stringify(paginas)),paginaAtual,personagens:JSON.parse(JSON.stringify(personagens)),corFundo,tamanhoFonte,fonteTexto,tom:tomHistoria,cenario}}
+function restaurarDados(d){inputTitulo.value=d.titulo||'';inputAutor.value=d.autor||'';paginas=d.paginas||[{titulo:'',historia:'',emoji:'🐉',imagem:null,cenario:'🌌',posImg:{x:0,y:0},layers:{emoji:10,texto:5,autor:3},hq:{layout:'layout-2',paineis:[]}}];paginaAtual=d.paginaAtual||0;personagens=d.personagens||[{nome:'',emoji:'🐉'}];corFundo=d.corFundo||'#FFE66D';tamanhoFonte=d.tamanhoFonte||16;fonteTexto=d.fonteTexto||"'Nunito',sans-serif";tomHistoria=d.tom||'aventura';cenario=d.cenario||'🌌';document.getElementById('capa').style.backgroundColor=corFundo;document.getElementById('tamanho-fonte').value=tamanhoFonte;document.getElementById('tamanho-fonte-valor').textContent=tamanhoFonte+'px';irParaPagina(paginaAtual)}
+
+/* ============ MODAL ============ */
+function abrirModal(id){document.getElementById(id).classList.add('active');if(id==='modal-historias')carregarListaHistorias()}
+function fecharModal(id){document.getElementById(id).classList.remove('active')}
+
+/* ============ PERFIS ============ */
+function carregarPerfis(){return JSON.parse(localStorage.getItem('fabricaPerfis')||'[]')}
+function salvarPerfis(p){localStorage.setItem('fabricaPerfis',JSON.stringify(p))}
+function renderizarTelaLogin(){const perfis=carregarPerfis(),grid=document.getElementById('perfil-grid');grid.innerHTML='';perfis.forEach((p,i)=>{const qtd=JSON.parse(localStorage.getItem('fh_'+p.nome)||'[]').length;const card=document.createElement('div');card.className='perfil-card';card.innerHTML='<div class="avatar">'+p.avatar+'</div><div class="nome">'+p.nome+'</div><div class="qtd">'+qtd+' história(s)</div><button class="btn-excluir-perfil" onclick="event.stopPropagation();excluirPerfil('+i+')">✕</button>';card.onclick=()=>entrarPerfil(p);grid.appendChild(card)})}
+function abrirModalNovoPerfil(){document.getElementById('input-novo-nome').value='';avatarSelecionado=avatarOptions[0];const grid=document.getElementById('avatar-grid');grid.innerHTML='';[...avatarOptions,...avatarPlaces].forEach(a=>{const btn=document.createElement('div');btn.className='avatar-btn'+(a===avatarSelecionado?' selected':'');btn.textContent=a;btn.onclick=()=>{avatarSelecionado=a;grid.querySelectorAll('.avatar-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')};grid.appendChild(btn)});abrirModal('modal-novo-perfil')}
+function criarPerfil(){const nome=document.getElementById('input-novo-nome').value.trim();if(!nome){alert('Digite seu nome!');return}const perfis=carregarPerfis();if(perfis.find(p=>p.nome===nome)){alert('Nome já existe!');return}perfis.push({nome,avatar:avatarSelecionado});salvarPerfis(perfis);fecharModal('modal-novo-perfil');entrarPerfil({nome,avatar:avatarSelecionado})}
+function excluirPerfil(i){if(!confirm('Excluir perfil e histórias?'))return;const perfis=carregarPerfis();const n=perfis[i].nome;localStorage.removeItem('fh_'+n);localStorage.removeItem('fh_autosave_'+n);perfis.splice(i,1);salvarPerfis(perfis);renderizarTelaLogin()}
+function entrarPerfil(p){usuarioAtual=p;document.getElementById('login-screen').classList.add('hidden');document.getElementById('app').classList.remove('hidden');document.getElementById('barra-usuario').classList.remove('hidden');document.body.classList.add('logado');document.getElementById('user-avatar-barra').textContent=p.avatar;document.getElementById('user-nome-barra').textContent=p.nome;document.getElementById('input-autor').value=p.nome;atualizarContadorHistorias();if(!carregarAutoSave()){renderizarPaginas();renderizarPersonagens()}somClick()}
+function sair(){salvarAuto();usuarioAtual=null;document.getElementById('login-screen').classList.remove('hidden');document.getElementById('app').classList.add('hidden');document.getElementById('barra-usuario').classList.add('hidden');document.body.classList.remove('logado');paginas=[{titulo:'',historia:'',emoji:'🐉',imagem:null,cenario:'🌌',posImg:{x:0,y:0},layers:{emoji:10,texto:5,autor:3},hq:{layout:'layout-2',paineis:[]}}];paginaAtual=0;renderizarTelaLogin()}
+function atualizarContadorHistorias(){if(!usuarioAtual)return;const qtd=JSON.parse(localStorage.getItem('fh_'+usuarioAtual.nome)||'[]').length;document.getElementById('user-historias-barra').textContent=qtd+' história(s)'}
+
+/* ============ MODO ============ */
+function mudarModo(m,el){modo=m;document.querySelectorAll('.modo-btn').forEach(b=>b.classList.remove('selected'));el.classList.add('selected');document.getElementById('livro-wrap').style.display=m==='livro'?'flex':'none';document.getElementById('hq-wrap').style.display=m==='hq'?'flex':'none';if(m==='hq')renderizarHQ();somClick();agendarAutoSave()}
+
+/* ============ INPUTS ============ */
+const inputTitulo=document.getElementById('input-titulo'),inputAutor=document.getElementById('input-autor'),inputHistoria=document.getElementById('input-historia');
+const livroTitulo=document.getElementById('livro-titulo'),livroIlustracao=document.getElementById('livro-ilustracao'),livroIlustracaoImg=document.getElementById('livro-ilustracao-img');
+const livroAutor=document.getElementById('livro-autor'),livroHistoria=document.getElementById('livro-historia');
+inputTitulo.addEventListener('input',()=>{paginas[paginaAtual].titulo=inputTitulo.value;agendarAutoSave()});
+inputHistoria.addEventListener('input',()=>{paginas[paginaAtual].historia=inputHistoria.value;agendarAutoSave()});
+
+/* ============ MOVER / CAMADAS ============ */
+function toggleMover(){moverAtivo=document.getElementById('chk-mover').checked}
+function setupDrag(el){
+    let isDragging=false,startX,startY,origX,origY;
+    el.addEventListener('mousedown',e=>{if(!moverAtivo)return;isDragging=true;startX=e.clientX;startY=e.clientY;const p=paginas[paginaAtual];origX=p.posImg?p.posImg.x:0;origY=p.posImg?p.posImg.y:0;el.style.cursor='grabbing';e.preventDefault()});
+    document.addEventListener('mousemove',e=>{if(!isDragging)return;paginas[paginaAtual].posImg={x:origX+(e.clientX-startX),y:origY+(e.clientY-startY)};el.style.transform='translate('+paginas[paginaAtual].posImg.x+'px,'+paginas[paginaAtual].posImg.y+'px)';agendarAutoSave()});
+    document.addEventListener('mouseup',()=>{if(isDragging){isDragging=false;el.style.cursor=moverAtivo?'grab':''}});
+}
+setupDrag(livroIlustracao);setupDrag(livroIlustracaoImg);
+
+function selecionarElemento(e,tipo){
+    e.stopPropagation();
+    document.querySelectorAll('.elemento-livro').forEach(el=>el.classList.remove('selecionado'));
+    const el=e.currentTarget;el.classList.add('selecionado');elementoSelecionado=tipo;
+    const p=paginas[paginaAtual];if(!p.layers)p.layers={emoji:10,texto:5,autor:3};
+    const z=p.layers[tipo]||1;
+    document.getElementById('layer-info').textContent='Selecionado: '+tipo+' (z:'+z+')';
+    somClick();
+}
+function deselecionarElementos(e){if(e.target===e.currentTarget){document.querySelectorAll('.elemento-livro').forEach(el=>el.classList.remove('selecionado'));elementoSelecionado=null;document.getElementById('layer-info').textContent='Nenhum selecionado'}}
+function moverCamada(acao){
+    if(!elementoSelecionado){alert('Clique num elemento no livro primeiro!');return}
+    const p=paginas[paginaAtual];if(!p.layers)p.layers={emoji:10,texto:5,autor:3};
+    let z=p.layers[elementoSelecionado]||1;
+    if(acao==='frente')z=100;else if(acao==='tras')z=1;else if(acao==='up')z=Math.min(z+1,100);else if(acao==='down')z=Math.max(z-1,1);else if(acao==='center')z=50;
+    p.layers[elementoSelecionado]=z;
+    const elMap={emoji:livroIlustracao,img:livroIlustracaoImg,texto:livroHistoria,autor:livroAutor};
+    const el=elMap[elementoSelecionado];if(el)el.style.zIndex=z;
+    document.getElementById('layer-info').textContent='Selecionado: '+elementoSelecionado+' (z:'+z+')';
+    agendarAutoSave();somClick();
+}
+
+/* ============ EMOJI / UPLOAD ============ */
+function selecionarEmoji(emoji,el){emojiSelecionado=emoji;paginas[paginaAtual].emoji=emoji;paginas[paginaAtual].imagem=null;document.querySelectorAll('.emoji-btn').forEach(b=>b.classList.remove('selected'));el.classList.add('selected');document.getElementById('upload-preview').innerHTML='';somClick();agendarAutoSave()}
+function carregarImagem(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=function(ev){paginas[paginaAtual].imagem=ev.target.result;paginas[paginaAtual].emoji=null;document.querySelectorAll('.emoji-btn').forEach(b=>b.classList.remove('selected'));document.getElementById('upload-preview').innerHTML='<img src="'+ev.target.result+'"><br><button class="btn-acao" onclick="removerImagem()" style="font-size:0.7rem;padding:3px 8px;margin-top:3px;">✕</button>';agendarAutoSave()};r.readAsDataURL(f)}
+function removerImagem(){paginas[paginaAtual].imagem=null;paginas[paginaAtual].emoji=emojiSelecionado;document.getElementById('upload-preview').innerHTML='';document.getElementById('upload-imagem').value='';agendarAutoSave()}
+
+/* ============ CENARIO / TOM / COR ============ */
+function selecionarCenario(e,el){cenario=e;paginas[paginaAtual].cenario=e;document.querySelectorAll('.cenario-btn').forEach(b=>b.classList.remove('selected'));el.classList.add('selected');somClick();agendarAutoSave()}
+function selecionarTom(t,el){tomHistoria=t;document.querySelectorAll('.tom-btn').forEach(b=>b.classList.remove('selected'));el.classList.add('selected');somClick();agendarAutoSave()}
+function selecionarCorFundo(c,el){corFundo=c;document.getElementById('capa').style.backgroundColor=c;document.querySelectorAll('.cor-fundo-btn').forEach(b=>b.classList.remove('selected'));el.classList.add('selected');somClick();agendarAutoSave()}
+function mudarTamanhoFonte(v){tamanhoFonte=v;document.getElementById('tamanho-fonte-valor').textContent=v+'px';agendarAutoSave()}
+function mudarAlinhamento(a,el){alinhamentoTexto=a;document.querySelectorAll('.opcoes-alinhamento button').forEach(b=>b.classList.remove('selected'));el.classList.add('selected');somClick();agendarAutoSave()}
+function mudarFonte(f){fonteTexto=f;agendarAutoSave()}
+
+/* ============ PERSONAGENS ============ */
+function adicionarPersonagem(){personagens.push({nome:'',emoji:'🐱'});renderizarPersonagens();somClick();agendarAutoSave()}
+function renderizarPersonagens(){const c=document.getElementById('lista-personagens');c.innerHTML='';personagens.forEach((p,i)=>{const d=document.createElement('div');d.className='personagem-item';d.innerHTML='<span class="emoji-select" onclick="trocarEmojiP('+i+')">'+p.emoji+'</span><input type="text" value="'+p.nome+'" placeholder="Nome" oninput="personagens['+i+'].nome=this.value;agendarAutoSave()"><button class="btn-remover-p" onclick="personagens.splice('+i+',1);renderizarPersonagens();agendarAutoSave()">✕</button>';c.appendChild(d)})}
+function trocarEmojiP(i){const e=['🐉','🦄','🐸','🐱','🐶','🦊','🐻','🐼','🦁','🐯','🐨','🐰','🐵','🐧','🧚','👻','👽','🤖','🦸','💀'];personagens[i].emoji=e[(e.indexOf(personagens[i].emoji)+1)%e.length];renderizarPersonagens();somClick();agendarAutoSave()}
+
+/* ============ PAGINAS ============ */
+function adicionarPagina(){paginas.push({titulo:'',historia:'',emoji:'🐱',imagem:null,cenario:'🌌',posImg:{x:0,y:0},layers:{emoji:10,texto:5,autor:3},hq:{layout:'layout-2',paineis:[]}});irParaPagina(paginas.length-1);renderizarPaginas();somClick();agendarAutoSave()}
+function duplicarPagina(){const c=JSON.parse(JSON.stringify(paginas[paginaAtual]));paginas.splice(paginaAtual+1,0,c);irParaPagina(paginaAtual+1);renderizarPaginas();somClick();agendarAutoSave()}
+function removerPagina(i){if(paginas.length<=1)return;paginas.splice(i,1);if(paginaAtual>=paginas.length)paginaAtual=paginas.length-1;irParaPagina(paginaAtual);renderizarPaginas();somClick();agendarAutoSave()}
+
+function irParaPagina(index){
+    paginas[paginaAtual].titulo=inputTitulo.value;paginas[paginaAtual].historia=inputHistoria.value;
+    paginaAtual=index;const p=paginas[paginaAtual];
+    inputTitulo.value=p.titulo||'';inputHistoria.value=p.historia||'';
+    if(p.titulo){livroTitulo.innerText=p.titulo;livroTitulo.style.display='block'}else{livroTitulo.style.display='none'}
+    if(p.imagem){livroIlustracaoImg.src=p.imagem;livroIlustracaoImg.style.display='block';livroIlustracao.style.display='none'}
+    else if(p.emoji){livroIlustracao.innerText=p.emoji;livroIlustracao.style.display='block';livroIlustracaoImg.style.display='none'}
+    else{livroIlustracao.style.display='none';livroIlustracaoImg.style.display='none'}
+    if(p.historia){livroHistoria.innerText=p.historia;livroHistoria.style.display='block'}else{livroHistoria.style.display='none'}
+    const a=inputAutor.value;if(a){livroAutor.innerText='Escrito por: '+a;livroAutor.style.display='block'}else{livroAutor.style.display='none'}
+    const pos=p.posImg||{x:0,y:0};livroIlustracao.style.transform='translate('+pos.x+'px,'+pos.y+'px)';livroIlustracaoImg.style.transform='translate('+pos.x+'px,'+pos.y+'px)';
+    // layers
+    const l=p.layers||{emoji:10,texto:5,autor:3};livroIlustracao.style.zIndex=l.emoji||10;livroIlustracaoImg.style.zIndex=l.emoji||10;livroHistoria.style.zIndex=l.texto||5;livroAutor.style.zIndex=l.autor||3;livroTitulo.style.zIndex=l.texto?l.texto+1:6;
+    document.querySelectorAll('.emoji-btn').forEach(b=>{b.classList.remove('selected');if(b.textContent===p.emoji)b.classList.add('selected')});
+    document.getElementById('numero-pagina').textContent=paginaAtual+1;
+    if(modo==='hq')renderizarHQ();atualizarNavegacao();renderizarPaginas();
+    const aud=p.audio?'🎙️ Gravado':'Sem áudio';document.getElementById('status-audio').textContent=aud;
+    // deselecionar
+    document.querySelectorAll('.elemento-livro').forEach(el=>el.classList.remove('selecionado'));elementoSelecionado=null;document.getElementById('layer-info').textContent='Nenhum selecionado';
+}
+function paginaAnterior(){if(paginaAtual>0)irParaPagina(paginaAtual-1);somClick()}
+function proximaPagina(){if(paginaAtual<paginas.length-1)irParaPagina(paginaAtual+1);somClick()}
+function atualizarNavegacao(){const t=(paginaAtual+1)+' / '+paginas.length;['contador-paginas','contador-paginas-hq'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=t});['btn-anterior','btn-anterior-hq'].forEach(id=>{const e=document.getElementById(id);if(e)e.disabled=paginaAtual===0});['btn-proximo','btn-proximo-hq'].forEach(id=>{const e=document.getElementById(id);if(e)e.disabled=paginaAtual===paginas.length-1})}
+function renderizarPaginas(){const c=document.getElementById('lista-paginas');c.innerHTML='';paginas.forEach((p,i)=>{const t=document.createElement('div');t.className='pagina-thumb'+(i===paginaAtual?' ativa':'');t.innerHTML=(i+1)+'<button class="remover-pagina" onclick="event.stopPropagation();removerPagina('+i+')">✕</button>';t.onclick=()=>irParaPagina(i);c.appendChild(t)});atualizarNavegacao()}
+
+/* ============ GRAVAR AUDIO ============ */
+let mediaRecorder=null,audioChunks=[];
+async function gravarAudio(){try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});mediaRecorder=new MediaRecorder(stream);audioChunks=[];mediaRecorder.ondataavailable=e=>{audioChunks.push(e.data)};mediaRecorder.onstop=()=>{const blob=new Blob(audioChunks,{type:'audio/webm'});const reader=new FileReader();reader.onload=()=>{paginas[paginaAtual].audio=reader.result;document.getElementById('status-audio').textContent='🎙️ Gravado!';somSalvar();agendarAutoSave()};reader.readAsDataURL(blob);stream.getTracks().forEach(t=>t.stop())};mediaRecorder.start();document.getElementById('btn-gravar').classList.add('gravando');document.getElementById('btn-gravar').textContent='🔴 Gravando...';document.getElementById('btn-parar-audio').style.display='inline-block';document.getElementById('status-audio').textContent='🔴 Gravando...'}catch(e){alert('Acesso ao microfone negado.')}}
+function pararGravacao(){if(mediaRecorder&&mediaRecorder.state!=='inactive')mediaRecorder.stop();document.getElementById('btn-gravar').classList.remove('gravando');document.getElementById('btn-gravar').textContent='🎙️ Gravar';document.getElementById('btn-parar-audio').style.display='none'}
+function tocarAudio(){const aud=paginas[paginaAtual].audio;if(!aud){alert(' Grave o áudio primeiro!');return}new Audio(aud).play()}
+async function tocarTodas(){for(let i=0;i<paginas.length;i++){if(paginas[i].audio){await new Promise(r=>{const a=new Audio(paginas[i].audio);a.onended=r;a.play()})}await new Promise(r=>setTimeout(r,500))}}
+function limparAudio(){paginas[paginaAtual].audio=null;document.getElementById('status-audio').textContent='Sem áudio';somClick();agendarAutoSave()}
+
+/* ============ HQ ============ */
+function renderizarHQ(){const container=document.getElementById('hq-pagina'),p=paginas[paginaAtual];if(!p.hq)p.hq={layout:'layout-2',paineis:[]};container.className='hq-pagina '+p.hq.layout;container.innerHTML='';if(p.hq.paineis.length===0)p.hq.paineis.push({emoji:p.emoji||'🐉',imagem:p.imagem||null,baloes:[],narracoes:[],exclamacoes:[],efeitos:[]});p.hq.paineis.forEach((painel,idx)=>{const el=document.createElement('div');el.className='hq-painel';el.dataset.idx=idx;el.onclick=e=>{e.stopPropagation();hqSelecionado=idx;document.querySelectorAll('.hq-painel').forEach((x,i)=>x.classList.toggle('selecionado',i===idx));somClick()};if(painel.imagem)el.innerHTML='<img class="img-painel" src="'+painel.imagem+'">';else el.innerHTML='<span class="emoji-painel">'+(painel.emoji||'🐉')+'</span>';(painel.baloes||[]).forEach(b=>{const d=document.createElement('div');d.className='hq-balao';d.style.left=b.x+'px';d.style.top=b.y+'px';d.textContent=b.texto;el.appendChild(d)});(painel.narracoes||[]).forEach(n=>{const d=document.createElement('div');d.className='hq-narracao';d.style.left=n.x+'px';d.style.top=n.y+'px';d.textContent=n.texto;el.appendChild(d)});(painel.exclamacoes||[]).forEach(ex=>{const d=document.createElement('div');d.className='hq-exclamacao';d.style.left=ex.x+'px';d.style.top=ex.y+'px';d.textContent=ex.texto;el.appendChild(d)});(painel.efeitos||[]).forEach(ef=>{const d=document.createElement('div');d.className='hq-efeito';d.style.left=ef.x+'px';d.style.top=ef.y+'px';d.textContent=ef.texto;el.appendChild(d)});container.appendChild(el)})}
+function mudarLayoutHQ(){layoutHQIndex=(layoutHQIndex+1)%layoutsHQ.length;paginas[paginaAtual].hq.layout=layoutsHQ[layoutHQIndex];renderizarHQ();somClick();agendarAutoSave()}
+function adicionarPainelHQ(){paginas[paginaAtual].hq.paineis.push({emoji:'🐱',imagem:null,baloes:[],narracoes:[],exclamacoes:[],efeitos:[]});renderizarHQ();somClick();agendarAutoSave()}
+function adicionarBalaoHQ(){if(hqSelecionado===null){alert('Clique num painel!');return}const t=prompt('Texto do balão:');if(!t)return;const p=paginas[paginaAtual].hq.paineis[hqSelecionado];if(!p.baloes)p.baloes=[];p.baloes.push({texto:t,x:10,y:10});renderizarHQ();somClick();agendarAutoSave()}
+function adicionarNarracaoHQ(){if(hqSelecionado===null){alert('Clique num painel!');return}const t=prompt('Narração:');if(!t)return;const p=paginas[paginaAtual].hq.paineis[hqSelecionado];if(!p.narracoes)p.narracoes=[];p.narracoes.push({texto:t,x:5,y:5});renderizarHQ();somClick();agendarAutoSave()}
+function adicionarExclamacaoHQ(){if(hqSelecionado===null){alert('Clique num painel!');return}const t=prompt('Exclamação:');if(!t)return;const p=paginas[paginaAtual].hq.paineis[hqSelecionado];if(!p.exclamacoes)p.exclamacoes=[];p.exclamacoes.push({texto:t,x:30,y:30});renderizarHQ();somClick();agendarAutoSave()}
+function adicionarEfeitoHQ(){if(hqSelecionado===null){alert('Clique num painel!');return}const t=prompt('Efeito:');if(!t)return;const p=paginas[paginaAtual].hq.paineis[hqSelecionado];if(!p.efeitos)p.efeitos=[];p.efeitos.push({texto:t,x:20,y:60});renderizarHQ();somClick();agendarAutoSave()}
+function removerSelecionadoHQ(){if(hqSelecionado===null)return;paginas[paginaAtual].hq.paineis.splice(hqSelecionado,1);hqSelecionado=null;renderizarHQ();somClick();agendarAutoSave()}
+
+/* ============ DICA / GERAR ============ */
+function usarDica(t){inputHistoria.value=inputHistoria.value?inputHistoria.value+' '+t:t;inputHistoria.dispatchEvent(new Event('input'));somClick()}
+function gerarHistoria(){const tema=document.getElementById('gerar-tema').value||'amizade',pers=document.getElementById('gerar-personagem').value||'um herói',local=document.getElementById('gerar-local').value||'uma terra mágica';const h={aventura:'Era uma vez, em '+local+', '+pers+' que adorava explorar. Um dia encontrou um mapa e partiu em aventura! Enfrentou montanhas e rios. O maior tesouro foi a amizade.',comedia:'Ninguém esperava que '+pers+' fosse fazer aquilo! Em '+local+', tropeçou e parou num bolo gigante! Todo mundo riu!',emocionante:'Era noite fria em '+local+'. '+pers+' precisava ser forte. Das sombras surgiu um amigo. Juntos superaram tudo.',magico:'Em '+local+', '+pers+' descobriu um poder mágico. Aprendu que a magia vem do coração.',suspense:'Algo estranho em '+local+'. '+pers+' viu o céu ficar roxo. Uma porta secreta apareceu.',amizade:'Em '+local+', '+pers+' tinha um coração enorme. Encontrou um amigo e juntos viveram aventuras.'};inputHistoria.value=h[tomHistoria]||h.aventura;inputHistoria.dispatchEvent(new Event('input'));fecharModal('modal-gerar');somSalvar();agendarAutoSave()}
+
+/* ============ SALVAR / CARREGAR ============ */
+function getK(){return'fh_'+(usuarioAtual?usuarioAtual.nome:'anonimo')}
+function salvarHistoria(){const nome=inputTitulo.value||'Sem título';const dados={nome,autor:inputAutor.value,data:new Date().toLocaleString('pt-BR'),paginas:JSON.parse(JSON.stringify(paginas)),personagens:JSON.parse(JSON.stringify(personagens)),corFundo,tamanhoFonte,fonteTexto,tom:tomHistoria,cenario};let l=JSON.parse(localStorage.getItem(getK())||'[]');l.push(dados);localStorage.setItem(getK(),JSON.stringify(l));atualizarContadorHistorias();somSalvar();alert('Salvo! 💾')}
+function carregarListaHistorias(){const l=JSON.parse(localStorage.getItem(getK())||'[]');const c=document.getElementById('lista-historias-salvas');if(l.length===0){c.innerHTML='<div class="sem-historias">Nenhuma história 😢</div>';return}c.innerHTML='';l.forEach((item,i)=>{const d=document.createElement('div');d.className='historia-item';d.innerHTML='<div><div class="nome">'+item.nome+'</div><div class="data">'+item.data+'</div></div><div class="botoes-historia"><button class="btn-carregar" onclick="carregarHistoria('+i+')">📂</button><button class="btn-excluir" onclick="excluirHistoria('+i+')">🗑️</button></div>';c.appendChild(d)})}
+function carregarHistoria(i){const h=JSON.parse(localStorage.getItem(getK())||'[]')[i];inputAutor.value=h.autor||'';paginas=h.paginas;personagens=h.personagens||[{nome:'',emoji:'🐉'}];corFundo=h.corFundo||'#FFE66D';tamanhoFonte=h.tamanhoFonte||16;tomHistoria=h.tom||'aventura';cenario=h.cenario||'🌌';document.getElementById('capa').style.backgroundColor=corFundo;document.getElementById('tamanho-fonte').value=tamanhoFonte;document.getElementById('tamanho-fonte-valor').textContent=tamanhoFonte+'px';renderizarPersonagens();irParaPagina(0);fecharModal('modal-historias');somClick();agendarAutoSave()}
+function excluirHistoria(i){if(!confirm('Excluir?'))return;let l=JSON.parse(localStorage.getItem(getK())||'[]');l.splice(i,1);localStorage.setItem(getK(),JSON.stringify(l));carregarListaHistorias();atualizarContadorHistorias();somClick()}
+
+/* ============ ACOES ============ */
+function imprimirLivro(){window.print()}
+function exportarHTML(){const h=document.documentElement.outerHTML;const b=new Blob([h],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(inputTitulo.value||'historia')+'.html';a.click();somSalvar()}
+
+/* ============ INIT ============ */
+renderizarTelaLogin();
+</script>
+</body>
+</html>
