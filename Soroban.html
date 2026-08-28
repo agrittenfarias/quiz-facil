@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soroban - Ábaco Japonês Interativo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#0d1117;color:#e6e6e6;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 10px}
+h1{font-size:1.6rem;margin-bottom:2px;color:#ff6b6b;letter-spacing:2px}
+.sub{color:#8b949e;margin-bottom:18px;font-size:.82rem}
+.ops{display:flex;gap:8px;margin-bottom:16px}
+.ops button{width:52px;height:52px;border:2px solid #ff6b6b;background:0 0;color:#ff6b6b;font-size:1.4rem;border-radius:50%;cursor:pointer;transition:all .2s;font-weight:700}
+.ops button:hover,.ops button.on{background:#ff6b6b;color:#fff;transform:scale(1.1)}
+.inp{display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap;justify-content:center}
+.inp input{width:110px;padding:8px;font-size:1.1rem;text-align:center;border:2px solid #30363d;border-radius:8px;background:#161b22;color:#fff;outline:0}
+.inp input:focus{border-color:#ff6b6b}
+.inp .sym{font-size:1.6rem;color:#ff6b6b;font-weight:700}
+.inp button{padding:8px 18px;border:none;color:#fff;font-size:.9rem;border-radius:8px;cursor:pointer;font-weight:600}
+#btnCalc{background:#238636}#btnCalc:hover{background:#2ea043}
+#btnSoro{background:#b8860b}#btnSoro:hover{background:#d4a056}
+#btnClear{background:#30363d}#btnClear:hover{background:#484f58}
+.res{font-size:1.2rem;margin-bottom:14px;padding:8px 22px;background:#161b22;border-radius:10px;text-align:center;border:1px solid #30363d}
+.res span{color:#ff6b6b;font-weight:700;font-size:1.4rem}
+.wrap{background:#161b22;border-radius:14px;padding:20px 14px;box-shadow:0 8px 32px rgba(0,0,0,.5);overflow-x:auto;max-width:100%;border:1px solid #30363d}
+.soro{display:flex;flex-direction:column;align-items:center;min-width:fit-content}
+.rv{display:flex;margin-bottom:4px}
+.rv div{width:56px;text-align:center;font-size:.85rem;color:#58a6ff;font-weight:700;font-family:'Courier New',monospace}
+.frm{position:relative;background:linear-gradient(180deg,#5c3a1e,#3e2510 30%,#2a1a0b);border:3px solid #1a0f05;border-radius:6px;padding:0 8px;box-shadow:inset 0 2px 8px rgba(0,0,0,.5),0 4px 12px rgba(0,0,0,.4)}
+.bm{position:absolute;left:0;right:0;height:8px;top:90px;background:linear-gradient(180deg,#d4a056,#b8860b,#d4a056);z-index:5;box-shadow:0 1px 4px rgba(0,0,0,.6);border-radius:2px}
+.rds{display:flex;position:relative}
+.rd{width:56px;height:340px;position:relative}
+.rd .sh{width:4px;height:100%;background:linear-gradient(90deg,#666,#aaa,#ccc,#aaa,#666);position:absolute;left:50%;transform:translateX(-50%);border-radius:2px;z-index:1}
+.b{position:absolute;left:50%;transform:translateX(-50%);cursor:pointer;z-index:10;user-select:none;border-radius:50%;touch-action:none}
+.b.hv{width:42px;height:24px;background:radial-gradient(ellipse at 35% 35%,#c9a84c,#8b6914 60%,#654a0e);border:1px solid #d4a056;box-shadow:0 2px 4px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.15)}
+.b.hv.on{background:radial-gradient(ellipse at 35% 35%,#f9a825,#ff8f00 60%,#e65100);border-color:#ffb74d;box-shadow:0 0 10px rgba(255,152,0,.4),inset 0 1px 2px rgba(255,255,255,.2)}
+.b.et{width:42px;height:26px;background:radial-gradient(ellipse at 35% 35%,#555,#222 60%,#111);border:1px solid #444;box-shadow:0 2px 4px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.1)}
+.b.et.on{background:radial-gradient(ellipse at 35% 35%,#e94560,#c0392b 60%,#962d22);border-color:#ff6b6b;box-shadow:0 0 10px rgba(233,69,96,.4),inset 0 1px 2px rgba(255,255,255,.2)}
+.dl{display:flex;margin-top:6px}
+.dl div{width:56px;text-align:center;font-size:.65rem;color:#484f58;padding-top:4px;font-family:'Courier New',monospace}
+.dl .u{color:#ff6b6b;font-weight:700}
+.gui{margin-top:16px;padding:14px 20px;background:#161b22;border-radius:10px;max-width:650px;width:100%;border:1px solid #30363d}
+.gui h3{color:#58a6ff;margin-bottom:8px;font-size:.95rem}
+.gui .s{margin-bottom:3px;font-size:.82rem;color:#8b949e;line-height:1.5}
+.gui .n{color:#ff6b6b;font-weight:700}
+.gui .h{color:#f0883e;font-weight:700}
+.inf{margin-top:12px;padding:12px 20px;background:#0d1117;border-radius:10px;max-width:650px;width:100%;border:1px solid #30363d;font-size:.78rem;color:#8b949e;line-height:1.6;text-align:center}
+.inf b{color:#ff6b6b}.inf .hi{color:#f9a825}.inf .ei{color:#e94560}
+.ex{margin-top:16px;padding:14px 20px;background:#161b22;border-radius:10px;max-width:650px;width:100%;border:1px solid #30363d;text-align:center}
+.ex h3{color:#58a6ff;margin-bottom:10px;font-size:.95rem}
+.ex-tabs{display:flex;gap:0;margin-bottom:14px;border-radius:8px;overflow:hidden;border:1px solid #30363d}
+.ex-tabs button{flex:1;padding:8px;border:none;background:#0d1117;color:#8b949e;font-size:.82rem;cursor:pointer;font-weight:600;transition:all .2s}
+.ex-tabs button.on{background:#58a6ff;color:#fff}
+.ex-tab{display:none}.ex-tab.on{display:block}
+.ex-diff{display:flex;gap:8px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+.ex-diff button{padding:6px 16px;border:2px solid #30363d;background:0 0;color:#8b949e;font-size:.8rem;border-radius:20px;cursor:pointer;transition:all .2s;font-weight:600}
+.ex-diff button:hover,.ex-diff button.on{background:#58a6ff;color:#fff;border-color:#58a6ff}
+.ex-ops-sel{display:flex;gap:6px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+.ex-ops-sel button{width:42px;height:42px;border:2px solid #30363d;background:0 0;color:#8b949e;font-size:1.1rem;border-radius:50%;cursor:pointer;transition:all .2s;font-weight:700}
+.ex-ops-sel button:hover,.ex-ops-sel button.on{background:#ff6b6b;color:#fff;border-color:#ff6b6b}
+.ex-qty{display:flex;gap:6px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+.ex-qty button{padding:5px 14px;border:2px solid #30363d;background:0 0;color:#8b949e;font-size:.78rem;border-radius:16px;cursor:pointer;transition:all .2s;font-weight:600}
+.ex-qty button:hover,.ex-qty button.on{background:#b8860b;color:#fff;border-color:#b8860b}
+.ex-prob{font-size:1.6rem;color:#f0883e;font-weight:700;margin:10px 0;letter-spacing:1px;min-height:2em}
+.ex-prog{font-size:.8rem;color:#8b949e;margin-bottom:8px}
+.ex-prog b{color:#58a6ff}
+.ex-btns{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.ex-btns button{padding:8px 20px;border:none;color:#fff;font-size:.85rem;border-radius:8px;cursor:pointer;font-weight:600;transition:all .2s}
+.ex-btns .g{background:#238636}.ex-btns .g:hover{background:#2ea043}
+.ex-btns .o{background:#b8860b}.ex-btns .o:hover{background:#d4a056}
+.ex-btns .d{background:#30363d}.ex-btns .d:hover{background:#484f58}
+.ex-btns .r{background:#b8860b}.ex-btns .r:hover{background:#d4a056}
+.ex-msg{margin-top:10px;padding:10px;border-radius:8px;font-size:1rem;font-weight:700;display:none}
+.ex-msg.acerto{display:block;background:rgba(63,185,80,.15);color:#3fb950;border:1px solid #3fb950}
+.ex-msg.erro{display:block;background:rgba(248,81,73,.15);color:#f85149;border:1px solid #f85149}
+.ex-msg.info{display:block;background:rgba(88,166,255,.15);color:#58a6ff;border:1px solid #58a6ff}
+.ex-score{display:flex;gap:20px;justify-content:center;margin-top:12px;font-size:.85rem;flex-wrap:wrap}
+.ex-score .ok{color:#3fb950;font-weight:700}
+.ex-score .er{color:#f85149;font-weight:700}
+.ex-score .tot{color:#8b949e}
+.ex-custom-inp{display:flex;gap:8px;justify-content:center;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.ex-custom-inp input{width:90px;padding:8px;font-size:1.1rem;text-align:center;border:2px solid #30363d;border-radius:8px;background:#0d1117;color:#fff;outline:0}
+.ex-custom-inp input:focus{border-color:#ff6b6b}
+.ex-custom-inp select{padding:8px;font-size:1rem;border:2px solid #30363d;border-radius:8px;background:#0d1117;color:#fff;outline:0;cursor:pointer}
+.ex-custom-inp select:focus{border-color:#ff6b6b}
+.ex-final{margin-top:14px;padding:16px;background:#0d1117;border-radius:10px;border:1px solid #30363d}
+.ex-final h3{color:#f0883e;margin-bottom:8px}
+.ex-final .big{font-size:2rem;font-weight:700;margin:6px 0}
+.ex-final .big.vg{color:#3fb950}.ex-final .big.vr{color:#f85149}.ex-final .big.vm{color:#f0883e}
+</style>
+</head>
+<body>
+<h1>SOROBAN</h1>
+<p class="sub">Ábaco Japonês - Clique ou arraste as peças</p>
+<div class="ops" id="ops">
+  <button class="on" data-op="add">+</button>
+  <button data-op="sub">−</button>
+  <button data-op="mul">×</button>
+  <button data-op="div">÷</button>
+</div>
+<div class="inp">
+  <input type="number" id="n1" value="0">
+  <span class="sym" id="sym">+</span>
+  <input type="number" id="n2" value="0">
+  <button id="btnCalc">Calcular</button>
+  <button id="btnSoro">Calcular no Soroban</button>
+  <button id="btnClear">Limpar</button>
+</div>
+<div class="res">Resultado: <span id="res">0</span></div>
+<div class="wrap"><div class="soro">
+  <div class="rv" id="rv"></div>
+  <div class="frm" id="frm"><div class="bm"></div><div class="rds" id="rds"></div></div>
+  <div class="dl" id="dl"></div>
+</div></div>
+<div class="gui" id="gui">
+  <h3>Como usar</h3>
+  <div class="s"><span class="n">1.</span> <b>Clique</b> numa peça para ativar/desativar</div>
+  <div class="s"><span class="n">2.</span> Ou <b>arraste</b> para cima/baixo</div>
+  <div class="s"><span class="n">3.</span> <span class="h">Escuras</span> sobem = +1 cada | <span class="h">Dourada</span> desce = +5</div>
+  <div class="s"><span class="n">4.</span> Escolha operação, digite números</div>
+  <div class="s"><span class="n">5.</span> <b>Calcular</b> = só o resultado | <b>Calcular no Soroban</b> = animação passo a passo</div>
+</div>
+<div class="inf"><b>Soroban:</b> 1 peça celestial (5) + 4 peças terrestres (1 cada) por coluna. Valores 0–9.</div>
+<div class="ex" id="exPanel">
+  <h3>Exercicios</h3>
+  <div class="ex-tabs">
+    <button class="on" data-tab="tabCustom">Minha Questao</button>
+    <button data-tab="tabTreino">Treino</button>
+  </div>
+  <div class="ex-tab on" id="tabCustom">
+    <p style="font-size:.82rem;color:#8b949e;margin-bottom:10px">Monte sua propria questao e resolva no soroban</p>
+    <div class="ex-custom-inp">
+      <input type="number" id="cxN1" value="0">
+      <select id="cxOp"><option value="+">+</option><option value="-">−</option><option value="×">×</option><option value="÷">÷</option></select>
+      <input type="number" id="cxN2" value="0">
+      <button class="g" id="btnCxGo" style="padding:8px 16px;border:none;color:#fff;font-size:.85rem;border-radius:8px;cursor:pointer;font-weight:600;background:#238636">Criar</button>
+    </div>
+    <div class="ex-prob" id="cxProb">Monte sua questao acima</div>
+    <div class="ex-msg" id="cxMsg"></div>
+    <div class="ex-btns">
+      <button class="g" id="btnCxCheck">Verificar</button>
+      <button class="d" id="btnCxClear">Limpar Soroban</button>
+    </div>
+  </div>
+  <div class="ex-tab" id="tabTreino">
+    <p style="font-size:.82rem;color:#8b949e;margin-bottom:8px">Escolha as operacoes, nivel e quantidade</p>
+    <div class="ex-ops-sel" id="exOpsSel">
+      <button class="on" data-op="+">+</button>
+      <button class="on" data-op="-">−</button>
+      <button class="on" data-op="×">×</button>
+      <button class="on" data-op="÷">÷</button>
+    </div>
+    <div class="ex-diff" id="exDiff">
+      <button class="on" data-d="easy">Facil (1 dig)</button>
+      <button data-d="medium">Medio (2 dig)</button>
+      <button data-d="hard">Dificil (3 dig)</button>
+    </div>
+    <div style="font-size:.78rem;color:#8b949e;margin-bottom:6px">Quantas questoes?</div>
+    <div class="ex-qty" id="exQty">
+      <button data-q="5">5</button>
+      <button class="on" data-q="10">10</button>
+      <button data-q="15">15</button>
+      <button data-q="20">20</button>
+      <button data-q="30">30</button>
+      <button data-q="50">50</button>
+    </div>
+    <div class="ex-btns" id="treinoStart">
+      <button class="o" id="btnTxStart">Iniciar Treino</button>
+    </div>
+    <div id="treinoArea" style="display:none">
+      <div class="ex-prog" id="txProg"></div>
+      <div class="ex-prob" id="txProb"></div>
+      <div class="ex-msg" id="txMsg"></div>
+      <div class="ex-btns">
+        <button class="g" id="btnTxCheck">Verificar</button>
+        <button class="d" id="btnTxSkip">Pular</button>
+        <button class="o" id="btnTxNext">Proxima</button>
+      </div>
+      <div class="ex-score">
+        <span class="ok">Acertou: <span id="txOk">0</span></span>
+        <span class="er">Errou: <span id="txEr">0</span></span>
+        <span class="tot">Questao: <span id="txQ">0</span>/<span id="txTotal">0</span></span>
+      </div>
+    </div>
+    <div id="treinoFinal" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+var N=13,BY=90,curOp='add',st=[];
+var SYMS={add:'+',sub:'−',mul:'×',div:'÷'};
+
+function init(){st=[];for(var i=0;i<N;i++)st.push({h:0,eb:[0,0,0,0]})}
+
+function build(){
+  var rv=document.getElementById('rv'),rds=document.getElementById('rds'),dl=document.getElementById('dl');
+  rv.innerHTML='';rds.innerHTML='';dl.innerHTML='';
+  for(var i=0;i<N;i++){
+    var d=document.createElement('div');d.id='v'+i;d.textContent='0';rv.appendChild(d);
+    var r=document.createElement('div');r.className='rd';
+    var sh=document.createElement('div');sh.className='sh';r.appendChild(sh);
+    var hb=document.createElement('div');hb.className='b hv';hb.id='hb'+i;r.appendChild(hb);
+    for(var j=0;j<4;j++){var eb=document.createElement('div');eb.className='b et';eb.id='eb'+i+'_'+j;r.appendChild(eb)}
+    rds.appendChild(r);
+    var lb=document.createElement('div');lb.className=N-1-i===0?'u':'';lb.textContent=N-1-i===0?'Unid.':'10^'+(N-1-i);dl.appendChild(lb);
+  }
+}
+
+function pos(ri){
+  var s=st[ri];
+  var hb=document.getElementById('hb'+ri);
+  if(s.h){hb.style.top=(BY-30)+'px';hb.classList.add('on')}
+  else{hb.style.top='6px';hb.classList.remove('on')}
+  for(var j=0;j<4;j++){
+    var eb=document.getElementById('eb'+ri+'_'+j);
+    if(s.eb[j]){eb.style.top=(BY+12+(3-j)*30)+'px';eb.classList.add('on')}
+    else{eb.style.top=(BY+12+120+j*30)+'px';eb.classList.remove('on')}
+  }
+}
+
+function posAll(){for(var i=0;i<N;i++)pos(i)}
+function gVal(i){return st[i].h*5+st[i].eb[0]+st[i].eb[1]+st[i].eb[2]+st[i].eb[3]}
+function sVal(i,v){v=Math.max(0,Math.min(9,v));st[i].h=v>=5?1:0;var r=v>=5?v-5:v;st[i].eb=[0,0,0,0];for(var j=0;j<r;j++)st[i].eb[j]=1;pos(i)}
+function sNum(n){var s=Math.abs(Math.floor(n)).toString();while(s.length<N)s='0'+s;for(var i=0;i<N;i++)sVal(i,parseInt(s[i]));uVals()}
+function uVals(){for(var i=0;i<N;i++)document.getElementById('v'+i).textContent=gVal(i)}
+
+function setup(){
+  for(var i=0;i<N;i++){
+    drag('hb'+i,i,'h',0);
+    for(var j=0;j<4;j++)drag('eb'+i+'_'+j,i,'e',j);
+  }
+}
+
+function drag(id,ri,type,idx){
+  var el=document.getElementById(id);
+  var sy,st2,moved;
+  el.addEventListener('pointerdown',function(e){
+    e.preventDefault();e.stopPropagation();
+    el.setPointerCapture(e.pointerId);
+    sy=e.clientY;st2=parseFloat(el.style.top);moved=false;
+    el.style.transition='none';el.style.zIndex='20';
+    function mv(ev){
+      var dy=ev.clientY-sy;
+      if(Math.abs(dy)>3)moved=true;
+      el.style.top=(st2+dy)+'px';
+    }
+    function up(){
+      el.removeEventListener('pointermove',mv);
+      el.style.transition='top .12s cubic-bezier(.34,1.56,.64,1)';
+      el.style.zIndex='10';
+      if(moved){
+        var t=parseFloat(el.style.top);
+        if(type==='h')st[ri].h=t>BY-35?1:0;
+        else{st[ri].eb[idx]=t<BY+60?1:0}
+      }else{
+        if(type==='h')st[ri].h=st[ri].h?0:1;
+        else{st[ri].eb[idx]=st[ri].eb[idx]?0:1}
+      }
+      pos(ri);uVals();
+    }
+    el.addEventListener('pointermove',mv);
+    el.addEventListener('pointerup',up,{once:true});
+    el.addEventListener('pointercancel',up,{once:true});
+  });
+}
+
+// Operations
+function anim(steps,final){
+  var g=document.getElementById('gui'),i=0;
+  function next(){
+    if(i>=steps.length){sNum(final);uVals();document.getElementById('res').textContent=final;return}
+    var s=steps[i];
+    if(s.v!==undefined){sNum(s.v);uVals()}
+    g.innerHTML='<h3>Passo a Passo</h3>'+steps.map(function(x,k){
+      return '<div class="s" style="opacity:'+(k<=i?1:.4)+'"><span class="n">'+(k+1)+'. </span>'+x.t+'</div>'
+    }).join('');
+    i++;setTimeout(next,s.d||500);
+  }
+  next();
+}
+
+function doAdd(a,b){
+  var steps=[],carry=0,p=a;
+  var aS=a.toString(),bS=b.toString();
+  while(aS.length<N)aS='0'+aS;while(bS.length<N)bS='0'+bS;
+  steps.push({t:'Posicionando <span class="h">'+a+'</span>',v:a,d:800});
+  for(var i=N-1;i>=0;i--){
+    var da=parseInt(aS[i]),db=parseInt(bS[i]),sum=da+db+carry;carry=0;
+    if(sum<=9){p=setD(p,i,sum);steps.push({t:da+' + '+db+' = '+sum,v:p,d:500})}
+    else{var dg=sum-10;carry=1;p=setD(p,i,dg);steps.push({t:da+' + '+db+' = '+sum+' → '+dg+' <span class="h">leva 1</span>',v:p,d:500})}
+  }
+  steps.push({t:'<span class="h">'+a+' + '+b+' = '+(a+b)+'</span>',d:600});
+  return{steps:steps,result:a+b};
+}
+
+function doSub(a,b){
+  var steps=[],borrow=0,p=a;
+  var aS=a.toString(),bS=b.toString();
+  while(aS.length<N)aS='0'+aS;while(bS.length<N)bS='0'+bS;
+  steps.push({t:'Posicionando <span class="h">'+a+'</span>',v:a,d:800});
+  for(var i=N-1;i>=0;i--){
+    var da=parseInt(aS[i]),db=parseInt(bS[i]),diff=da-db-borrow;borrow=0;
+    if(diff>=0){p=setD(p,i,diff);steps.push({t:da+' − '+db+' = '+diff,v:p,d:500})}
+    else{diff+=10;borrow=1;p=setD(p,i,diff);steps.push({t:'Empresta → '+(da+10)+' − '+db+' = '+diff,v:p,d:500})}
+  }
+  steps.push({t:'<span class="h">'+a+' − '+b+' = '+(a-b)+'</span>',d:600});
+  return{steps:steps,result:a-b};
+}
+
+function doMul(a,b){
+  var steps=[],t=0;
+  steps.push({t:'<span class="h">'+a+' × '+b+'</span>',d:800});
+  sNum(0);uVals();
+  for(var i=1;i<=b;i++){t+=a;steps.push({t:a+' × '+i+' = '+t,v:t,d:400})}
+  steps.push({t:'<span class="h">'+a+' × '+b+' = '+t+'</span>',d:600});
+  return{steps:steps,result:t};
+}
+
+function doDiv(a,b){
+  var steps=[],q=0,r=a;
+  if(b===0)return{steps:[{t:'Erro: divisão por zero!',d:1000}],result:0};
+  steps.push({t:'<span class="h">'+a+' ÷ '+b+'</span>',d:800});
+  while(r>=b){r-=b;q++;steps.push({t:q+' × '+b+' = '+(q*b)+' resto '+r,v:q,d:400})}
+  if(r>0)steps.push({t:'Sobra '+r,d:400});
+  steps.push({t:'<span class="h">'+a+' ÷ '+b+' = '+q+' resto '+r+'</span>',d:600});
+  return{steps:steps,result:q};
+}
+
+function setD(num,rodFromRight,digit){
+  var s=num.toString();while(s.length<N)s='0'+s;
+  var a=s.split('');a[N-1-rodFromRight]=digit;return parseInt(a.join(''));
+}
+
+// UI
+document.getElementById('ops').addEventListener('click',function(e){
+  if(!e.target.dataset.op)return;
+  document.querySelector('.ops .on')&&document.querySelector('.ops .on').classList.remove('on');
+  e.target.classList.add('on');curOp=e.target.dataset.op;
+  document.getElementById('sym').textContent=SYMS[curOp];
+});
+
+function calcResult(){
+  var a=parseInt(document.getElementById('n1').value)||0;
+  var b=parseInt(document.getElementById('n2').value)||0;
+  var r;
+  if(curOp==='add')r=a+b;
+  else if(curOp==='sub')r=a-b;
+  else if(curOp==='mul')r=a*b;
+  else r=b===0?'Erro':Math.floor(a/b);
+  document.getElementById('res').textContent=r;
+}
+
+function calcSoro(){
+  var a=parseInt(document.getElementById('n1').value)||0;
+  var b=parseInt(document.getElementById('n2').value)||0;
+  var r,s;
+  if(curOp==='add'){var x=doAdd(a,b);s=x.steps;r=x.result}
+  else if(curOp==='sub'){var x=doSub(a,b);s=x.steps;r=x.result}
+  else if(curOp==='mul'){var x=doMul(a,b);s=x.steps;r=x.result}
+  else{var x=doDiv(a,b);s=x.steps;r=x.result}
+  anim(s,r);
+}
+
+document.getElementById('btnCalc').addEventListener('click',calcResult);
+document.getElementById('btnSoro').addEventListener('click',calcSoro);
+
+document.getElementById('btnClear').addEventListener('click',function(){
+  init();posAll();uVals();
+  document.getElementById('n1').value=0;document.getElementById('n2').value=0;
+  document.getElementById('res').textContent='0';
+  document.getElementById('gui').innerHTML='<h3>Como usar</h3><div class="s"><span class="n">1.</span> <b>Clique</b> numa peça para ativar/desativar</div><div class="s"><span class="n">2.</span> Ou <b>arraste</b> para cima/baixo</div><div class="s"><span class="n">3.</span> <span class="h">Escuras</span> sobem = +1 cada | <span class="h">Dourada</span> desce = +5</div><div class="s"><span class="n">4.</span> Escolha operação, digite números</div><div class="s"><span class="n">5.</span> <b>Calcular</b> = só o resultado | <b>Calcular no Soroban</b> = animação passo a passo</div>';
+});
+
+function readSoroban(){var v=0;for(var i=0;i<N;i++){v=v*10+gVal(i)}return v}
+
+init();build();posAll();uVals();setup();
+
+// Exercise tabs
+document.querySelector('.ex-tabs').addEventListener('click',function(e){
+  if(!e.target.dataset.tab)return;
+  document.querySelector('.ex-tabs .on')&&document.querySelector('.ex-tabs .on').classList.remove('on');
+  e.target.classList.add('on');
+  document.querySelectorAll('.ex-tab').forEach(function(t){t.classList.remove('on')});
+  document.getElementById(e.target.dataset.tab).classList.add('on');
+});
+
+// ==================== MINHA QUESTAO ====================
+var cxActive=false,cxAnswer=0,cxA=0,cxB=0,cxOpStr='';
+
+document.getElementById('btnCxGo').addEventListener('click',function(){
+  var a=parseInt(document.getElementById('cxN1').value)||0;
+  var b=parseInt(document.getElementById('cxN2').value)||0;
+  var op=document.getElementById('cxOp').value;
+  var ans;
+  if(op==='+')ans=a+b;
+  else if(op==='-')ans=a-b;
+  else if(op==='×')ans=a*b;
+  else ans=b===0?0:Math.floor(a/b);
+  cxA=a;cxB=b;cxOpStr=op;cxAnswer=ans;cxActive=true;
+  document.getElementById('cxProb').textContent=a+' '+op+' '+b+' = ?';
+  document.getElementById('cxMsg').className='ex-msg';
+  document.getElementById('cxMsg').textContent='';
+  init();posAll();uVals();
+});
+
+document.getElementById('btnCxCheck').addEventListener('click',function(){
+  if(!cxActive)return;
+  var sv=readSoroban();
+  var msg=document.getElementById('cxMsg');
+  if(sv===cxAnswer){
+    msg.className='ex-msg acerto';
+    msg.textContent='Correto! '+cxA+' '+cxOpStr+' '+cxB+' = '+cxAnswer;
+  }else{
+    msg.className='ex-msg erro';
+    msg.textContent='Errou! Resposta: '+cxA+' '+cxOpStr+' '+cxB+' = '+cxAnswer+' (voce: '+sv+')';
+  }
+  cxActive=false;
+});
+
+document.getElementById('btnCxClear').addEventListener('click',function(){
+  init();posAll();uVals();
+});
+
+// ==================== TREINO ====================
+var tx={diff:'easy',ops:['+','-','×','÷'],qty:10,cur:0,total:0,ok:0,er:0,active:false,finished:false,a:0,b:0,op:'',answer:0,questions:[]};
+
+function txRand(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+
+function txGenOne(){
+  var ops=tx.ops.slice();
+  if(ops.length===0)ops=['+'];
+  var op=ops[txRand(0,ops.length-1)];
+  var a,b,ans;
+  if(tx.diff==='easy'){
+    a=txRand(1,9);b=txRand(1,9);
+  }else if(tx.diff==='medium'){
+    a=txRand(10,99);b=txRand(10,99);
+  }else{
+    a=txRand(100,999);b=txRand(100,999);
+  }
+  if(op==='-'){
+    if(a<b){var t=a;a=b;b=t}
+    ans=a-b;
+  }else if(op==='×'){
+    if(tx.diff==='easy'){a=txRand(2,9);b=txRand(2,9)}
+    else if(tx.diff==='medium'){a=txRand(2,12);b=txRand(2,12)}
+    else{a=txRand(2,15);b=txRand(2,15)}
+    ans=a*b;
+  }else if(op==='÷'){
+    if(tx.diff==='easy'){b=txRand(1,9);a=b*txRand(1,9)}
+    else if(tx.diff==='medium'){b=txRand(2,12);a=b*txRand(2,12)}
+    else{b=txRand(2,15);a=b*txRand(2,15)}
+    ans=a/b;
+  }else{
+    ans=a+b;
+  }
+  return{a:a,b:b,op:op,answer:ans};
+}
+
+function txShow(){
+  if(tx.cur>=tx.total){txFinish();return}
+  var q=tx.questions[tx.cur];
+  tx.a=q.a;tx.b=q.b;tx.op=q.op;tx.answer=q.answer;tx.active=true;
+  document.getElementById('txProb').textContent=q.a+' '+q.op+' '+q.b+' = ?';
+  document.getElementById('txProg').innerHTML='Questao <b>'+(tx.cur+1)+'</b> de <b>'+tx.total+'</b>';
+  document.getElementById('txMsg').className='ex-msg';
+  document.getElementById('txMsg').textContent='';
+  document.getElementById('txOk').textContent=tx.ok;
+  document.getElementById('txEr').textContent=tx.er;
+  document.getElementById('txQ').textContent=tx.cur+1;
+  document.getElementById('txTotal').textContent=tx.total;
+  init();posAll();uVals();
+}
+
+function txFinish(){
+  tx.active=false;tx.finished=true;
+  document.getElementById('treinoArea').style.display='none';
+  document.getElementById('treinoStart').style.display='none';
+  var pct=tx.total>0?Math.round(tx.ok/tx.total*100):0;
+  var cls=pct>=80?'vg':pct>=50?'vm':'vr';
+  var emoji=pct>=80?'Excelente!':pct>=50?'Bom!':'Pratique mais!';
+  document.getElementById('treinoFinal').style.display='block';
+  document.getElementById('treinoFinal').innerHTML='<div class="ex-final"><h3>Treino Finalizado!</h3><div class="big '+cls+'">'+pct+'% Acerto</div><div style="color:#8b949e;font-size:.9rem">Acertou '+tx.ok+' de '+tx.total+' questoes</div><div style="margin-top:6px;color:#f0883e;font-weight:700">'+emoji+'</div><div class="ex-btns" style="margin-top:14px"><button class="o" id="btnTxRestart">Novo Treino</button></div></div>';
+  document.getElementById('btnTxRestart').addEventListener('click',function(){
+    document.getElementById('treinoFinal').style.display='none';
+    document.getElementById('treinoStart').style.display='flex';
+    document.getElementById('treinoArea').style.display='none';
+  });
+}
+
+document.getElementById('btnTxStart').addEventListener('click',function(){
+  tx.qty=parseInt(document.querySelector('.ex-qty .on').dataset.q)||10;
+  tx.total=tx.qty;tx.cur=0;tx.ok=0;tx.er=0;tx.finished=false;
+  tx.questions=[];
+  for(var i=0;i<tx.total;i++)tx.questions.push(txGenOne());
+  document.getElementById('treinoStart').style.display='none';
+  document.getElementById('treinoArea').style.display='block';
+  document.getElementById('treinoFinal').style.display='none';
+  txShow();
+});
+
+document.getElementById('btnTxCheck').addEventListener('click',function(){
+  if(!tx.active)return;
+  var sv=readSoroban();
+  var msg=document.getElementById('txMsg');
+  if(sv===tx.answer){
+    tx.ok++;
+    msg.className='ex-msg acerto';
+    msg.textContent='Correto! '+tx.a+' '+tx.op+' '+tx.b+' = '+tx.answer;
+  }else{
+    tx.er++;
+    msg.className='ex-msg erro';
+    msg.textContent='Errou! Resposta: '+tx.a+' '+tx.op+' '+tx.b+' = '+tx.answer+' (voce: '+sv+')';
+  }
+  tx.active=false;
+  document.getElementById('txOk').textContent=tx.ok;
+  document.getElementById('txEr').textContent=tx.er;
+});
+
+document.getElementById('btnTxSkip').addEventListener('click',function(){
+  if(!tx.active)return;
+  tx.er++;
+  var msg=document.getElementById('txMsg');
+  msg.className='ex-msg erro';
+  msg.textContent='Pulado! Resposta: '+tx.a+' '+tx.op+' '+tx.b+' = '+tx.answer;
+  tx.active=false;
+  document.getElementById('txOk').textContent=tx.ok;
+  document.getElementById('txEr').textContent=tx.er;
+});
+
+document.getElementById('btnTxNext').addEventListener('click',function(){
+  if(tx.finished)return;
+  tx.cur++;
+  txShow();
+});
+
+// Difficulty
+document.getElementById('exDiff').addEventListener('click',function(e){
+  if(!e.target.dataset.d)return;
+  document.querySelectorAll('#exDiff button').forEach(function(b){b.classList.remove('on')});
+  e.target.classList.add('on');tx.diff=e.target.dataset.d;
+});
+
+// Operations selection
+document.getElementById('exOpsSel').addEventListener('click',function(e){
+  if(!e.target.dataset.op)return;
+  e.target.classList.toggle('on');
+  tx.ops=[];
+  document.querySelectorAll('#exOpsSel button.on').forEach(function(b){tx.ops.push(b.dataset.op)});
+  if(tx.ops.length===0){e.target.classList.add('on');tx.ops=[e.target.dataset.op]}
+});
+
+// Quantity
+document.getElementById('exQty').addEventListener('click',function(e){
+  if(!e.target.dataset.q)return;
+  document.querySelectorAll('#exQty button').forEach(function(b){b.classList.remove('on')});
+  e.target.classList.add('on');
+});
+</script>
+</body>
+</html>
