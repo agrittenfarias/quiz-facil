@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Braile - Letras e Palavras</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0f0f1a; --card: #1a1a2e; --card-hover: #222240;
+    --primary: #6c5ce7; --primary-light: #a29bfe;
+    --accent: #00cec9; --accent2: #fd79a8;
+    --correct: #00b894; --wrong: #d63031;
+    --text: #f0f0f0; --text-dim: #8888aa;
+    --dot-on: #f0f0f0; --dot-off: #333355; --border: #2d2d50;
+  }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 2.2em; font-weight: 800; background: linear-gradient(135deg, var(--primary-light), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+  header p { color: var(--text-dim); font-size: 0.95em; }
+  .stats-bar { display: flex; justify-content: center; gap: 30px; margin: 20px 0; flex-wrap: wrap; }
+  .stat { text-align: center; }
+  .stat-value { font-size: 1.6em; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 0.75em; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+  .menu-screen, .quiz-screen, .result-screen { display: none; }
+  .active { display: block; }
+  .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 24px; }
+  .menu-card { background: var(--card); border: 2px solid var(--border); border-radius: 16px; padding: 28px 24px; cursor: pointer; transition: all 0.3s; text-align: center; }
+  .menu-card:hover { background: var(--card-hover); border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(108,92,231,0.2); }
+  .menu-card .icon { font-size: 2.8em; margin-bottom: 12px; }
+  .menu-card h3 { font-size: 1.15em; margin-bottom: 6px; font-weight: 700; }
+  .menu-card p { font-size: 0.82em; color: var(--text-dim); line-height: 1.5; }
+  .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+  .quiz-title { font-size: 1.1em; font-weight: 600; }
+  .progress-bar { width: 100%; height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 24px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 3px; transition: width 0.4s ease; }
+  .question-area { text-align: center; margin: 20px 0; }
+  .question-text { font-size: 1.15em; margin-bottom: 24px; color: var(--text-dim); }
+  .question-text strong { color: var(--text); }
+
+  .braille-cell {
+    display: inline-grid;
+    grid-template-columns: 44px 44px;
+    grid-template-rows: 44px 44px 44px;
+    gap: 10px;
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    margin: 10px auto;
+  }
+  .braille-cell.large {
+    grid-template-columns: 54px 54px;
+    grid-template-rows: 54px 54px 54px;
+    gap: 12px;
+    padding: 22px;
+  }
+  .braille-dot {
+    width: 100%; height: 100%; border-radius: 50%;
+    background: var(--dot-off); transition: all 0.3s;
+  }
+  .braille-dot.on {
+    background: var(--dot-on); box-shadow: 0 0 12px rgba(240,240,240,0.4);
+  }
+
+  .braille-word { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 20px 0; }
+  .braille-word .braille-cell { margin: 0; }
+
+  .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 24px; }
+  .option-btn {
+    background: var(--card); border: 2px solid var(--border); border-radius: 12px;
+    padding: 16px 12px; color: var(--text); font-size: 1.2em; font-weight: 600;
+    cursor: pointer; transition: all 0.25s; font-family: 'Inter', sans-serif;
+  }
+  .option-btn:hover { border-color: var(--primary); background: var(--card-hover); }
+  .option-btn.correct { border-color: var(--correct); background: rgba(0,184,148,0.15); color: var(--correct); }
+  .option-btn.wrong { border-color: var(--wrong); background: rgba(214,48,49,0.15); color: var(--wrong); }
+  .option-btn:disabled { cursor: default; opacity: 0.7; }
+
+  .type-answer-area { margin-top: 24px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .type-input {
+    background: var(--card); border: 2px solid var(--border); border-radius: 12px;
+    padding: 14px 20px; color: var(--text); font-size: 1.2em;
+    font-family: 'Inter', sans-serif; width: 260px; outline: none; transition: border-color 0.3s;
+  }
+  .type-input:focus { border-color: var(--primary); }
+  .submit-btn {
+    background: var(--primary); color: white; border: none; border-radius: 12px;
+    padding: 14px 28px; font-size: 1em; font-weight: 600; cursor: pointer;
+    font-family: 'Inter', sans-serif; transition: all 0.3s;
+  }
+  .submit-btn:hover { background: var(--primary-light); }
+  .feedback { margin-top: 20px; font-size: 1.05em; font-weight: 600; min-height: 30px; transition: all 0.3s; }
+  .feedback.correct { color: var(--correct); }
+  .feedback.wrong { color: var(--wrong); }
+  .next-btn {
+    margin-top: 20px; background: var(--primary); color: white; border: none;
+    border-radius: 12px; padding: 14px 36px; font-size: 1em; font-weight: 600;
+    cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s; display: none;
+  }
+  .next-btn.show { display: inline-block; }
+  .next-btn:hover { background: var(--primary-light); }
+  .back-btn {
+    background: none; border: 2px solid var(--border); color: var(--text-dim);
+    border-radius: 10px; padding: 8px 18px; font-size: 0.85em; cursor: pointer;
+    font-family: 'Inter', sans-serif; transition: all 0.3s;
+  }
+  .back-btn:hover { border-color: var(--primary); color: var(--text); }
+  .result-card { background: var(--card); border-radius: 20px; padding: 40px; text-align: center; border: 2px solid var(--border); margin-top: 24px; }
+  .result-card .big-score { font-size: 3.5em; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .result-card .result-label { font-size: 1.1em; color: var(--text-dim); margin-top: 4px; }
+  .result-details { display: flex; justify-content: center; gap: 40px; margin-top: 24px; flex-wrap: wrap; }
+  .result-detail { text-align: center; }
+  .result-detail .rd-value { font-size: 1.5em; font-weight: 700; }
+  .result-detail .rd-label { font-size: 0.8em; color: var(--text-dim); }
+  .result-actions { display: flex; gap: 12px; justify-content: center; margin-top: 28px; flex-wrap: wrap; }
+  .ref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 14px; margin-top: 20px; }
+  .ref-card { background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 16px 10px; text-align: center; transition: all 0.3s; cursor: pointer; }
+  .ref-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .ref-card .letter { font-size: 1.5em; font-weight: 700; margin-bottom: 8px; color: var(--accent); }
+  .ref-card .mini-cell { display: inline-grid; grid-template-columns: 16px 16px; grid-template-rows: 16px 16px 16px; gap: 4px; }
+  .ref-card .mini-dot { width: 100%; height: 100%; border-radius: 50%; background: var(--dot-off); }
+  .ref-card .mini-dot.on { background: var(--dot-on); box-shadow: 0 0 6px rgba(240,240,240,0.3); }
+  .ref-section-title { font-size: 1.1em; font-weight: 700; margin: 24px 0 8px; color: var(--primary-light); }
+  .toggle-ref-btn {
+    background: none; border: 2px solid var(--border); color: var(--accent);
+    border-radius: 10px; padding: 8px 18px; font-size: 0.85em; cursor: pointer;
+    font-family: 'Inter', sans-serif; transition: all 0.3s; margin-top: 20px;
+  }
+  .toggle-ref-btn:hover { border-color: var(--accent); background: rgba(0,206,201,0.1); }
+  .reference-section { display: none; margin-top: 16px; }
+  .reference-section.show { display: block; }
+  .streak-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(253,121,168,0.15); color: var(--accent2);
+    border-radius: 20px; padding: 4px 14px; font-size: 0.85em; font-weight: 600; margin-left: 10px;
+  }
+  .dot-guide { display: inline-grid; grid-template-columns: 20px 20px; grid-template-rows: 20px 20px 20px; gap: 3px; vertical-align: middle; margin-left: 8px; }
+  .dot-guide span { font-size: 0.7em; color: var(--text-dim); display: flex; align-items: center; justify-content: center; }
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.6em; }
+    .braille-cell { grid-template-columns: 36px 36px; grid-template-rows: 36px 36px 36px; gap: 8px; padding: 14px; }
+    .braille-cell.large { grid-template-columns: 44px 44px; grid-template-rows: 44px 44px 44px; padding: 16px; }
+    .options-grid { grid-template-columns: repeat(2, 1fr); }
+    .result-card { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Quiz Braile</h1>
+    <p>Domine o alfabeto Braille letra por letra</p>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-value" id="totalCorrect">0</div><div class="stat-label">Acertos</div></div>
+    <div class="stat"><div class="stat-value" id="totalPlayed">0</div><div class="stat-label">Respondidas</div></div>
+    <div class="stat"><div class="stat-value" id="accuracy">0%</div><div class="stat-label">Precisao</div></div>
+    <div class="stat"><div class="stat-value" id="bestStreak">0</div><div class="stat-label">Melhor Sequencia</div></div>
+  </div>
+
+  <div class="menu-screen active" id="menuScreen">
+    <div class="menu-grid">
+      <div class="menu-card" onclick="startQuiz('letters-mc')">
+        <div class="icon">A</div>
+        <h3>Letras - Multipla Escolha</h3>
+        <p>Identifique a letra mostrada em Braille entre 4 opcoes</p>
+      </div>
+      <div class="menu-card" onclick="startQuiz('letters-type')">
+        <div class="icon">?</div>
+        <h3>Letras - Digitar</h3>
+        <p>Digite a letra correspondente ao Braille mostrado</p>
+      </div>
+      <div class="menu-card" onclick="startQuiz('words-mc')">
+        <div class="icon">ABC</div>
+        <h3>Palavras - Multipla Escolha</h3>
+        <p>Identifique a palavra escrita em Braille</p>
+      </div>
+      <div class="menu-card" onclick="startQuiz('words-type')">
+        <div class="icon">___</div>
+        <h3>Palavras - Digitar</h3>
+        <p>Digite a palavra em Braille letra por letra</p>
+      </div>
+      <div class="menu-card" onclick="startQuiz('reverse')">
+        <div class="icon">1,2</div>
+        <h3>Reverso</h3>
+        <p>Dada uma letra, selecione o padrao Braille correto</p>
+      </div>
+      <div class="menu-card" onclick="startQuiz('mixed')">
+        <div class="icon">!</div>
+        <h3>Desafio Misto</h3>
+        <p>Alternando entre letras e palavras, multipla escolha e digitacao</p>
+      </div>
+    </div>
+
+    <button class="toggle-ref-btn" onclick="toggleReference()">Tabela de Referencia Braille</button>
+    <div class="reference-section" id="refSection"></div>
+  </div>
+
+  <div class="quiz-screen" id="quizScreen">
+    <div class="quiz-header">
+      <button class="back-btn" onclick="showMenu()">Voltar ao Inicio</button>
+      <div class="quiz-title" id="quizTitle"></div>
+      <div>
+        <span id="questionCount"></span>
+        <span class="streak-badge" id="streakBadge" style="display:none">seq: <span id="streakCount">0</span></span>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="question-area" id="questionArea"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Proxima</button>
+  </div>
+
+  <div class="result-screen" id="resultScreen">
+    <div class="result-card">
+      <div class="big-score" id="finalScore"></div>
+      <div class="result-label">precisao</div>
+      <div class="result-details">
+        <div class="result-detail"><div class="rd-value" style="color:var(--correct)" id="resCorrect">0</div><div class="rd-label">Acertos</div></div>
+        <div class="result-detail"><div class="rd-value" style="color:var(--wrong)" id="resWrong">0</div><div class="rd-label">Erros</div></div>
+        <div class="result-detail"><div class="rd-value" style="color:var(--accent2)" id="resStreak">0</div><div class="rd-label">Melhor Sequencia</div></div>
+      </div>
+      <div class="result-actions">
+        <button class="submit-btn" onclick="startQuiz(lastMode)">Jogar Novamente</button>
+        <button class="back-btn" onclick="showMenu()">Voltar ao Inicio</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// ALFABETO BRAILLE - Padrao Internacional (ISO 11548-1)
+// Cela Braille: 6 pontos
+//   1  4
+//   2  5
+//   3  6
+//
+// Array: [dot1, dot2, dot3, dot4, dot5, dot6]
+// Grid CSS preenche: esq-cima, dir-cima, esq-meio, dir-meio, esq-baixo, dir-baixo
+// ============================================================
+const BRAILLE = {
+  'A': [1,0,0,0,0,0],  // 1
+  'B': [1,1,0,0,0,0],  // 1,2
+  'C': [1,0,0,1,0,0],  // 1,4
+  'D': [1,0,0,1,1,0],  // 1,4,5
+  'E': [1,0,0,0,1,0],  // 1,5
+  'F': [1,1,0,1,0,0],  // 1,2,4
+  'G': [1,1,0,1,1,0],  // 1,2,4,5
+  'H': [1,1,0,0,1,0],  // 1,2,5
+  'I': [0,1,0,1,0,0],  // 2,4
+  'J': [0,1,0,1,1,0],  // 2,4,5
+  'K': [1,0,1,0,0,0],  // 1,3
+  'L': [1,1,1,0,0,0],  // 1,2,3
+  'M': [1,0,1,1,0,0],  // 1,3,4
+  'N': [1,0,1,1,1,0],  // 1,3,4,5
+  'O': [1,0,1,0,1,0],  // 1,3,5
+  'P': [1,1,1,1,0,0],  // 1,2,3,4
+  'Q': [1,1,1,1,1,0],  // 1,2,3,4,5
+  'R': [1,1,1,0,1,0],  // 1,2,3,5
+  'S': [0,1,1,1,0,0],  // 2,3,4
+  'T': [0,1,1,1,1,0],  // 2,3,4,5
+  'U': [1,0,1,0,0,1],  // 1,3,6
+  'V': [1,1,1,0,0,1],  // 1,2,3,6
+  'W': [0,1,0,1,1,1],  // 2,4,5,6
+  'X': [1,0,1,1,0,1],  // 1,3,4,6
+  'Y': [1,0,1,1,1,1],  // 1,3,4,5,6
+  'Z': [1,0,1,0,1,1]   // 1,3,5,6
+};
+
+const WORDS = [
+  'CASA','AMOR','LUZ','VIDA','MESA','PORTA','CAO','COR',
+  'PAZ','SOL','MAR','TERRA','FLOR','AR','AMIGO',
+  'CARMO','DINA','ALICE','LUCAS','FELIPE','PEDRO','MARIA',
+  'ANA','JOSE','PAULO','SARA','DAVI','BOM','DIA','NOITE',
+  'HOJE','ONTEM','TRABALHO','ESCOLA','CARTA',
+  'LIVRO','PAGINA','BRAILE','DEDOS','TOCAR','LER',
+  'ESCREVER','SOM','CORRER','CAMINHAR','BEBER','COMER',
+  'DORMIR','ACORDAR','FALAR','OUVIR','SENTIR','VER',
+  'FORMA','TIPO','TEXTO','LINHA','PONTO','CHAVE',
+  'FECHAR','ABRIR','OLHO','NARIZ','BOCA','PE','MAO',
+  'ALUNO','PROF','NOTA','PROVA','TEXTO','APRENDER',
+  'ENSINO','CLASSE','Quadro','LAPIS','PAPEL','BORRACHA',
+  'TESOURA','COLA','FITA','MOCHILA','Lanche','Bebida',
+  'COMIDA','FRUTA','ARROZ','FEIJAO','CARNE','LEITE',
+  'AGUA','SUCO','CAFE','CHA','SAL','ACUCAR',
+  'FERRO','UVA','LARANJA','MACA','BANANA','TOMATE',
+  'CENOURA','ALHO','CEBOLA','BATATA','TOMATE',
+  'PRATO','COLHER','GARFO','FACAO','Copo','CANECO',
+  'FOGAO','PANELA','FOGO','GELADEIRA','PIA',
+  'CAMA','TRAVESSEIRO','LENCOL','COBERTOR','Manta',
+  'PORTA','JANELA','PAREDE','CHAO','TETO','TELHADO',
+  'RUA','CIDADE','PAIS','MUNDO','ESTRELA','LUA',
+  'SENTIR','VER','TOCAR','CHEIRAR','PROVAR',
+  'OUVIR','FALAR','ANDAR','CORRER','SALTAR',
+  'NADAR','DORMIR','ACORDAR','SONHACORRER'
+];
+
+const LETTERS = Object.keys(BRAILLE);
+
+let currentMode = '', lastMode = '';
+let questions = [], currentQ = 0;
+let correct = 0, wrong = 0, streak = 0, bestStreak = 0;
+let totalCorrectAll = 0, totalPlayedAll = 0;
+
+// ===================== UI =====================
+function showScreen(id) {
+  document.querySelectorAll('.menu-screen,.quiz-screen,.result-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showMenu() { showScreen('menuScreen'); }
+
+function toggleReference() {
+  const sec = document.getElementById('refSection');
+  sec.classList.toggle('show');
+  if (sec.classList.contains('show') && !sec.innerHTML) buildReference();
+}
+
+function buildReference() {
+  let html = '<div class="ref-section-title">Alfabeto Braille</div>';
+  html += '<div style="text-align:center;margin-bottom:12px;color:var(--text-dim);font-size:0.85em">';
+  html += 'Posicao dos pontos: <strong style="color:var(--text)">1 4 / 2 5 / 3 6</strong></div>';
+  html += '<div class="ref-grid">';
+  LETTERS.forEach(letter => {
+    const dots = BRAILLE[letter];
+    const dotNums = [];
+    if (dots[0]) dotNums.push(1);
+    if (dots[1]) dotNums.push(2);
+    if (dots[2]) dotNums.push(3);
+    if (dots[3]) dotNums.push(4);
+    if (dots[4]) dotNums.push(5);
+    if (dots[5]) dotNums.push(6);
+    html += '<div class="ref-card">';
+    html += '<div class="letter">' + letter + '</div>';
+    html += '<div class="mini-cell">';
+    dots.forEach(d => { html += '<div class="mini-dot' + (d ? ' on' : '') + '"></div>'; });
+    html += '</div>';
+    html += '<div style="font-size:0.7em;color:var(--text-dim);margin-top:6px">' + dotNums.join(',') + '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  document.getElementById('refSection').innerHTML = html;
+}
+
+// ===================== BRAILLE RENDERING =====================
+// Grid CSS: 2 colunas x 3 linhas
+// Itens entram na ordem: [0]col1lin1 [1]col2lin1 [2]col1lin2 [3]col2lin2 [4]col1lin3 [5]col2lin3
+// Braille: dot1=col1lin1 dot4=col2lin1 dot2=col1lin2 dot5=col2lin2 dot3=col1lin3 dot6=col2lin3
+// Nosso array: [dot1, dot2, dot3, dot4, dot5, dot6]
+// Grid preenche: [0]=esq-cima [1]=dir-cima [2]=esq-meio [3]=dir-meio [4]=esq-baixo [5]=dir-baixo
+// Então mapeamos: grid[0]=dot1 grid[1]=dot4 grid[2]=dot2 grid[3]=dot5 grid[4]=dot3 grid[5]=dot6
+
+const DOT_MAP = [0, 2, 4, 1, 3, 5]; // grid position -> array index
+
+function createBrailleCell(pattern, large) {
+  // Reordena para grid: [dot1, dot4, dot2, dot5, dot3, dot6]
+  const gridOrder = [pattern[0], pattern[3], pattern[1], pattern[4], pattern[2], pattern[5]];
+  const cls = 'braille-cell' + (large ? ' large' : '');
+  let html = '<div class="' + cls + '">';
+  gridOrder.forEach(d => {
+    html += '<div class="braille-dot' + (d ? ' on' : '') + '"></div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function createBrailleWord(word) {
+  let html = '<div class="braille-word">';
+  word.split('').forEach(ch => {
+    const pat = BRAILLE[ch];
+    if (pat) html += createBrailleCell(pat, false);
+  });
+  html += '</div>';
+  return html;
+}
+
+// ===================== HELPERS =====================
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+  }
+  return a;
+}
+
+function getWrongLetters(correctLetter, count) {
+  return shuffle(LETTERS.filter(l => l !== correctLetter)).slice(0, count);
+}
+
+function getWrongWords(correctWord, count) {
+  return shuffle(WORDS.filter(w => w !== correctWord)).slice(0, count);
+}
+
+// ===================== QUESTION GENERATORS =====================
+function generateLetterMC() {
+  const letter = shuffle(LETTERS)[0];
+  const wrongs = getWrongLetters(letter, 3);
+  const options = shuffle([letter].concat(wrongs));
+  return {
+    qtype: 'mc',
+    prompt: 'Que letra e esta?',
+    display: createBrailleCell(BRAILLE[letter], true),
+    options: options,
+    answer: letter
+  };
+}
+
+function generateLetterType() {
+  const letter = shuffle(LETTERS)[0];
+  return {
+    qtype: 'type',
+    prompt: 'Que letra e esta? Digite uma unica letra.',
+    display: createBrailleCell(BRAILLE[letter], true),
+    answer: letter
+  };
+}
+
+function generateWordMC() {
+  const word = shuffle(WORDS)[0];
+  const wrongs = getWrongWords(word, 3);
+  const options = shuffle([word].concat(wrongs));
+  return {
+    qtype: 'mc',
+    prompt: 'Que palavra e esta?',
+    display: createBrailleWord(word),
+    options: options,
+    answer: word
+  };
+}
+
+function generateWordType() {
+  const word = shuffle(WORDS)[0];
+  return {
+    qtype: 'type',
+    prompt: 'Que palavra e esta? Digite a palavra completa.',
+    display: createBrailleWord(word),
+    answer: word
+  };
+}
+
+function generateReverse() {
+  const letter = shuffle(LETTERS)[0];
+  const wrongLetters = getWrongLetters(letter, 3);
+  const patterns = shuffle(
+    [{ label: letter, pattern: BRAILLE[letter], correct: true }]
+    .concat(wrongLetters.map(l => ({ label: l, pattern: BRAILLE[l], correct: false })))
+  );
+  return {
+    qtype: 'reverse',
+    prompt: 'Qual padrao Braille representa a letra <strong>' + letter + '</strong>?',
+    display: null,
+    options: patterns,
+    answer: letter
+  };
+}
+
+function generateMixed() {
+  const gens = [generateLetterMC, generateLetterType, generateWordMC, generateWordType, generateReverse];
+  return shuffle(gens)[0]();
+}
+
+function generateQuestions(mode, count) {
+  // Modos de letras: garante todas as 26 letras
+  if (mode === 'letters-mc') {
+    const qs = LETTERS.map(letter => ({
+      qtype: 'mc',
+      prompt: 'Que letra e esta?',
+      display: createBrailleCell(BRAILLE[letter], true),
+      options: shuffle([letter].concat(getWrongLetters(letter, 3))),
+      answer: letter
+    }));
+    return shuffle(qs);
+  }
+  if (mode === 'letters-type') {
+    const qs = LETTERS.map(letter => ({
+      qtype: 'type',
+      prompt: 'Que letra e esta? Digite uma unica letra.',
+      display: createBrailleCell(BRAILLE[letter], true),
+      answer: letter
+    }));
+    return shuffle(qs);
+  }
+  // Modos de palavras: sem repeticao
+  if (mode === 'words-mc') {
+    const selected = shuffle(WORDS).slice(0, Math.min(count, WORDS.length));
+    const qs = selected.map(word => ({
+      qtype: 'mc',
+      prompt: 'Que palavra e esta?',
+      display: createBrailleWord(word),
+      options: shuffle([word].concat(getWrongWords(word, 3))),
+      answer: word
+    }));
+    return shuffle(qs);
+  }
+  if (mode === 'words-type') {
+    const selected = shuffle(WORDS).slice(0, Math.min(count, WORDS.length));
+    const qs = selected.map(word => ({
+      qtype: 'type',
+      prompt: 'Que palavra e esta? Digite a palavra completa.',
+      display: createBrailleWord(word),
+      answer: word
+    }));
+    return shuffle(qs);
+  }
+  // Reverse: sem repeticao
+  if (mode === 'reverse') {
+    const selected = shuffle(LETTERS).slice(0, Math.min(count, LETTERS.length));
+    const qs = selected.map(letter => {
+      const wrongLetters = getWrongLetters(letter, 3);
+      const patterns = shuffle(
+        [{ label: letter, pattern: BRAILLE[letter], correct: true }]
+        .concat(wrongLetters.map(l => ({ label: l, pattern: BRAILLE[l], correct: false })))
+      );
+      return {
+        qtype: 'reverse',
+        prompt: 'Qual padrao Braille representa a letra <strong>' + letter + '</strong>?',
+        display: null,
+        options: patterns,
+        answer: letter
+      };
+    });
+    return shuffle(qs);
+  }
+  // Misto: sem repeticao
+  if (mode === 'mixed') {
+    const gens = [generateLetterMC, generateLetterType, generateWordMC, generateWordType, generateReverse];
+    const qs = [];
+    const used = new Set();
+    for (let i = 0; i < count; i++) {
+      let q;
+      let tries = 0;
+      do {
+        q = shuffle(gens)[0]();
+        tries++;
+      } while (used.has(q.answer) && tries < 50);
+      used.add(q.answer);
+      qs.push(q);
+    }
+    return qs;
+  }
+}
+
+// ===================== QUIZ FLOW =====================
+function startQuiz(mode) {
+  currentMode = mode;
+  lastMode = mode;
+  questions = generateQuestions(mode, 50);
+  currentQ = 0;
+  correct = 0;
+  wrong = 0;
+  streak = 0;
+
+  const titles = {
+    'letters-mc': 'Letras - Multipla Escolha',
+    'letters-type': 'Letras - Digitar',
+    'words-mc': 'Palavras - Multipla Escolha',
+    'words-type': 'Palavras - Digitar',
+    'reverse': 'Reverso',
+    'mixed': 'Desafio Misto'
+  };
+  document.getElementById('quizTitle').textContent = titles[mode] || 'Quiz';
+  showScreen('quizScreen');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  document.getElementById('questionCount').textContent = (currentQ + 1) + '/' + questions.length;
+  document.getElementById('progressFill').style.width = ((currentQ / questions.length) * 100) + '%';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('nextBtn').classList.remove('show');
+  updateStreak();
+
+  let html = '<div class="question-text">' + q.prompt + '</div>';
+
+  if (q.display) html += q.display;
+
+  if (q.qtype === 'mc') {
+    html += '<div class="options-grid">';
+    for (let i = 0; i < q.options.length; i++) {
+      html += '<button class="option-btn" data-index="' + i + '">' + q.options[i] + '</button>';
+    }
+    html += '</div>';
+  } else if (q.qtype === 'reverse') {
+    html += '<div class="braille-word">';
+    for (let i = 0; i < q.options.length; i++) {
+      html += '<button class="option-btn" style="padding:12px" data-index="' + i + '">';
+      html += createBrailleCell(q.options[i].pattern, false);
+      html += '</button>';
+    }
+    html += '</div>';
+  } else if (q.qtype === 'type') {
+    html += '<div class="type-answer-area">';
+    html += '<input class="type-input" id="typeInput" type="text" maxlength="15" autocomplete="off" placeholder="Digite sua resposta...">';
+    html += '<button class="submit-btn" id="submitTypeBtn">Enviar</button>';
+    html += '</div>';
+  }
+
+  document.getElementById('questionArea').innerHTML = html;
+
+  // Bind events after DOM update
+  if (q.qtype === 'mc') {
+    var btns = document.querySelectorAll('.option-btn');
+    for (var b = 0; b < btns.length; b++) {
+      btns[b].addEventListener('click', handleMCClick);
+    }
+  } else if (q.qtype === 'reverse') {
+    var btns = document.querySelectorAll('.option-btn');
+    for (var b = 0; b < btns.length; b++) {
+      btns[b].addEventListener('click', handleReverseClick);
+    }
+  } else if (q.qtype === 'type') {
+    document.getElementById('submitTypeBtn').addEventListener('click', handleTypeSubmit);
+    var inp = document.getElementById('typeInput');
+    inp.focus();
+    inp.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleTypeSubmit();
+    });
+  }
+}
+
+function handleMCClick(e) {
+  var btn = e.currentTarget;
+  var idx = parseInt(btn.getAttribute('data-index'));
+  var q = questions[currentQ];
+  var allBtns = document.querySelectorAll('.option-btn');
+  for (var i = 0; i < allBtns.length; i++) allBtns[i].disabled = true;
+
+  if (q.options[idx] === q.answer) {
+    btn.classList.add('correct');
+    handleCorrect();
+  } else {
+    btn.classList.add('wrong');
+    for (var i = 0; i < allBtns.length; i++) {
+      if (q.options[parseInt(allBtns[i].getAttribute('data-index'))] === q.answer) {
+        allBtns[i].classList.add('correct');
+      }
+    }
+    handleWrong(q.answer);
+  }
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+function handleReverseClick(e) {
+  var btn = e.currentTarget;
+  var idx = parseInt(btn.getAttribute('data-index'));
+  var q = questions[currentQ];
+  var allBtns = document.querySelectorAll('.option-btn');
+  for (var i = 0; i < allBtns.length; i++) allBtns[i].disabled = true;
+
+  if (q.options[idx].correct) {
+    btn.style.borderColor = 'var(--correct)';
+    btn.style.background = 'rgba(0,184,148,0.15)';
+    handleCorrect();
+  } else {
+    btn.style.borderColor = 'var(--wrong)';
+    btn.style.background = 'rgba(214,48,49,0.15)';
+    for (var i = 0; i < allBtns.length; i++) {
+      if (q.options[parseInt(allBtns[i].getAttribute('data-index'))].correct) {
+        allBtns[i].style.borderColor = 'var(--correct)';
+        allBtns[i].style.background = 'rgba(0,184,148,0.15)';
+      }
+    }
+    handleWrong(q.answer);
+  }
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+function handleTypeSubmit() {
+  var q = questions[currentQ];
+  var inp = document.getElementById('typeInput');
+  var answer = inp.value.trim().toUpperCase();
+  if (!answer) return;
+  inp.disabled = true;
+  document.getElementById('submitTypeBtn').disabled = true;
+
+  if (answer === q.answer) {
+    inp.style.borderColor = 'var(--correct)';
+    handleCorrect();
+  } else {
+    inp.style.borderColor = 'var(--wrong)';
+    handleWrong(q.answer);
+  }
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+function handleCorrect() {
+  correct++;
+  totalCorrectAll++;
+  streak++;
+  if (streak > bestStreak) bestStreak = streak;
+  document.getElementById('feedback').textContent = 'Correto!';
+  document.getElementById('feedback').className = 'feedback correct';
+  updateStats();
+  updateStreak();
+}
+
+function handleWrong(correctAnswer) {
+  wrong++;
+  streak = 0;
+  document.getElementById('feedback').innerHTML = 'Errado! Resposta: <strong>' + correctAnswer + '</strong>';
+  document.getElementById('feedback').className = 'feedback wrong';
+  updateStats();
+  updateStreak();
+}
+
+function updateStreak() {
+  var badge = document.getElementById('streakBadge');
+  var count = document.getElementById('streakCount');
+  if (streak >= 2) {
+    badge.style.display = 'inline-flex';
+    count.textContent = streak;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= questions.length) showResults();
+  else renderQuestion();
+}
+
+function showResults() {
+  totalPlayedAll += questions.length;
+  var pct = Math.round((correct / questions.length) * 100);
+  document.getElementById('finalScore').textContent = pct + '%';
+  document.getElementById('resCorrect').textContent = correct;
+  document.getElementById('resWrong').textContent = wrong;
+  document.getElementById('resStreak').textContent = bestStreak;
+  document.getElementById('progressFill').style.width = '100%';
+  showScreen('resultScreen');
+}
+
+function updateStats() {
+  document.getElementById('totalCorrect').textContent = totalCorrectAll;
+  var total = totalPlayedAll + currentQ + 1;
+  document.getElementById('totalPlayed').textContent = total;
+  document.getElementById('accuracy').textContent = total > 0 ? Math.round((totalCorrectAll / total) * 100) + '%' : '0%';
+  document.getElementById('bestStreak').textContent = bestStreak;
+}
+
+function exitQuiz() {
+  totalPlayedAll += currentQ + 1;
+  updateStats();
+  showMenu();
+}
+</script>
+</body>
+</html>
