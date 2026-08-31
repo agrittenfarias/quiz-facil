@@ -15,47 +15,48 @@
     --text: #f0f0f0; --text-dim: #8888aa;
     --dot-on: #f0f0f0; --dot-off: #333355; --border: #2d2d50;
   }
-  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-  .container { max-width: 900px; margin: 0 auto; padding: 20px; }
-  header { text-align: center; padding: 30px 0 20px; }
-  header h1 { font-size: 2.2em; font-weight: 800; background: linear-gradient(135deg, var(--primary-light), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
-  header p { color: var(--text-dim); font-size: 0.95em; }
-  .stats-bar { display: flex; justify-content: center; gap: 30px; margin: 20px 0; flex-wrap: wrap; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; height: 100vh; overflow: hidden; }
+  .container { max-width: 900px; margin: 0 auto; padding: 12px 20px; height: 100vh; display: flex; flex-direction: column; }
+  header { text-align: center; padding: 16px 0 8px; flex-shrink: 0; }
+  header h1 { font-size: 1.8em; font-weight: 800; background: linear-gradient(135deg, var(--primary-light), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
+  header p { color: var(--text-dim); font-size: 0.85em; }
+  .stats-bar { display: flex; justify-content: center; gap: 24px; margin: 8px 0; flex-wrap: wrap; flex-shrink: 0; }
   .stat { text-align: center; }
-  .stat-value { font-size: 1.6em; font-weight: 700; color: var(--accent); }
-  .stat-label { font-size: 0.75em; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
-  .menu-screen, .quiz-screen, .result-screen { display: none; }
-  .active { display: block; }
-  .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 24px; }
-  .menu-card { background: var(--card); border: 2px solid var(--border); border-radius: 16px; padding: 28px 24px; cursor: pointer; transition: all 0.3s; text-align: center; }
-  .menu-card:hover { background: var(--card-hover); border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(108,92,231,0.2); }
-  .menu-card .icon { font-size: 2.8em; margin-bottom: 12px; }
-  .menu-card h3 { font-size: 1.15em; margin-bottom: 6px; font-weight: 700; }
-  .menu-card p { font-size: 0.82em; color: var(--text-dim); line-height: 1.5; }
-  .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-  .quiz-title { font-size: 1.1em; font-weight: 600; }
-  .progress-bar { width: 100%; height: 6px; background: var(--border); border-radius: 3px; margin-bottom: 24px; overflow: hidden; }
+  .stat-value { font-size: 1.3em; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 0.7em; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+  .menu-screen, .quiz-screen, .result-screen { display: none; flex-direction: column; flex: 1; min-height: 0; }
+  .active { display: flex; }
+  .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 12px; flex: 1; overflow-y: auto; }
+  .menu-card { background: var(--card); border: 2px solid var(--border); border-radius: 14px; padding: 18px 16px; cursor: pointer; transition: all 0.3s; text-align: center; }
+  .menu-card:hover { background: var(--card-hover); border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(108,92,231,0.2); }
+  .menu-card .icon { font-size: 2.2em; margin-bottom: 8px; }
+  .menu-card h3 { font-size: 1em; margin-bottom: 4px; font-weight: 700; }
+  .menu-card p { font-size: 0.75em; color: var(--text-dim); line-height: 1.4; }
+  .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px; flex-shrink: 0; }
+  .quiz-title { font-size: 1em; font-weight: 600; }
+  .progress-bar { width: 100%; height: 5px; background: var(--border); border-radius: 3px; margin-bottom: 10px; overflow: hidden; flex-shrink: 0; }
   .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 3px; transition: width 0.4s ease; }
-  .question-area { text-align: center; margin: 20px 0; }
-  .question-text { font-size: 1.15em; margin-bottom: 24px; color: var(--text-dim); }
+  .question-area { text-align: center; margin: 10px 0; flex: 1; display: flex; flex-direction: column; overflow-y: auto; min-height: 0; }
+  .question-center { margin: auto 0; width: 100%; }
+  .question-text { font-size: 1.05em; margin-bottom: 12px; color: var(--text-dim); flex-shrink: 0; }
   .question-text strong { color: var(--text); }
 
   .braille-cell {
     display: inline-grid;
-    grid-template-columns: 44px 44px;
-    grid-template-rows: 44px 44px 44px;
-    gap: 10px;
+    grid-template-columns: 40px 40px;
+    grid-template-rows: 40px 40px 40px;
+    gap: 8px;
     background: var(--card);
     border: 2px solid var(--border);
-    border-radius: 14px;
-    padding: 18px;
-    margin: 10px auto;
+    border-radius: 12px;
+    padding: 14px;
+    margin: 6px auto;
   }
   .braille-cell.large {
-    grid-template-columns: 54px 54px;
-    grid-template-rows: 54px 54px 54px;
-    gap: 12px;
-    padding: 22px;
+    grid-template-columns: 48px 48px;
+    grid-template-rows: 48px 48px 48px;
+    gap: 10px;
+    padding: 18px;
   }
   .braille-dot {
     width: 100%; height: 100%; border-radius: 50%;
@@ -68,10 +69,10 @@
   .braille-word { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 20px 0; }
   .braille-word .braille-cell { margin: 0; }
 
-  .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 24px; }
+  .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-top: 12px; }
   .option-btn {
-    background: var(--card); border: 2px solid var(--border); border-radius: 12px;
-    padding: 16px 12px; color: var(--text); font-size: 1.2em; font-weight: 600;
+    background: var(--card); border: 2px solid var(--border); border-radius: 10px;
+    padding: 12px 10px; color: var(--text); font-size: 1.1em; font-weight: 600;
     cursor: pointer; transition: all 0.25s; font-family: 'Inter', sans-serif;
   }
   .option-btn:hover { border-color: var(--primary); background: var(--card-hover); }
@@ -79,43 +80,49 @@
   .option-btn.wrong { border-color: var(--wrong); background: rgba(214,48,49,0.15); color: var(--wrong); }
   .option-btn:disabled { cursor: default; opacity: 0.7; }
 
-  .type-answer-area { margin-top: 24px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .type-answer-area { margin-top: 12px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
   .type-input {
-    background: var(--card); border: 2px solid var(--border); border-radius: 12px;
-    padding: 14px 20px; color: var(--text); font-size: 1.2em;
-    font-family: 'Inter', sans-serif; width: 260px; outline: none; transition: border-color 0.3s;
+    background: var(--card); border: 2px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; color: var(--text); font-size: 1.1em;
+    font-family: 'Inter', sans-serif; width: 220px; outline: none; transition: border-color 0.3s;
   }
   .type-input:focus { border-color: var(--primary); }
   .submit-btn {
-    background: var(--primary); color: white; border: none; border-radius: 12px;
-    padding: 14px 28px; font-size: 1em; font-weight: 600; cursor: pointer;
+    background: var(--primary); color: white; border: none; border-radius: 10px;
+    padding: 12px 24px; font-size: 0.95em; font-weight: 600; cursor: pointer;
     font-family: 'Inter', sans-serif; transition: all 0.3s;
   }
   .submit-btn:hover { background: var(--primary-light); }
-  .feedback { margin-top: 20px; font-size: 1.05em; font-weight: 600; min-height: 30px; transition: all 0.3s; }
+  .feedback { margin-top: 10px; font-size: 1em; font-weight: 600; min-height: 24px; transition: all 0.3s; flex-shrink: 0; }
   .feedback.correct { color: var(--correct); }
   .feedback.wrong { color: var(--wrong); }
   .next-btn {
-    margin-top: 20px; background: var(--primary); color: white; border: none;
-    border-radius: 12px; padding: 14px 36px; font-size: 1em; font-weight: 600;
-    cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s; display: none;
+    margin-top: 10px; background: var(--primary); color: white; border: none;
+    border-radius: 10px; padding: 12px 30px; font-size: 0.95em; font-weight: 600;
+    cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s; display: none; flex-shrink: 0;
   }
   .next-btn.show { display: inline-block; }
   .next-btn:hover { background: var(--primary-light); }
+  .skip-btn {
+    background: none; border: 2px solid var(--border); color: var(--text-dim);
+    border-radius: 10px; padding: 10px 22px; font-size: 0.85em; font-weight: 500;
+    cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s; margin-top: 10px; flex-shrink: 0;
+  }
+  .skip-btn:hover { border-color: var(--accent2); color: var(--accent2); }
   .back-btn {
     background: none; border: 2px solid var(--border); color: var(--text-dim);
     border-radius: 10px; padding: 8px 18px; font-size: 0.85em; cursor: pointer;
     font-family: 'Inter', sans-serif; transition: all 0.3s;
   }
   .back-btn:hover { border-color: var(--primary); color: var(--text); }
-  .result-card { background: var(--card); border-radius: 20px; padding: 40px; text-align: center; border: 2px solid var(--border); margin-top: 24px; }
-  .result-card .big-score { font-size: 3.5em; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .result-card .result-label { font-size: 1.1em; color: var(--text-dim); margin-top: 4px; }
-  .result-details { display: flex; justify-content: center; gap: 40px; margin-top: 24px; flex-wrap: wrap; }
+  .result-card { background: var(--card); border-radius: 16px; padding: 24px; text-align: center; border: 2px solid var(--border); margin-top: 16px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .result-card .big-score { font-size: 2.8em; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .result-card .result-label { font-size: 1em; color: var(--text-dim); margin-top: 2px; }
+  .result-details { display: flex; justify-content: center; gap: 30px; margin-top: 16px; flex-wrap: wrap; }
   .result-detail { text-align: center; }
-  .result-detail .rd-value { font-size: 1.5em; font-weight: 700; }
-  .result-detail .rd-label { font-size: 0.8em; color: var(--text-dim); }
-  .result-actions { display: flex; gap: 12px; justify-content: center; margin-top: 28px; flex-wrap: wrap; }
+  .result-detail .rd-value { font-size: 1.3em; font-weight: 700; }
+  .result-detail .rd-label { font-size: 0.75em; color: var(--text-dim); }
+  .result-actions { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
   .ref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 14px; margin-top: 20px; }
   .ref-card { background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 16px 10px; text-align: center; transition: all 0.3s; cursor: pointer; }
   .ref-card:hover { border-color: var(--primary); transform: translateY(-2px); }
@@ -126,10 +133,52 @@
   .ref-section-title { font-size: 1.1em; font-weight: 700; margin: 24px 0 8px; color: var(--primary-light); }
   .toggle-ref-btn {
     background: none; border: 2px solid var(--border); color: var(--accent);
-    border-radius: 10px; padding: 8px 18px; font-size: 0.85em; cursor: pointer;
-    font-family: 'Inter', sans-serif; transition: all 0.3s; margin-top: 20px;
+    border-radius: 10px; padding: 8px 16px; font-size: 0.8em; cursor: pointer;
+    font-family: 'Inter', sans-serif; transition: all 0.3s; margin-top: 10px; flex-shrink: 0;
   }
   .toggle-ref-btn:hover { border-color: var(--accent); background: rgba(0,206,201,0.1); }
+  .reveal-btn {
+    background: var(--accent); color: var(--bg); border: none; border-radius: 10px;
+    padding: 12px 28px; font-size: 1em; font-weight: 700; cursor: pointer;
+    font-family: 'Inter', sans-serif; transition: all 0.3s; margin-top: 12px;
+  }
+  .reveal-btn:hover { background: var(--accent2); transform: scale(1.03); }
+  .options-hidden { display: none; }
+  .practice-alphabet { display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 6px; margin: 8px 0; }
+  .practice-letter {
+    background: var(--card); border: 2px solid var(--border); border-radius: 8px;
+    padding: 5px 3px; cursor: pointer; transition: all 0.2s; display: flex;
+    flex-direction: column; align-items: center; gap: 2px;
+  }
+  .practice-letter:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .practice-letter .pl-char { font-size: 0.7em; font-weight: 700; color: var(--text-dim); }
+  .practice-area { margin: 8px 0; }
+  .practice-area-label { font-size: 0.8em; color: var(--text-dim); margin-bottom: 4px; }
+  .practice-slots { display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; min-height: 60px; align-items: center; }
+  .practice-slot {
+    width: 50px; height: 64px; border: 2px dashed var(--border); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    cursor: pointer; background: rgba(255,255,255,0.02);
+  }
+  .practice-slot.filled { border-style: solid; border-color: var(--primary); background: rgba(108,92,231,0.1); }
+  .practice-slot.correct-slot { border-color: var(--correct); background: rgba(0,184,148,0.15); }
+  .practice-slot.wrong-slot { border-color: var(--wrong); background: rgba(214,48,49,0.15); }
+  .practice-word-display { margin: 8px 0; text-align: center; }
+  .practice-word-label { font-size: 0.8em; color: var(--text-dim); margin-bottom: 4px; }
+  .practice-word-text { font-size: 1.3em; font-weight: 700; color: var(--accent); letter-spacing: 4px; min-height: 32px; }
+  .practice-actions { display: flex; gap: 8px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+  .practice-check-btn {
+    background: var(--primary); color: white; border: none; border-radius: 10px;
+    padding: 10px 24px; font-size: 0.9em; font-weight: 600; cursor: pointer;
+    font-family: 'Inter', sans-serif; transition: all 0.3s;
+  }
+  .practice-check-btn:hover { background: var(--primary-light); }
+  .practice-clear-btn {
+    background: none; border: 2px solid var(--border); color: var(--text-dim);
+    border-radius: 10px; padding: 10px 18px; font-size: 0.85em; font-weight: 500;
+    cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s;
+  }
+  .practice-clear-btn:hover { border-color: var(--wrong); color: var(--wrong); }
   .reference-section { display: none; margin-top: 16px; }
   .reference-section.show { display: block; }
   .streak-badge {
@@ -162,7 +211,7 @@
     <div class="stat"><div class="stat-value" id="bestStreak">0</div><div class="stat-label">Melhor Sequencia</div></div>
   </div>
 
-  <div class="menu-screen active" id="menuScreen">
+  <div class="menu-screen active" id="menuScreen" style="overflow-y:auto;">
     <div class="menu-grid">
       <div class="menu-card" onclick="startQuiz('letters-mc')">
         <div class="icon">A</div>
@@ -194,6 +243,11 @@
         <h3>Desafio Misto</h3>
         <p>Alternando entre letras e palavras, multipla escolha e digitacao</p>
       </div>
+      <div class="menu-card" onclick="startQuiz('practice')">
+        <div class="icon">&#9883;</div>
+        <h3>Pratica Livre</h3>
+        <p>Alfabeto completo disponivel, monte qualquer palavra que quiser</p>
+      </div>
     </div>
 
     <button class="toggle-ref-btn" onclick="toggleReference()">Tabela de Referencia Braille</button>
@@ -211,8 +265,11 @@
     </div>
     <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
     <div class="question-area" id="questionArea"></div>
-    <div class="feedback" id="feedback"></div>
-    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Proxima</button>
+    <div style="flex-shrink:0; text-align:center;">
+      <div class="feedback" id="feedback"></div>
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Proxima</button>
+      <button class="skip-btn" id="skipBtn" onclick="skipQuestion()">Pular</button>
+    </div>
   </div>
 
   <div class="result-screen" id="resultScreen">
@@ -275,29 +332,29 @@ const BRAILLE = {
 const WORDS = [
   'CASA','AMOR','LUZ','VIDA','MESA','PORTA','CAO','COR',
   'PAZ','SOL','MAR','TERRA','FLOR','AR','AMIGO',
+  'PE',
   'CARMO','DINA','ALICE','LUCAS','FELIPE','PEDRO','MARIA',
   'ANA','JOSE','PAULO','SARA','DAVI','BOM','DIA','NOITE',
   'HOJE','ONTEM','TRABALHO','ESCOLA','CARTA',
   'LIVRO','PAGINA','BRAILE','DEDOS','TOCAR','LER',
   'ESCREVER','SOM','CORRER','CAMINHAR','BEBER','COMER',
-  'DORMIR','ACORDAR','FALAR','OUVIR','SENTIR','VER',
+  'DORMIR','ACORDAR','FALAR','OUVIR',
   'FORMA','TIPO','TEXTO','LINHA','PONTO','CHAVE',
-  'FECHAR','ABRIR','OLHO','NARIZ','BOCA','PE','MAO',
-  'ALUNO','PROF','NOTA','PROVA','TEXTO','APRENDER',
-  'ENSINO','CLASSE','Quadro','LAPIS','PAPEL','BORRACHA',
-  'TESOURA','COLA','FITA','MOCHILA','Lanche','Bebida',
+  'FECHAR','ABRIR','OLHO','NARIZ','BOCA','MAO',
+  'ALUNO','NOTA','PROVA','APRENDER',
+  'ENSINO','CLASSE','QUADRO','LAPIS','PAPEL','BORRACHA',
+  'TESOURA','COLA','FITA','MOCHILA','LANCHE',
   'COMIDA','FRUTA','ARROZ','FEIJAO','CARNE','LEITE',
   'AGUA','SUCO','CAFE','CHA','SAL','ACUCAR',
   'FERRO','UVA','LARANJA','MACA','BANANA','TOMATE',
-  'CENOURA','ALHO','CEBOLA','BATATA','TOMATE',
-  'PRATO','COLHER','GARFO','FACAO','Copo','CANECO',
+  'CENOURA','ALHO','CEBOLA','BATATA',
+  'PRATO','COLHER','GARFO','CANECO',
   'FOGAO','PANELA','FOGO','GELADEIRA','PIA',
-  'CAMA','TRAVESSEIRO','LENCOL','COBERTOR','Manta',
-  'PORTA','JANELA','PAREDE','CHAO','TETO','TELHADO',
+  'CAMA','TRAVESSEIRO','LENCOL','COBERTOR',
+  'JANELA','PAREDE','CHAO','TETO','TELHADO',
   'RUA','CIDADE','PAIS','MUNDO','ESTRELA','LUA',
-  'SENTIR','VER','TOCAR','CHEIRAR','PROVAR',
-  'OUVIR','FALAR','ANDAR','CORRER','SALTAR',
-  'NADAR','DORMIR','ACORDAR','SONHACORRER'
+  'SENTIR','TOCAR','CHEIRAR','PROVAR',
+  'ANDAR','SALTAR','NADAR','SONHAR'
 ];
 
 const LETTERS = Object.keys(BRAILLE);
@@ -306,6 +363,7 @@ let currentMode = '', lastMode = '';
 let questions = [], currentQ = 0;
 let correct = 0, wrong = 0, streak = 0, bestStreak = 0;
 let totalCorrectAll = 0, totalPlayedAll = 0;
+let practiceWord = [];
 
 // ===================== UI =====================
 function showScreen(id) {
@@ -370,7 +428,7 @@ function createBrailleCell(pattern, large) {
 
 function createBrailleWord(word) {
   let html = '<div class="braille-word">';
-  word.split('').forEach(ch => {
+  word.toUpperCase().split('').forEach(ch => {
     const pat = BRAILLE[ch];
     if (pat) html += createBrailleCell(pat, false);
   });
@@ -440,6 +498,15 @@ function generateWordType() {
     prompt: 'Que palavra e esta? Digite a palavra completa.',
     display: createBrailleWord(word),
     answer: word
+  };
+}
+
+function generateBuildWord() {
+  return {
+    qtype: 'practice',
+    prompt: 'Monte palavras usando o alfabeto Braille completo:',
+    display: null,
+    answer: null
   };
 }
 
@@ -543,6 +610,19 @@ function generateQuestions(mode, count) {
     }
     return qs;
   }
+  // Montar Palavra / Pratica Livre
+  if (mode === 'build' || mode === 'practice') {
+    const qs = [];
+    for (let i = 0; i < count; i++) {
+      qs.push({
+        qtype: 'practice',
+        prompt: 'Monte palavras usando o alfabeto Braille completo:',
+        display: null,
+        answer: null
+      });
+    }
+    return qs;
+  }
 }
 
 // ===================== QUIZ FLOW =====================
@@ -561,7 +641,9 @@ function startQuiz(mode) {
     'words-mc': 'Palavras - Multipla Escolha',
     'words-type': 'Palavras - Digitar',
     'reverse': 'Reverso',
-    'mixed': 'Desafio Misto'
+    'mixed': 'Desafio Misto',
+    'build': 'Pratica Livre',
+    'practice': 'Pratica Livre'
   };
   document.getElementById('quizTitle').textContent = titles[mode] || 'Quiz';
   showScreen('quizScreen');
@@ -575,37 +657,68 @@ function renderQuestion() {
   document.getElementById('feedback').textContent = '';
   document.getElementById('feedback').className = 'feedback';
   document.getElementById('nextBtn').classList.remove('show');
+  document.getElementById('skipBtn').style.display = 'inline-block';
+  practiceWord = [];
   updateStreak();
 
-  let html = '<div class="question-text">' + q.prompt + '</div>';
+  let html = '<div class="question-center">';
+  html += '<div class="question-text">' + q.prompt + '</div>';
 
   if (q.display) html += q.display;
 
   if (q.qtype === 'mc') {
+    html += '<button class="reveal-btn" id="revealBtn" onclick="revealOptions()">Mostrar Opcoes</button>';
+    html += '<div id="optionsArea" class="options-hidden">';
     html += '<div class="options-grid">';
     for (let i = 0; i < q.options.length; i++) {
       html += '<button class="option-btn" data-index="' + i + '">' + q.options[i] + '</button>';
     }
-    html += '</div>';
+    html += '</div></div>';
   } else if (q.qtype === 'reverse') {
+    html += '<button class="reveal-btn" id="revealBtn" onclick="revealOptions()">Mostrar Opcoes</button>';
+    html += '<div id="optionsArea" class="options-hidden">';
     html += '<div class="braille-word">';
     for (let i = 0; i < q.options.length; i++) {
       html += '<button class="option-btn" style="padding:12px" data-index="' + i + '">';
       html += createBrailleCell(q.options[i].pattern, false);
       html += '</button>';
     }
-    html += '</div>';
+    html += '</div></div>';
   } else if (q.qtype === 'type') {
     html += '<div class="type-answer-area">';
     html += '<input class="type-input" id="typeInput" type="text" maxlength="15" autocomplete="off" placeholder="Digite sua resposta...">';
     html += '<button class="submit-btn" id="submitTypeBtn">Enviar</button>';
     html += '</div>';
+  } else if (q.qtype === 'practice') {
+    html += '<div class="practice-area">';
+    html += '<div class="practice-area-label">Sua palavra (clique para montar):</div>';
+    html += '<div class="practice-slots" id="practiceSlots"></div>';
+    html += '</div>';
+    html += '<div class="practice-word-display">';
+    html += '<div class="practice-word-label">Palavra formada:</div>';
+    html += '<div class="practice-word-text" id="practiceWordText"></div>';
+    html += '</div>';
+    html += '<div class="practice-alphabet" id="practiceAlphabet">';
+    for (let i = 0; i < LETTERS.length; i++) {
+      html += '<button class="practice-letter" onclick="addPracticeLetter(\'' + LETTERS[i] + '\')">';
+      html += createBrailleCell(BRAILLE[LETTERS[i]], false);
+      html += '<span class="pl-char">' + LETTERS[i] + '</span>';
+      html += '</button>';
+    }
+    html += '</div>';
+    html += '<div class="practice-actions">';
+    html += '<button class="practice-clear-btn" onclick="clearPractice()">Limpar</button>';
+    html += '<button class="practice-check-btn" onclick="checkPractice()">Verificar</button>';
+    html += '</div>';
   }
+  html += '</div>';
 
   document.getElementById('questionArea').innerHTML = html;
 
   // Bind events after DOM update
-  if (q.qtype === 'mc') {
+  if (q.qtype === 'practice') {
+    updatePracticeSlots();
+  } else if (q.qtype === 'mc') {
     var btns = document.querySelectorAll('.option-btn');
     for (var b = 0; b < btns.length; b++) {
       btns[b].addEventListener('click', handleMCClick);
@@ -625,7 +738,77 @@ function renderQuestion() {
   }
 }
 
+function revealOptions() {
+  document.getElementById('optionsArea').classList.remove('options-hidden');
+  document.getElementById('revealBtn').style.display = 'none';
+}
+
+function updatePracticeSlots() {
+  const slotsEl = document.getElementById('practiceSlots');
+  let html = '';
+  for (let i = 0; i < practiceWord.length; i++) {
+    html += '<div class="practice-slot filled" onclick="removePracticeLetter(' + i + ')" title="Clique para remover">';
+    html += createBrailleCell(BRAILLE[practiceWord[i]], false);
+    html += '</div>';
+  }
+  html += '<div class="practice-slot"></div>';
+  slotsEl.innerHTML = html;
+  var txt = document.getElementById('practiceWordText');
+  if (txt) txt.textContent = practiceWord.join('');
+}
+
+function addPracticeLetter(letter) {
+  practiceWord.push(letter);
+  updatePracticeSlots();
+}
+
+function removePracticeLetter(index) {
+  practiceWord.splice(index, 1);
+  updatePracticeSlots();
+}
+
+function clearPractice() {
+  practiceWord = [];
+  updatePracticeSlots();
+}
+
+function checkPractice() {
+  if (practiceWord.length === 0) return;
+  var slots = document.querySelectorAll('.practice-slot.filled');
+  var fb = document.getElementById('feedback');
+  fb.textContent = 'Voce montou: ' + practiceWord.join('');
+  fb.className = 'feedback correct';
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+function skipQuestion() {
+  document.getElementById('skipBtn').style.display = 'none';
+  var q = questions[currentQ];
+  if (q.qtype === 'practice') {
+    document.getElementById('feedback').textContent = 'Pulou!';
+  } else {
+    document.getElementById('feedback').textContent = 'Pulou! Resposta: <strong>' + q.answer + '</strong>';
+  }
+  document.getElementById('feedback').className = 'feedback wrong';
+  if (q.qtype !== 'practice') {
+    wrong++;
+    streak = 0;
+  }
+  updateStats();
+  updateStreak();
+  document.getElementById('nextBtn').classList.add('show');
+  var allBtns = document.querySelectorAll('.option-btn');
+  for (var i = 0; i < allBtns.length; i++) allBtns[i].disabled = true;
+  var inp = document.getElementById('typeInput');
+  if (inp) inp.disabled = true;
+  var subBtn = document.getElementById('submitTypeBtn');
+  if (subBtn) subBtn.disabled = true;
+  var buildBtns = document.querySelectorAll('.build-letter-btn');
+  for (var i = 0; i < buildBtns.length; i++) buildBtns[i].style.pointerEvents = 'none';
+}
+
 function handleMCClick(e) {
+  document.getElementById('skipBtn').style.display = 'none';
   var btn = e.currentTarget;
   var idx = parseInt(btn.getAttribute('data-index'));
   var q = questions[currentQ];
@@ -648,6 +831,7 @@ function handleMCClick(e) {
 }
 
 function handleReverseClick(e) {
+  document.getElementById('skipBtn').style.display = 'none';
   var btn = e.currentTarget;
   var idx = parseInt(btn.getAttribute('data-index'));
   var q = questions[currentQ];
@@ -673,6 +857,7 @@ function handleReverseClick(e) {
 }
 
 function handleTypeSubmit() {
+  document.getElementById('skipBtn').style.display = 'none';
   var q = questions[currentQ];
   var inp = document.getElementById('typeInput');
   var answer = inp.value.trim().toUpperCase();
