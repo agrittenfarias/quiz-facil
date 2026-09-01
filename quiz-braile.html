@@ -201,7 +201,7 @@
 <div class="container">
   <header>
     <h1>Quiz Braile</h1>
-    <p>Domine o alfabeto Braille letra por letra</p>
+    <p>Domine o alfabeto, numeros, pontuacao e acentos em Braille</p>
   </header>
 
   <div class="stats-bar">
@@ -242,6 +242,26 @@
         <div class="icon">!</div>
         <h3>Desafio Misto</h3>
         <p>Alternando entre letras e palavras, multipla escolha e digitacao</p>
+      </div>
+      <div class="menu-card" onclick="startQuiz('punctuation-mc')">
+        <div class="icon">.,;:!</div>
+        <h3>Acentos e Pontuacao</h3>
+        <p>Identifique acentos, pontuacao e sinais especiais em Braille</p>
+      </div>
+      <div class="menu-card" onclick="startQuiz('punctuation-type')">
+        <div class="icon">?.</div>
+        <h3>Acentos e Pontuacao - Digitar</h3>
+        <p>Digite o sinal de pontuacao ou acento correspondente</p>
+      </div>
+      <div class="menu-card" onclick="startQuiz('numbers-mc')">
+        <div class="icon">123</div>
+        <h3>Numeros - Multipla Escolha</h3>
+        <p>Identifique os numeros de 0 a 9 em Braille</p>
+      </div>
+      <div class="menu-card" onclick="startQuiz('numbers-type')">
+        <div class="icon">9</div>
+        <h3>Numeros - Digitar</h3>
+        <p>Digite o numero correspondente ao Braille mostrado</p>
       </div>
       <div class="menu-card" onclick="startQuiz('practice')">
         <div class="icon">&#9883;</div>
@@ -329,6 +349,61 @@ const BRAILLE = {
   'Z': [1,0,1,0,1,1]   // 1,3,5,6
 };
 
+// ============================================================
+// PONTUACAO E SINAIS ESPECIAIS
+// ============================================================
+const PUNCTUATION = {
+  '.':  [0,1,0,0,0,0],  // 2  (ponto)
+  ',':  [0,1,0,0,0,1],  // 2,6  (virgula)
+  ';':  [0,1,1,0,0,0],  // 2,3
+  ':':  [0,1,0,0,1,0],  // 2,5
+  '?':  [0,1,1,0,1,0],  // 2,3,5
+  '!':  [0,1,1,0,0,1],  // 2,3,6
+  '(':  [0,1,1,1,1,0],  // 2,3,4,5
+  ')':  [0,1,1,1,0,1],  // 2,3,4,6
+  '"':  [0,1,0,0,1,1],  // 2,5,6
+  '-':  [0,0,1,0,1,1],  // 3,5,6
+  '/':  [0,0,1,1,0,1],  // 3,4,6
+  '@':  [0,1,1,0,1,1],  // 2,3,5,6
+  '#':  [0,0,1,1,1,1],  // 3,4,5,6
+  '*':  [0,0,1,1,0,1],  // 3,4,6
+  '=':  [0,1,1,1,0,1],  // 2,3,4,6
+};
+
+// Indicador de acento (lettras maiusculas: 6)
+const ACCENT_INDICATOR = [0,0,0,0,0,1]; // 6
+
+// Acentos comuns (prefixo + letra base)
+const ACCENTS = {
+  'a': { label: 'a com acento grave', base: 'A', accent: '`' },
+  'e': { label: 'e com acento agudo', base: 'E', accent: "'" },
+  'i': { label: 'i com acento agudo', base: 'I', accent: "'" },
+  'o': { label: 'o com acento agudo', base: 'O', accent: "'" },
+  'u': { label: 'u com acento agudo', base: 'U', accent: "'" },
+  'a_til': { label: 'a com til', base: 'A', accent: '~' },
+  'o_til': { label: 'o com til', base: 'O', accent: '~' },
+  'c_cedil': { label: 'c com cedilha', base: 'C', accent: ',' },
+};
+
+// ============================================================
+// NUMEROS EM BRAILLE (0-9)
+// Indicador numerico: [0,0,1,1,1,1] (3,4,5,6)
+// Numeros usam os padroes das letras A-J
+// ============================================================
+const NUMBER_INDICATOR = [0,0,1,1,1,1]; // 3,4,5,6
+const NUMBERS = {
+  '1': [1,0,0,0,0,0],  // = A
+  '2': [1,1,0,0,0,0],  // = B
+  '3': [1,0,0,1,0,0],  // = C
+  '4': [1,0,0,1,1,0],  // = D
+  '5': [1,0,0,0,1,0],  // = E
+  '6': [1,1,0,1,0,0],  // = F
+  '7': [1,1,0,1,1,0],  // = G
+  '8': [1,1,0,0,1,0],  // = H
+  '9': [0,1,0,1,0,0],  // = I
+  '0': [0,1,0,1,1,0],  // = J
+};
+
 const WORDS = [
   'CASA','AMOR','LUZ','VIDA','MESA','PORTA','CAO','COR',
   'PAZ','SOL','MAR','TERRA','FLOR','AR','AMIGO',
@@ -401,6 +476,53 @@ function buildReference() {
     html += '</div>';
   });
   html += '</div>';
+
+  // Numeros
+  html += '<div class="ref-section-title">Numeros</div>';
+  html += '<div style="text-align:center;margin-bottom:8px;color:var(--text-dim);font-size:0.85em">';
+  html += 'Indicador numerico: <strong style="color:var(--accent)">3,4,5,6</strong> + padrao da letra (1-0 = A-J)</div>';
+  html += '<div class="ref-grid">';
+  Object.keys(NUMBERS).forEach(num => {
+    const dots = NUMBERS[num];
+    const dotNums = [];
+    if (dots[0]) dotNums.push(1);
+    if (dots[1]) dotNums.push(2);
+    if (dots[2]) dotNums.push(3);
+    if (dots[3]) dotNums.push(4);
+    if (dots[4]) dotNums.push(5);
+    if (dots[5]) dotNums.push(6);
+    html += '<div class="ref-card">';
+    html += '<div class="letter">' + num + '</div>';
+    html += '<div class="mini-cell">';
+    dots.forEach(d => { html += '<div class="mini-dot' + (d ? ' on' : '') + '"></div>'; });
+    html += '</div>';
+    html += '<div style="font-size:0.7em;color:var(--text-dim);margin-top:6px">' + dotNums.join(',') + '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Pontuacao
+  html += '<div class="ref-section-title">Pontuacao e Sinais</div>';
+  html += '<div class="ref-grid">';
+  PUNCT_KEYS.forEach(punct => {
+    const dots = PUNCTUATION[punct];
+    const dotNums = [];
+    if (dots[0]) dotNums.push(1);
+    if (dots[1]) dotNums.push(2);
+    if (dots[2]) dotNums.push(3);
+    if (dots[3]) dotNums.push(4);
+    if (dots[4]) dotNums.push(5);
+    if (dots[5]) dotNums.push(6);
+    html += '<div class="ref-card">';
+    html += '<div class="letter" style="font-size:1.3em">' + (punct === ' ' ? 'espaco' : punct) + '</div>';
+    html += '<div class="mini-cell">';
+    dots.forEach(d => { html += '<div class="mini-dot' + (d ? ' on' : '') + '"></div>'; });
+    html += '</div>';
+    html += '<div style="font-size:0.7em;color:var(--text-dim);margin-top:6px">' + dotNums.join(',') + '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
   document.getElementById('refSection').innerHTML = html;
 }
 
@@ -527,8 +649,83 @@ function generateReverse() {
 }
 
 function generateMixed() {
-  const gens = [generateLetterMC, generateLetterType, generateWordMC, generateWordType, generateReverse];
+  const gens = [generateLetterMC, generateLetterType, generateWordMC, generateWordType, generateReverse, generatePunctuationMC, generateNumbersMC];
   return shuffle(gens)[0]();
+}
+
+// ===================== PUNCTUATION HELPERS =====================
+const PUNCT_KEYS = Object.keys(PUNCTUATION);
+
+function getWrongPunct(correct, count) {
+  return shuffle(PUNCT_KEYS.filter(p => p !== correct)).slice(0, count);
+}
+
+function createPunctCell(pattern, large) {
+  const gridOrder = [pattern[0], pattern[3], pattern[1], pattern[4], pattern[2], pattern[5]];
+  const cls = 'braille-cell' + (large ? ' large' : '');
+  let html = '<div class="' + cls + '">';
+  gridOrder.forEach(d => {
+    html += '<div class="braille-dot' + (d ? ' on' : '') + '"></div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function createAccentDisplay(key) {
+  const acc = ACCENTS[key];
+  const letterPat = BRAILLE[acc.base];
+  const combined = letterPat.map((v, i) => v || ACCENT_INDICATOR[i]);
+  return createPunctCell(combined, true);
+}
+
+function generatePunctuationMC() {
+  const punct = shuffle(PUNCT_KEYS)[0];
+  const wrongs = getWrongPunct(punct, 3);
+  const options = shuffle([punct].concat(wrongs));
+  return {
+    qtype: 'mc',
+    prompt: 'Que sinal de pontuacao e este?',
+    display: createPunctCell(PUNCTUATION[punct], true),
+    options: options,
+    answer: punct
+  };
+}
+
+function generatePunctuationType() {
+  const punct = shuffle(PUNCT_KEYS)[0];
+  return {
+    qtype: 'type',
+    prompt: 'Que sinal de pontuacao e este? Digite o caractere.',
+    display: createPunctCell(PUNCTUATION[punct], true),
+    answer: punct
+  };
+}
+
+function generateNumbersMC() {
+  const num = String(Math.floor(Math.random() * 10));
+  const wrongNums = [];
+  while (wrongNums.length < 3) {
+    const w = String(Math.floor(Math.random() * 10));
+    if (w !== num && !wrongNums.includes(w)) wrongNums.push(w);
+  }
+  const options = shuffle([num].concat(wrongNums));
+  return {
+    qtype: 'mc',
+    prompt: 'Que numero e este? (Lembre-se do indicador numerico)',
+    display: createPunctCell(NUMBER_INDICATOR, true) + ' ' + createPunctCell(NUMBERS[num], true),
+    options: options,
+    answer: num
+  };
+}
+
+function generateNumbersType() {
+  const num = String(Math.floor(Math.random() * 10));
+  return {
+    qtype: 'type',
+    prompt: 'Que numero e este? Digite um unico algarismo.',
+    display: createPunctCell(NUMBER_INDICATOR, true) + ' ' + createPunctCell(NUMBERS[num], true),
+    answer: num
+  };
 }
 
 function generateQuestions(mode, count) {
@@ -595,7 +792,7 @@ function generateQuestions(mode, count) {
   }
   // Misto: sem repeticao
   if (mode === 'mixed') {
-    const gens = [generateLetterMC, generateLetterType, generateWordMC, generateWordType, generateReverse];
+    const gens = [generateLetterMC, generateLetterType, generateWordMC, generateWordType, generateReverse, generatePunctuationMC, generatePunctuationType, generateNumbersMC, generateNumbersType];
     const qs = [];
     const used = new Set();
     for (let i = 0; i < count; i++) {
@@ -623,6 +820,53 @@ function generateQuestions(mode, count) {
     }
     return qs;
   }
+  // Pontuacao - Multipla Escolha
+  if (mode === 'punctuation-mc') {
+    const qs = PUNCT_KEYS.map(punct => ({
+      qtype: 'mc',
+      prompt: 'Que sinal de pontuacao e este?',
+      display: createPunctCell(PUNCTUATION[punct], true),
+      options: shuffle([punct].concat(getWrongPunct(punct, 3))),
+      answer: punct
+    }));
+    return shuffle(qs);
+  }
+  // Pontuacao - Digitar
+  if (mode === 'punctuation-type') {
+    const qs = PUNCT_KEYS.map(punct => ({
+      qtype: 'type',
+      prompt: 'Que sinal de pontuacao e este? Digite o caractere.',
+      display: createPunctCell(PUNCTUATION[punct], true),
+      answer: punct
+    }));
+    return shuffle(qs);
+  }
+  // Numeros - Multipla Escolha
+  if (mode === 'numbers-mc') {
+    const numKeys = Object.keys(NUMBERS);
+    const qs = numKeys.map(num => {
+      const wrongNums = numKeys.filter(n => n !== num);
+      const selected = shuffle(wrongNums).slice(0, 3);
+      return {
+        qtype: 'mc',
+        prompt: 'Que numero e este? (Lembre-se do indicador numerico)',
+        display: createPunctCell(NUMBER_INDICATOR, true) + ' ' + createPunctCell(NUMBERS[num], true),
+        options: shuffle([num].concat(selected)),
+        answer: num
+      };
+    });
+    return shuffle(qs);
+  }
+  // Numeros - Digitar
+  if (mode === 'numbers-type') {
+    const qs = Object.keys(NUMBERS).map(num => ({
+      qtype: 'type',
+      prompt: 'Que numero e este? Digite um unico algarismo.',
+      display: createPunctCell(NUMBER_INDICATOR, true) + ' ' + createPunctCell(NUMBERS[num], true),
+      answer: num
+    }));
+    return shuffle(qs);
+  }
 }
 
 // ===================== QUIZ FLOW =====================
@@ -643,7 +887,11 @@ function startQuiz(mode) {
     'reverse': 'Reverso',
     'mixed': 'Desafio Misto',
     'build': 'Pratica Livre',
-    'practice': 'Pratica Livre'
+    'practice': 'Pratica Livre',
+    'punctuation-mc': 'Acentos e Pontuacao - Multipla Escolha',
+    'punctuation-type': 'Acentos e Pontuacao - Digitar',
+    'numbers-mc': 'Numeros - Multipla Escolha',
+    'numbers-type': 'Numeros - Digitar'
   };
   document.getElementById('quizTitle').textContent = titles[mode] || 'Quiz';
   showScreen('quizScreen');
